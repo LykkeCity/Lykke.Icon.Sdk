@@ -24,7 +24,7 @@ namespace Lykke.Icon.Sdk.Data
         public Bytes(String hexString)
         {
             if (!IsValidHex(hexString))
-                throw new IllegalArgumentException("The value is not hex string.");
+                throw new ArgumentException("The value is not hex string.");
             this.data = Hex.Decode(CleanHexPrefix(hexString));
         }
 
@@ -66,12 +66,12 @@ namespace Lykke.Icon.Sdk.Data
             int srcOffset;
             if (bytes[0] == 0)
             {
-                bytesLength = bytes.length - 1;
+                bytesLength = bytes.Length - 1;
                 srcOffset = 1;
             }
             else
             {
-                bytesLength = bytes.length;
+                bytesLength = bytes.Length;
                 srcOffset = 0;
             }
 
@@ -89,7 +89,7 @@ namespace Lykke.Icon.Sdk.Data
         {
             if (ContainsHexPrefix(input))
             {
-                return input.substring(2);
+                return input.Substring(2);
             }
             else
             {
@@ -110,7 +110,7 @@ namespace Lykke.Icon.Sdk.Data
 
         public static bool ContainsHexPrefix(String input)
         {
-            return input.length() > 1 && input.charAt(0) == '0' && input.charAt(1) == 'x';
+            return input.length() > 1 && input.CharAt(0) == '0' && input.CharAt(1) == 'x';
         }
 
         /**
@@ -126,7 +126,7 @@ namespace Lykke.Icon.Sdk.Data
 
         public String ToString()
         {
-            return ToHexString(true, data.length);
+            return ToHexString(true, data.Length);
         }
 
         public bool Equals(Object obj)
@@ -149,7 +149,7 @@ namespace Lykke.Icon.Sdk.Data
         public String ToHexString(boolean withPrefix, int size)
         {
             String result = Hex.ToHexString(data);
-            int length = result.length();
+            int length = result.Length;
             if (length < size)
             {
                 StringBuilder sb = new StringBuilder();

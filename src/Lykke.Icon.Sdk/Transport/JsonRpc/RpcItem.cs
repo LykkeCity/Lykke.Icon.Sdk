@@ -6,10 +6,8 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
-
     public abstract class RpcItem
     {
-
         public abstract bool IsEmpty();
 
         public virtual RpcObject ToObject()
@@ -37,22 +35,22 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 
         public virtual BigInteger ToInteger()
         {
-            return asValue().asInteger();
+            return asValue().ToInteger();
         }
 
         byte[] ToByteArray()
         {
-            return asValue().asByteArray();
+            return asValue().ToByteArray();
         }
 
         Boolean ToBoolean()
         {
-            return asValue().asBoolean();
+            return asValue().ToBoolean();
         }
 
         Address ToAddress()
         {
-            return asValue().asAddress();
+            return asValue().ToAddress();
         }
 
         Bytes ToBytes()

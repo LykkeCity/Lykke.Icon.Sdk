@@ -8,6 +8,9 @@
   <ItemGroup>
     <Compile Remove="Call.cs" />
     <Compile Remove="Callback.cs" />
+    <Compile Remove="Crypto\ECDSASignature.cs" />
+    <Compile Remove="Crypto\KeystoreException.cs" />
+    <Compile Remove="Crypto\KeystoreFile.cs" />
     <Compile Remove="Data\Block.cs" />
     <Compile Remove="Data\Bytes.cs" />
     <Compile Remove="Data\NetworkId.cs" />
@@ -35,6 +38,9 @@
   <ItemGroup>
     <None Include="Call.cs" />
     <None Include="Callback.cs" />
+    <None Include="Crypto\ECDSASignature.cs" />
+    <None Include="Crypto\KeystoreException.cs" />
+    <None Include="Crypto\KeystoreFile.cs" />
     <None Include="Data\Block.cs" />
     <None Include="Data\Bytes.cs" />
     <None Include="Data\NetworkId.cs" />

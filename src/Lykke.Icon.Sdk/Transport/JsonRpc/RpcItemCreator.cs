@@ -27,12 +27,12 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
                 return rpcValue;
             }
 
-            if (type.isArray())
+            if (type.IsArray())
             {
                 return toRpcArray(item);
             }
 
-            if (!type.isPrimitive())
+            if (!type.IsPrimitive())
             {
                 return toRpcObject(item);
             }
