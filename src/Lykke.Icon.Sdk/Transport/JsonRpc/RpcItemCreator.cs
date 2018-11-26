@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
@@ -8,7 +9,6 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
     public class RpcItemCreator
     {
-
         public static RpcItem Create<T>(T item)
         {
             return ToRpcItem(item);
@@ -19,9 +19,9 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             return item != null ? ToRpcItem(item.GetType(), item) : null;
         }
 
-        static RpcItem ToRpcItem(Type type, T item)
+        static RpcItem ToRpcItem<T>(Type type, T item)
         {
-            RpcValue rpcValue = toRpcValue(item);
+            RpcValue rpcValue = ToRpcValue(item);
             if (rpcValue != null)
             {
                 return rpcValue;
@@ -84,14 +84,14 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 
         static RpcArray ToRpcArray(Object obj)
         {
-            Class < ?> componentType = obj.getClass().getComponentType();
-            if (componentType == boolean.class || !componentType.isPrimitive()) {
+            Type componentType = obj.GetType();
+            if (componentType == typeof(bool) || !componentType.IsPrimitive) {
                 RpcArray.Builder builder = new RpcArray.Builder();
 
-                int length = Array.getLength(obj);
+                int length = ((IEnumerable)obj).Count();
                 for (int i = 0; i < length; i++)
                 {
-                    builder.add(toRpcItem(Array.get(obj, i)));
+                    builder.add(ToRpcItem(Array.get(obj, i)));
                 }
 
                 return builder.build();
@@ -99,20 +99,21 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             return null;
         }
 
-        static RpcValue toRpcValue(Object object)
+        static RpcValue ToRpcValue(Object @object)
         {
-            if (object.getClass().isAssignableFrom(Boolean.class)) {
-                return new RpcValue((Boolean) object);
-            } else if (object.getClass().isAssignableFrom(String.class)) {
-                return new RpcValue((String) object);
-            } else if (object.getClass().isAssignableFrom(BigInteger.class)) {
-                return new RpcValue((BigInteger) object);
-            } else if (object.getClass().isAssignableFrom(byte[].class)) {
-                return new RpcValue((byte[]) object);
-            } else if (object.getClass().isAssignableFrom(Bytes.class)) {
-                return new RpcValue((Bytes) object);
-            } else if (object.getClass().isAssignableFrom(Address.class)) {
-                return new RpcValue((Address) object);
+            var objectType = @object.GetType();
+            if (objectType.IsAssignableFrom(typeof(bool))) {
+                return new RpcValue((bool) @object);
+            } else if (objectType.IsAssignableFrom(typeof(String))) {
+                return new RpcValue((String) @object);
+            } else if (objectType.IsAssignableFrom(typeof(BigInteger))) {
+                return new RpcValue((BigInteger) @object);
+            } else if (objectType.IsAssignableFrom(typeof(byte[]))) {
+                return new RpcValue((byte[]) @object);
+            } else if (objectType.IsAssignableFrom(typeof(Bytes))) {
+                return new RpcValue((Bytes) @object);
+            } else if (objectType.IsAssignableFrom(typeof(Address))) {
+                return new RpcValue((Address) @object);
             }
             return null;
         }

@@ -19,36 +19,37 @@ namespace Lykke.Icon.Sdk.Crypto
 
         private static ObjectMapper objectMapper = new ObjectMapper();
 
-        static {
-        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
+        static KeyStoreUtils()
+        {
+            objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        }
 
 
-    public static String GenerateWalletFile(
-            KeystoreFile file, File destinationDirectory)
-    {
-        String fileName = getWalletFileName(file);
-        File destination = new File(destinationDirectory, fileName);
-        objectMapper.writeValue(destination, file);
-        return fileName;
-    }
+        public static String GenerateWalletFile(
+                KeystoreFile file, File destinationDirectory)
+        {
+            String fileName = getWalletFileName(file);
+            File destination = new File(destinationDirectory, fileName);
+            objectMapper.writeValue(destination, file);
+            return fileName;
+        }
 
-    public static Bytes LoadPrivateKey(String password, File source)
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        KeystoreFile keystoreFile = mapper.readValue(source, KeystoreFile.class);
+        public static Bytes LoadPrivateKey(String password, File source)
+        {
+            ObjectMapper mapper = new ObjectMapper();
+            KeystoreFile keystoreFile = mapper.readValue(source, KeystoreFile.class);
         if (keystoreFile.getCoinType() == null || !keystoreFile.getCoinType().equalsIgnoreCase("icx"))
             throw new InputMismatchException("Invalid Keystore file");
         return Keystore.decrypt(password, keystoreFile);
     }
 
-private static String GetWalletFileName(KeystoreFile keystoreFile)
-{
-    SimpleDateFormat dateFormat = new SimpleDateFormat("'UTC--'yyyy-MM-dd'T'HH-mm-ss.SSS'--'");
-    dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-    return dateFormat.format(new Date()) + keystoreFile.getAddress() + ".json";
-}
+    private static String GetWalletFileName(KeystoreFile keystoreFile)
+    {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("'UTC--'yyyy-MM-dd'T'HH-mm-ss.SSS'--'");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return dateFormat.format(new Date()) + keystoreFile.getAddress() + ".json";
+    }
 
 }
 }

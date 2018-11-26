@@ -45,7 +45,7 @@ public class AnnotatedConverterFactory : RpcConverter.RpcConverterFactory {
 
     }
 
-    private <T> T getClassInstance(Class<T> type) throws IllegalAccessException, InstantiationException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {
+    private <T> T getClassInstance(Class<T> type) {
         if (isInnerClass(type)) {
             String className = type.getCanonicalName().subSequence(0, type.getCanonicalName().length() - type.getSimpleName().length() - 1).toString();
             Class m = Class.forName(className);

@@ -35,22 +35,22 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 
         public virtual BigInteger ToInteger()
         {
-            return asValue().ToInteger();
+            return ToValue().ToInteger();
         }
 
         byte[] ToByteArray()
         {
-            return asValue().ToByteArray();
+            return ToValue().ToByteArray();
         }
 
         Boolean ToBoolean()
         {
-            return asValue().ToBoolean();
+            return ToValue().ToBoolean();
         }
 
         Address ToAddress()
         {
-            return asValue().ToAddress();
+            return ToValue().ToAddress();
         }
 
         Bytes ToBytes()

@@ -1,37 +1,15 @@
-/*
- * Copyright 2018 ICON Foundation
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Org.BouncyCastle.Utilities;
+using Org.BouncyCastle.Utilities.Encoders;
 
-package foundation.icon.icx;
-
-import foundation.icon.icx.crypto.IconKeys;
-import foundation.icon.icx.data.*;
-import foundation.icon.icx.transport.jsonrpc.*;
-import foundation.icon.icx.transport.jsonrpc.RpcConverter.RpcConverterFactory;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+namespace Lykke.Icon.Sdk
+{
 
 /**
  * IconService which provides APIs of ICON network.
  */
-@SuppressWarnings("WeakerAccess")
 public class IconService {
 
     private Provider provider;
@@ -43,22 +21,21 @@ public class IconService {
      *
      * @param provider the worker that transporting requests
      */
-    @SuppressWarnings("unchecked")
     public IconService(Provider provider) {
         this.provider = provider;
-        addConverterFactory(Converters.newFactory(BigInteger.class, Converters.BIG_INTEGER));
-        addConverterFactory(Converters.newFactory(Boolean.class, Converters.BOOLEAN));
-        addConverterFactory(Converters.newFactory(String.class, Converters.STRING));
-        addConverterFactory(Converters.newFactory(Bytes.class, Converters.BYTES));
-        addConverterFactory(Converters.newFactory(byte[].class, Converters.BYTE_ARRAY));
-        addConverterFactory(Converters.newFactory(Block.class, Converters.BLOCK));
+        addConverterFactory(Converters.newFactory(typeof(BigInteger), Converters.BIG_INTEGER));
+        addConverterFactory(Converters.newFactory(typeof(Boolean), Converters.BOOLEAN));
+        addConverterFactory(Converters.newFactory(typeof(String), Converters.STRING));
+        addConverterFactory(Converters.newFactory(typeof(Bytes), Converters.BYTES));
+        addConverterFactory(Converters.newFactory(typeof(byte[]), Converters.BYTE_ARRAY));
+        addConverterFactory(Converters.newFactory(typeof(Block), Converters.BLOCK));
         addConverterFactory(Converters.newFactory(
-                ConfirmedTransaction.class, Converters.CONFIRMED_TRANSACTION));
+            typeof(ConfirmedTransaction), Converters.CONFIRMED_TRANSACTION));
         addConverterFactory(Converters.newFactory(
-                TransactionResult.class, Converters.TRANSACTION_RESULT));
-        Class<List<ScoreApi>> listClass = ((Class) List.class);
+            typeof(TransactionResult), Converters.TRANSACTION_RESULT));
+        Class<List<ScoreApi>> listClass = (typeof(List));
         addConverterFactory(Converters.newFactory(listClass, Converters.SCORE_API_LIST));
-        addConverterFactory(Converters.newFactory(RpcItem.class, Converters.RPC_ITEM));
+        addConverterFactory(Converters.newFactory(typeof(RpcItem), Converters.RPC_ITEM));
     }
 
     /**
@@ -69,7 +46,7 @@ public class IconService {
     public Request<BigInteger> getTotalSupply() {
         long requestId = System.currentTimeMillis();
         foundation.icon.icx.transport.jsonrpc.Request request = new foundation.icon.icx.transport.jsonrpc.Request(requestId, "icx_getTotalSupply", null);
-        return provider.request(request, findConverter(BigInteger.class));
+        return provider.request(request, findConverter(typeof(BigInteger)));
     }
 
     /**
@@ -84,7 +61,7 @@ public class IconService {
                 .put("address", new RpcValue(address))
                 .build();
         foundation.icon.icx.transport.jsonrpc.Request request = new foundation.icon.icx.transport.jsonrpc.Request(requestId, "icx_getBalance", params);
-        return provider.request(request, findConverter(BigInteger.class));
+        return provider.request(request, findConverter(typeof(BigInteger)));
     }
 
     /**
@@ -236,5 +213,5 @@ public class IconService {
     public void addConverterFactory(RpcConverterFactory factory) {
         converterFactories.add(factory);
     }
-
+    }
 }

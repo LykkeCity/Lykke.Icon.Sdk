@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Lykke.Icon.Sdk.Crypto;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -39,37 +38,37 @@ namespace Lykke.Icon.Sdk.Data
             }
 
             this.prefix = addressPrefix;
-            this.body = getAddressBody(address);
+            this.body = GetAddressBody(address);
         }
 
         public Address(AddressPrefix prefix, byte[] body)
         {
-            if (!IconKeys.isValidAddressBody(body))
+            if (!IconKeys.IsValidAddressBody(body))
             {
-                throw new IllegalArgumentException("Invalid address");
+                throw new ArgumentException("Invalid address");
             }
 
             this.prefix = prefix;
             this.body = body;
         }
 
-        private byte[] getAddressBody(String address)
+        private byte[] GetAddressBody(String address)
         {
-            String cleanInput = IconKeys.cleanHexPrefix(address);
-            return Hex.decode(cleanInput);
+            String cleanInput = IconKeys.CleanHexPrefix(address);
+            return Hex.Decode(cleanInput);
         }
 
-        public AddressPrefix getPrefix()
+        public AddressPrefix GetPrefix()
         {
             return prefix;
         }
 
-        public boolean isMalformed()
+        public bool IsMalformed()
         {
             return isMalformed;
         }
 
-    public String toString()
+        public override String ToString()
         {
             if (isMalformed)
             {
@@ -77,63 +76,60 @@ namespace Lykke.Icon.Sdk.Data
             }
             else
             {
-                return getPrefix().getValue() + Hex.toHexString(body);
+                return GetPrefix().GetValue() + Hex.ToHexString(body);
             }
         }
 
-
-
-    public boolean equals(Object obj)
+        public override bool Equals(Object obj)
         {
             if (obj == this) return true;
-            if (obj instanceof Address) {
+            if (obj is Address)
+            {
                 Address other = (Address)obj;
                 if (isMalformed)
                 {
-                    return malformedAddress.equals(other.malformedAddress);
+                    return malformedAddress.Equals(other.malformedAddress);
                 }
                 else
                 {
-                    return !other.isMalformed && other.prefix == prefix && Arrays.equals(other.body, body);
+                    return !other.isMalformed && other.prefix == prefix && Arrays.AreEqual(other.body, body);
                 }
             }
             return false;
         }
 
-        public enum AddressPrefix
+        public class AddressPrefix
         {
+            public const string EOA = "hx";
+            public const string CONTRACT = "cx";
 
-            EOA("hx"),
-        CONTRACT("cx");
+            private String prefix;
 
-        private String prefix;
-
-        AddressPrefix(String prefix)
-        {
-            this.prefix = prefix;
-        }
-
-        public String getValue()
-        {
-            return prefix;
-        }
-
-        public static AddressPrefix fromString(String prefix)
-        {
-            if (prefix != null)
+            AddressPrefix(String prefix)
             {
-                for (AddressPrefix p : AddressPrefix.values())
+                this.prefix = prefix;
+            }
+
+            public String GetValue()
+            {
+                return prefix;
+            }
+
+            private static IEnumerable<string> _possiblePrefixes = new[] { EOA, CONTRACT };
+            public static AddressPrefix FromString(String prefix)
+            {
+                if (prefix != null)
                 {
-                    if (prefix.EqualsIgnoreCase(p.getValue()))
+                    foreach (var p in _possiblePrefixes)
                     {
-                        return p;
+                        if (prefix.Equals(p, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            return new AddressPrefix(p);
+                        }
                     }
                 }
+                return null;
             }
-            return null;
         }
     }
-
-}
-
 }

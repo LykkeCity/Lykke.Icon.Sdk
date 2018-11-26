@@ -19,23 +19,23 @@ public class TransactionResult {
         this.properties = properties;
     }
 
-    public RpcObject getProperties() {
+    public RpcObject GetProperties() {
         return properties;
     }
 
     /**
      * @return 1 on success, 0 on failure.
      */
-    public BigInteger getStatus() {
-        RpcItem status = properties.getItem("status");
+    public BigInteger GetStatus() {
+        RpcItem status = properties.GetItem("status");
         if (status != null) {
-            return status.asInteger();
+            return status.ToInteger();
         } else {
             // Migrates V2 block data
             // V2 Block data doesn't have a status field but have a code field
             // @see <a href="https://github.com/icon-project/icx_JSON_RPC#icx_gettransactionresult" target="_blank">ICON JSON-RPC V2 API</a>
-            RpcItem code = properties.getItem("code");
-            if (code != null) return new BigInteger(code.asInteger().intValue() == 0 ? "1" : "0");
+            RpcItem code = properties.GetItem("code");
+            if (code != null) return new BigInteger(code.ToInteger().IntValue() == 0 ? "1" : "0");
             else return null;
         }
     }
@@ -44,15 +44,15 @@ public class TransactionResult {
      * @return Recipient address of the transaction
      */
     public String getTo() {
-        RpcItem item = properties.getItem("to");
-        return item != null ? item.asString() : null;
+        RpcItem item = properties.GetItem("to");
+        return item != null ? item.ToString() : null;
     }
 
     /**
      * @return Transaction hash
      */
     public Bytes getTxHash() {
-        RpcItem item = properties.getItem("txHash");
+        RpcItem item = properties.GetItem("txHash");
         return item != null ? item.asBytes() : null;
     }
 
@@ -60,74 +60,74 @@ public class TransactionResult {
      * @return Transaction index in the block
      */
     public BigInteger getTxIndex() {
-        RpcItem item = properties.getItem("txIndex");
-        return item != null ? item.asInteger() : null;
+        RpcItem item = properties.GetItem("txIndex");
+        return item != null ? item.ToInteger() : null;
     }
 
     /**
      * @return Height of the block that includes the transaction.
      */
-    public BigInteger getBlockHeight() {
-        RpcItem item = properties.getItem("blockHeight");
-        return item != null ? item.asInteger() : null;
+    public BigInteger GetBlockHeight() {
+        RpcItem item = properties.GetItem("blockHeight");
+        return item != null ? item.ToInteger() : null;
     }
 
     /**
      * @return Hash of the block that includes the transation.
      */
-    public Bytes getBlockHash() {
-        RpcItem item = properties.getItem("blockHash");
+    public Bytes GetBlockHash() {
+        RpcItem item = properties.GetItem("blockHash");
         return item != null ? item.asBytes() : null;
     }
 
     /**
      * @return Sum of stepUsed by this transaction and all preceeding transactions in the same block.
      */
-    public BigInteger getCumulativeStepUsed() {
-        RpcItem item = properties.getItem("cumulativeStepUsed");
-        return item != null ? item.asInteger() : null;
+    public BigInteger GetCumulativeStepUsed() {
+        RpcItem item = properties.GetItem("cumulativeStepUsed");
+        return item != null ? item.ToInteger() : null;
     }
 
     /**
      * @return The amount of step used by this transaction.
      */
-    public BigInteger getStepUsed() {
-        RpcItem item = properties.getItem("stepUsed");
-        return item != null ? item.asInteger() : null;
+    public BigInteger GetStepUsed() {
+        RpcItem item = properties.GetItem("stepUsed");
+        return item != null ? item.ToInteger() : null;
     }
 
     /**
      * @return The step price used by this transaction.
      */
-    public BigInteger getStepPrice() {
-        RpcItem item = properties.getItem("stepPrice");
-        return item != null ? item.asInteger() : null;
+    public BigInteger GetStepPrice() {
+        RpcItem item = properties.GetItem("stepPrice");
+        return item != null ? item.ToInteger() : null;
     }
 
     /**
      * @return SCORE address if the transaction created a new SCORE.
      */
-    public String getScoreAddress() {
-        RpcItem item = properties.getItem("scoreAddress");
-        return item != null ? item.asString() : null;
+    public String GetScoreAddress() {
+        RpcItem item = properties.GetItem("scoreAddress");
+        return item != null ? item.ToString() : null;
     }
 
     /**
      * @return Bloom filter to quickly retrieve related eventlogs.
      */
     public String getLogsBloom() {
-        RpcItem item = properties.getItem("logsBloom");
-        return item != null ? item.asString() : null;
+        RpcItem item = properties.GetItem("logsBloom");
+        return item != null ? item.ToString() : null;
     }
 
     /**
      * @return List of event logs, which this transaction generated.
      */
     public List<EventLog> getEventLogs() {
-        RpcItem item = properties.getItem("eventLogs");
+        RpcItem item = properties.GetItem("eventLogs");
         List<EventLog> eventLogs = new ArrayList<>();
         if (item != null) {
-            for (RpcItem rpcItem : item.asArray()) {
+            foreach (RpcItem rpcItem in item.asArray()) {
                 eventLogs.add(new EventLog(rpcItem.asObject()));
             }
         }
@@ -138,20 +138,20 @@ public class TransactionResult {
      * @return This field exists when status is 0. Contains code(str) and message(str).
      */
     public Failure getFailure() {
-        RpcItem failure = properties.getItem("failure");
+        RpcItem failure = properties.GetItem("failure");
 
         if (failure == null) {
-            BigInteger status = getStatus();
-            if (status != null && status.intValue() == 0) {
+            BigInteger status = GetStatus();
+            if (status != null && status.IntValue() == 0) {
                 // Migrates V2 block data
                 // V2 Block data doesn't have a failure field but have a code field
                 // @see <a href="https://github.com/icon-project/icx_JSON_RPC#icx_gettransactionresult" target="_blank">ICON JSON-RPC V2 API</a>
-                RpcItem code = properties.getItem("code");
+                RpcItem code = properties.GetItem("code");
                 if (code != null) {
                     RpcObject.Builder builder = new RpcObject.Builder();
                     builder.put("code", code);
 
-                    RpcItem message = properties.getItem("message");
+                    RpcItem message = properties.GetItem("message");
                     if (message != null) {
                         builder.put("message", message);
                     }
@@ -162,8 +162,7 @@ public class TransactionResult {
         return failure != null ? new Failure(failure.asObject()) : null;
     }
 
-    @Override
-    public String toString() {
+    public override String ToString() {
         return "TransactionResult{" +
                 "properties=" + properties +
                 '}';
@@ -176,23 +175,22 @@ public class TransactionResult {
             this.properties = properties;
         }
 
-        public String getScoreAddress() {
-            RpcItem item = properties.getItem("scoreAddress");
-            return item != null ? item.asString() : null;
+        public String GetScoreAddress() {
+            RpcItem item = properties.GetItem("scoreAddress");
+            return item != null ? item.ToString() : null;
         }
 
         public List<RpcItem> getIndexed() {
-            RpcItem item = properties.getItem("indexed");
+            RpcItem item = properties.GetItem("indexed");
             return item != null ? item.asArray().asList() : null;
         }
 
         public List<RpcItem> getData() {
-            RpcItem field = properties.getItem("data");
+            RpcItem field = properties.GetItem("data");
             return field != null ? field.asArray().asList() : null;
         }
 
-        @Override
-        public String toString() {
+        public override String ToString() {
             return "EventLog{" +
                     "properties=" + properties +
                     '}';
@@ -206,18 +204,17 @@ public class TransactionResult {
             this.properties = properties;
         }
 
-        public BigInteger getCode() {
-            RpcItem item = properties.getItem("code");
-            return item != null ? item.asInteger() : null;
+        public BigInteger GetCode() {
+            RpcItem item = properties.GetItem("code");
+            return item != null ? item.ToInteger() : null;
         }
 
-        public String getMessage() {
-            RpcItem item = properties.getItem("message");
-            return item != null ? item.asString() : null;
+        public String GetMessage() {
+            RpcItem item = properties.GetItem("message");
+            return item != null ? item.ToString() : null;
         }
 
-        @Override
-        public String toString() {
+        public override String ToString() {
             return "Failure{" +
                     "properties=" + properties +
                     '}';

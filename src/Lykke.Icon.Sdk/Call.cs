@@ -14,12 +14,12 @@ namespace Lykke.Icon.Sdk
     public class Call<O>
     {
         private RpcObject _properties;
-        private Class<O> _responseType;
+        private Type _responseType;
 
-        private Call(RpcObject properties, Class<O> responseType)
+        private Call(RpcObject properties)
         {
             this.properties = properties;
-            this.responseType = responseType;
+            this.responseType = typeof(O);
         }
 
 
@@ -28,7 +28,7 @@ namespace Lykke.Icon.Sdk
             return properties;
         }
 
-        Class<O> responseType()
+        Type responseType()
         {
             return responseType;
         }
@@ -48,7 +48,7 @@ namespace Lykke.Icon.Sdk
             private String method;
             private RpcItem @params;
 
-        public Builder()
+            public Builder()
             {
             }
 
@@ -72,56 +72,58 @@ namespace Lykke.Icon.Sdk
                 return this;
             }
 
-            public <I> Builder params(I params) {
-            this.params = RpcItemCreator.create(params);
-            return this;
+            public Builder Params<I>(I @params)
+            {
+                this.@params = RpcItemCreator.Create(@params);
+                return this;
+            }
+
+            public Builder Params(RpcItem @params)
+            {
+                this.@params = @params;
+                return this;
+            }
+
+            /**
+             * Builds with RpcItem. that means the return type is RpcItem
+             *
+             * @return Call
+             */
+            public Call<RpcItem> build()
+            {
+                checkArgument(to, "to not found");
+                checkArgument(method, "method not found");
+                return buildWith(typeof(RpcItem));
+            }
+
+            /**
+             * Builds with User defined class. an object of the class would be returned
+             *
+             * @param responseType Response type
+             * @param <O> responseType
+             * @return Call
+             */
+            public Call<O> buildWith<O>()
+            {
+                RpcObject data = new RpcObject.Builder()
+                        .put("method", new RpcValue(method))
+                        .put("params", @params)
+                        .build();
+
+                RpcObject.Builder propertiesBuilder = new RpcObject.Builder()
+                        .put("to", new RpcValue(to))
+                        .put("data", data)
+                        .put("dataType", new RpcValue("call"));
+
+                // optional
+                if (from != null)
+                {
+                    propertiesBuilder.put("from", new RpcValue(from));
+                }
+
+                return new Call<O>(propertiesBuilder.build());
+            }
         }
 
-        public Builder params(RpcItem params) {
-            this.params = params;
-            return this;
-        }
-
-        /**
-         * Builds with RpcItem. that means the return type is RpcItem
-         *
-         * @return Call
-         */
-        public Call<RpcItem> build()
-        {
-            checkArgument(to, "to not found");
-            checkArgument(method, "method not found");
-            return buildWith(RpcItem.class);
-        }
-
-    /**
-     * Builds with User defined class. an object of the class would be returned
-     *
-     * @param responseType Response type
-     * @param <O> responseType
-     * @return Call
-     */
-    public <O> Call<O> buildWith(Class<O> responseType)
-    {
-        RpcObject data = new RpcObject.Builder()
-                .put("method", new RpcValue(method))
-                .put("params", params)
-                .build();
-
-        RpcObject.Builder propertiesBuilder = new RpcObject.Builder()
-                .put("to", new RpcValue(to))
-                .put("data", data)
-                .put("dataType", new RpcValue("call"));
-
-        // optional
-        if (from != null)
-        {
-            propertiesBuilder.put("from", new RpcValue(from));
-        }
-
-        return new Call<>(propertiesBuilder.build(), responseType);
     }
-}
-
-}
 }

@@ -9,11 +9,20 @@
     <Compile Remove="Call.cs" />
     <Compile Remove="Callback.cs" />
     <Compile Remove="Crypto\ECDSASignature.cs" />
+    <Compile Remove="Crypto\IconKeys.cs" />
+    <Compile Remove="Crypto\Keystore.cs" />
     <Compile Remove="Crypto\KeystoreException.cs" />
     <Compile Remove="Crypto\KeystoreFile.cs" />
+    <Compile Remove="Crypto\KeyStoreUtils.cs" />
     <Compile Remove="Data\Block.cs" />
     <Compile Remove="Data\Bytes.cs" />
+    <Compile Remove="Data\ConfirmedTransaction.cs" />
+    <Compile Remove="Data\Converters.cs" />
+    <Compile Remove="Data\IconAmount.cs" />
     <Compile Remove="Data\NetworkId.cs" />
+    <Compile Remove="Data\ScoreApi.cs" />
+    <Compile Remove="Data\TransactionResult.cs" />
+    <Compile Remove="IconService.cs" />
     <Compile Remove="KeyWallet.cs" />
     <Compile Remove="Provider.cs" />
     <Compile Remove="Request.cs" />
@@ -39,11 +48,20 @@
     <None Include="Call.cs" />
     <None Include="Callback.cs" />
     <None Include="Crypto\ECDSASignature.cs" />
+    <None Include="Crypto\IconKeys.cs" />
+    <None Include="Crypto\Keystore.cs" />
     <None Include="Crypto\KeystoreException.cs" />
     <None Include="Crypto\KeystoreFile.cs" />
+    <None Include="Crypto\KeyStoreUtils.cs" />
     <None Include="Data\Block.cs" />
     <None Include="Data\Bytes.cs" />
+    <None Include="Data\ConfirmedTransaction.cs" />
+    <None Include="Data\Converters.cs" />
+    <None Include="Data\IconAmount.cs" />
     <None Include="Data\NetworkId.cs" />
+    <None Include="Data\ScoreApi.cs" />
+    <None Include="Data\TransactionResult.cs" />
+    <None Include="IconService.cs" />
     <None Include="KeyWallet.cs" />
     <None Include="Provider.cs" />
     <None Include="Request.cs" />
@@ -66,7 +84,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BouncyCastle" Version="1.8.4" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.4" />
   </ItemGroup>
 
 </Project>

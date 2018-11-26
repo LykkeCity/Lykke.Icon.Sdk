@@ -10,73 +10,87 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 /**
  * A read-only data class of RpcObject
  */
-public class RpcObject : RpcItem {
-    private Dictionary<String, RpcItem> items;
-
-    private RpcObject(Dictionary<String, RpcItem> items) {
-        this.items = items;
-    }
-
-    public RpcItem GetItem(String key) {
-        return items.get(key);
-    }
-
-    public override String ToString() {
-        return "RpcObject(" +
-                "items=" + items +
-                ')';
-    }
-
-    public override bool IsEmpty() {
-        return items == null || items.IsEmpty();
-    }
-
-
-    /**
-     * Builder for RpcObject
-     */
-    public static class Builder {
-
-        /**
-         * Sort policy of the properties
-         */
-        public enum Sort {
-            NONE,
-            KEY,
-            INSERT
-        }
-
+    public class RpcObject : RpcItem
+    {
         private Dictionary<String, RpcItem> items;
 
-        public Builder() {
-            this(Sort.NONE);
+        private RpcObject(Dictionary<String, RpcItem> items)
+        {
+            this.items = items;
         }
 
-        public Builder(Sort sort) {
-            switch (sort) {
-                case KEY:
-                    items = new TreeMap<>();
-                    break;
-                case INSERT:
-                    items = new LinkedHashMap<>();
-                    break;
-                default:
-                    items = new HashMap<>();
-                    break;
+        public RpcItem GetItem(String key)
+        {
+            return items.get(key);
+        }
+
+        public override String ToString()
+        {
+            return "RpcObject(" +
+                   "items=" + items +
+                   ')';
+        }
+
+        public override bool IsEmpty()
+        {
+            return items == null || items.IsEmpty();
+        }
+
+
+        /**
+         * Builder for RpcObject
+         */
+        public static class Builder
+        {
+
+            /**
+             * Sort policy of the properties
+             */
+            public enum Sort
+            {
+                NONE,
+                KEY,
+                INSERT
             }
-        }
 
-        public Builder put(String key, RpcItem item) {
-            if (!items.containsKey(key) && !isNullOrEmpty(item)) items.put(key, item);
-            return this;
-        }
+            private Dictionary<String, RpcItem> items;
 
-        public RpcObject build() {
-            return new RpcObject(items);
-        }
+            public Builder()
+            {
+                this(Sort.NONE);
+            }
 
-        public boolean isNullOrEmpty(RpcItem item) {
-            return item == null || item.isEmpty();
+            public Builder(Sort sort)
+            {
+                switch (sort)
+                {
+                    case KEY:
+                        items = new TreeMap<>();
+                        break;
+                    case INSERT:
+                        items = new LinkedHashMap<>();
+                        break;
+                    default:
+                        items = new HashMap<>();
+                        break;
+                }
+            }
+
+            public Builder put(String key, RpcItem item)
+            {
+                if (!items.containsKey(key) && !isNullOrEmpty(item)) items.put(key, item);
+                return this;
+            }
+
+            public RpcObject build()
+            {
+                return new RpcObject(items);
+            }
+
+            public boolean isNullOrEmpty(RpcItem item)
+            {
+                return item == null || item.isEmpty();
+            }
         }
     }
 }

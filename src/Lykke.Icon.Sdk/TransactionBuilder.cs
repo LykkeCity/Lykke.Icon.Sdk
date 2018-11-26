@@ -6,7 +6,6 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Lykke.Icon.Sdk
 {
-
     /**
      * Builder for the transaction to send<br>
      * There are four builder types.<br>
@@ -18,7 +17,6 @@ namespace Lykke.Icon.Sdk
      */
     public class TransactionBuilder
     {
-
         /**
          * Creates a builder for the given network ID
          *
@@ -39,7 +37,7 @@ namespace Lykke.Icon.Sdk
          * @return new builder
          * @deprecated This method can be replaced by {@link #newBuilder()}
          */
-        public static Builder of(BigInteger nid)
+        public static Builder Of(BigInteger nid)
         {
             Builder builder = newBuilder();
             return builder.nid(nid);
@@ -58,9 +56,8 @@ namespace Lykke.Icon.Sdk
         /**
          * A Builder for the simple icx sending transaction.
          */
-        public static final class Builder
+        public static class Builder
         {
-
             private TransactionData transactionData;
 
             private Builder()
@@ -213,7 +210,7 @@ namespace Lykke.Icon.Sdk
         /**
          * A Builder for the calling SCORE transaction.
          */
-        public static final class CallBuilder
+        public static class CallBuilder
         {
 
             private TransactionData transactionData;
@@ -234,233 +231,226 @@ namespace Lykke.Icon.Sdk
              * @param params Function parameters
              * @return self
              */
-            public CallBuilder params(RpcObject params) {
-            dataBuilder.put("params", params);
-            return this;
+            public CallBuilder Params(RpcObject @params)
+            {
+                dataBuilder.put("params", @params);
+                return this;
+            }
+
+            /**
+             * Sets the params
+             *
+             * @param params Function parameters
+             * @return self
+             */
+            public CallBuilder Params<T>(T @params)
+            {
+                dataBuilder.put("params", RpcItemCreator.create(@params));
+                return this;
+            }
+
+            /**
+             * Make a new transaction using given properties
+             *
+             * @return a transaction to send
+             */
+            public Transaction build()
+            {
+                transactionData.data = dataBuilder.build();
+                CheckArgument(((RpcObject)transactionData.data).GetItem("method"), "method not found");
+
+                return transactionData.build();
+            }
         }
 
         /**
-         * Sets the params
-         *
-         * @param params Function parameters
-         * @return self
+         * A Builder for the message transaction.
          */
-        public <T> CallBuilder params(T params) {
-            dataBuilder.put("params", RpcItemCreator.create(params));
-            return this;
-        }
-
-    /**
-     * Make a new transaction using given properties
-     *
-     * @return a transaction to send
-     */
-    public Transaction build()
-    {
-        transactionData.data = dataBuilder.build();
-        checkArgument(((RpcObject)transactionData.data).getItem("method"), "method not found");
-
-        return transactionData.build();
-    }
-}
-
-/**
- * A Builder for the message transaction.
- */
-public static final class MessageBuilder
-{
-    private TransactionData transactionData;
-
-    private MessageBuilder(TransactionData transactionData, String message)
-    {
-        this.transactionData = transactionData;
-        this.transactionData.dataType = "message";
-        this.transactionData.data = new RpcValue(message.getBytes(StandardCharsets.UTF_8));
-    }
-
-    /**
-     * Make a new transaction using given properties
-     *
-     * @return a transaction to send
-     */
-    public Transaction build()
-    {
-        return transactionData.build();
-    }
-
-}
-
-/**
- * A Builder for the deploy transaction.
- */
-public static final class DeployBuilder
-{
-
-    private TransactionData transactionData;
-    private RpcObject.Builder dataBuilder;
-
-    private DeployBuilder(TransactionData transactionData, String contentType, byte[] content)
-    {
-        this.transactionData = transactionData;
-        this.transactionData.dataType = "deploy";
-
-        dataBuilder = new RpcObject.Builder()
-                .put("contentType", new RpcValue(contentType))
-                .put("content", new RpcValue(content));
-    }
-
-    /**
-     * Sets the params
-     *
-     * @param params Function parameters will be delivered to on_install() or on_update()
-     * @return self
-     */
-    public DeployBuilder params(RpcObject params) {
-            dataBuilder.put("params", params);
-            return this;
-        }
-
-/**
- * Make a new transaction using given properties
- *
- * @return a transaction to send
- */
-public Transaction build()
-{
-    transactionData.data = dataBuilder.build();
-    checkArgument(((RpcObject)transactionData.data).getItem("contentType"), "contentType not found");
-    checkArgument(((RpcObject)transactionData.data).getItem("content"), "content not found");
-
-    return transactionData.build();
-}
-    }
-
-    private static class TransactionData
-{
-    private BigInteger version = new BigInteger("3");
-    private Address from;
-    private Address to;
-    private BigInteger value;
-    private BigInteger stepLimit;
-    private BigInteger timestamp;
-    private BigInteger nid = NetworkId.MAIN.getValue();
-    private BigInteger nonce;
-    private String dataType;
-    private RpcItem data;
-
-    private Transaction build()
-    {
-        checkAddress(from, "from not found");
-        checkAddress(to, "to not found");
-        checkArgument(version, "version not found");
-        checkArgument(stepLimit, "stepLimit not found");
-        return new SendingTransaction(this);
-    }
-
-    void checkAddress(Address address, String message)
-    {
-        checkArgument(address, message);
-        if (address.isMalformed())
+        public static class MessageBuilder
         {
-            throw new IllegalArgumentException("Invalid address");
+            private TransactionData transactionData;
+
+            private MessageBuilder(TransactionData transactionData, String message)
+            {
+                this.transactionData = transactionData;
+                this.transactionData.dataType = "message";
+                this.transactionData.data = new RpcValue(message.getBytes(StandardCharsets.UTF_8));
+            }
+
+            /**
+             * Make a new transaction using given properties
+             *
+             * @return a transaction to send
+             */
+            public Transaction build()
+            {
+                return transactionData.build();
+            }
+
         }
-    }
-}
 
-private static class SendingTransaction implements Transaction
-{
-        private BigInteger version;
-private Address from;
-private Address to;
-private BigInteger value;
-private BigInteger stepLimit;
-private BigInteger timestamp;
-private BigInteger nid;
-private BigInteger nonce;
-private String dataType;
-private RpcItem data;
+        /**
+         * A Builder for the deploy transaction.
+         */
+        public static class DeployBuilder
+        {
 
-private SendingTransaction(TransactionData transactionData)
-{
-    version = transactionData.version;
-    from = transactionData.from;
-    to = transactionData.to;
-    value = transactionData.value;
-    stepLimit = transactionData.stepLimit;
-    timestamp = transactionData.timestamp;
-    nid = transactionData.nid;
-    nonce = transactionData.nonce;
-    dataType = transactionData.dataType;
-    data = transactionData.data;
-}
+            private TransactionData transactionData;
+            private RpcObject.Builder dataBuilder;
 
-@Override
-        public BigInteger getVersion()
-{
-    return version;
-}
+            private DeployBuilder(TransactionData transactionData, String contentType, byte[] content)
+            {
+                this.transactionData = transactionData;
+                this.transactionData.dataType = "deploy";
 
-@Override
-        public Address getFrom()
-{
-    return from;
-}
+                dataBuilder = new RpcObject.Builder()
+                        .put("contentType", new RpcValue(contentType))
+                        .put("content", new RpcValue(content));
+            }
 
-@Override
-        public Address getTo()
-{
-    return to;
-}
+            /**
+             * Sets the params
+             *
+             * @param params Function parameters will be delivered to on_install() or on_update()
+             * @return self
+             */
+            public DeployBuilder Params(RpcObject @params)
+            {
+                dataBuilder.put("params", @params);
+                return this;
+            }
 
-@Override
-        public BigInteger getValue()
-{
-    return value;
-}
+            /**
+             * Make a new transaction using given properties
+             *
+             * @return a transaction to send
+             */
+            public Transaction build()
+            {
+                transactionData.data = dataBuilder.build();
+                CheckArgument(((RpcObject)transactionData.data).GetItem("contentType"), "contentType not found");
+                CheckArgument(((RpcObject)transactionData.data).GetItem("content"), "content not found");
 
-@Override
-        public BigInteger getStepLimit()
-{
-    return stepLimit;
-}
+                return transactionData.build();
+            }
+        }
 
-@Override
-        public BigInteger getTimestamp()
-{
-    return timestamp;
-}
+        private static class TransactionData
+        {
+            private BigInteger version = new BigInteger("3");
+            private Address from;
+            private Address to;
+            private BigInteger value;
+            private BigInteger stepLimit;
+            private BigInteger timestamp;
+            private BigInteger nid = NetworkId.MAIN.getValue();
+            private BigInteger nonce;
+            private String dataType;
+            private RpcItem data;
 
-@Override
-        public BigInteger getNid()
-{
-    return nid;
-}
+            private Transaction build()
+            {
+                checkAddress(from, "from not found");
+                checkAddress(to, "to not found");
+                CheckArgument(version, "version not found");
+                CheckArgument(stepLimit, "stepLimit not found");
+                return new SendingTransaction(this);
+            }
 
-@Override
-        public BigInteger getNonce()
-{
-    return nonce;
-}
+            void checkAddress(Address address, String message)
+            {
+                CheckArgument(address, message);
+                if (address.isMalformed())
+                {
+                    throw new IllegalArgumentException("Invalid address");
+                }
+            }
+        }
 
-@Override
-        public String getDataType()
-{
-    return dataType;
-}
+        private static class SendingTransaction : Transaction
+        {
+            private BigInteger version;
+            private Address from;
+            private Address to;
+            private BigInteger value;
+            private BigInteger stepLimit;
+            private BigInteger timestamp;
+            private BigInteger nid;
+            private BigInteger nonce;
+            private String dataType;
+            private RpcItem data;
 
-@Override
-        public RpcItem getData()
-{
-    return data;
-}
-    }
+            private SendingTransaction(TransactionData transactionData)
+            {
+                version = transactionData.version;
+                from = transactionData.from;
+                to = transactionData.to;
+                value = transactionData.value;
+                stepLimit = transactionData.stepLimit;
+                timestamp = transactionData.timestamp;
+                nid = transactionData.nid;
+                nonce = transactionData.nonce;
+                dataType = transactionData.dataType;
+                data = transactionData.data;
+            }
 
-    static <T> void checkArgument(T object, String message)
-{
-    if (object == null)
-    {
-        throw new IllegalArgumentException(message);
-    }
-}
+            public BigInteger getVersion()
+            {
+                return version;
+            }
+
+            public Address getFrom()
+            {
+                return from;
+            }
+
+            public Address getTo()
+            {
+                return to;
+            }
+
+            public BigInteger getValue()
+            {
+                return value;
+            }
+
+            public BigInteger getStepLimit()
+            {
+                return stepLimit;
+            }
+
+            public BigInteger getTimestamp()
+            {
+                return timestamp;
+            }
+
+            public BigInteger getNid()
+            {
+                return nid;
+            }
+
+            public BigInteger getNonce()
+            {
+                return nonce;
+            }
+
+            public String getDataType()
+            {
+                return dataType;
+            }
+
+            public RpcItem getData()
+            {
+                return data;
+            }
+        }
+
+        static void CheckArgument<T>(T @object, String message)
+        {
+            if (@object == null)
+            {
+                throw new ArgumentException(message);
+            }
+        }
     }
 }

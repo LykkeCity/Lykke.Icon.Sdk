@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Lykke.Icon.Sdk.Crypto;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -32,7 +31,7 @@ namespace Lykke.Icon.Sdk.Crypto
             if (newProvider.getVersion() < MIN_BOUNCY_CASTLE_VERSION)
             {
                 String message = String.format(
-                        "The version of BouncyCastle should be %f or newer", MIN_BOUNCY_CASTLE_VERSION);
+                    "The version of BouncyCastle should be %f or newer", MIN_BOUNCY_CASTLE_VERSION);
                 throw new RuntimeCryptoException(message);
             }
 
@@ -46,7 +45,9 @@ namespace Lykke.Icon.Sdk.Crypto
             SECURE_RANDOM = new SecureRandom();
         }
 
-        private IconKeys() { }
+        private IconKeys()
+        {
+        }
 
         public static Bytes CreatePrivateKey()
         {
@@ -54,7 +55,7 @@ namespace Lykke.Icon.Sdk.Crypto
             ECGenParameterSpec ecGenParameterSpec = new ECGenParameterSpec("secp256k1");
             keyPairGenerator.initialize(ecGenParameterSpec, SecureRandom());
             KeyPair keyPair = keyPairGenerator.GenerateKeyPair();
-            return new Bytes(((BCECPrivateKey)keyPair.GetPrivate()).GetD());
+            return new Bytes(((BCECPrivateKey) keyPair.GetPrivate()).GetD());
         }
 
         public static Bytes GetPublicKey(Bytes privateKey)
@@ -106,7 +107,7 @@ namespace Lykke.Icon.Sdk.Crypto
         public static bool IsValidAddressBody(byte[] body)
         {
             return body.Length == 20 &&
-                    IconKeys.IsValidAddress(Hex.ToHexString(body));
+                   IconKeys.IsValidAddress(Hex.ToHexString(body));
         }
 
         public static bool IsContractAddress(Address address)
@@ -141,3 +142,4 @@ namespace Lykke.Icon.Sdk.Crypto
             return SECURE_RANDOM;
         }
     }
+}
