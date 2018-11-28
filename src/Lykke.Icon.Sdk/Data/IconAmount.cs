@@ -61,51 +61,52 @@ namespace Lykke.Icon.Sdk.Data
             return BigDecimal.TEN.pow(digit);
         }
 
-        public enum Unit
+        public class Unit
         {
-            LOOP(0),
-        ICX(18);
+            public const int LOOP = 0;
+            public const int ICX = 18;
 
-        int digit;
+            int digit;
 
-        Unit(int digit)
-        {
-            this.digit = digit;
+            Unit(int digit)
+            {
+                this.digit = digit;
+            }
+
+            public int GetValue()
+            {
+                return digit;
+            }
         }
 
-        public int GetValue()
+        public static IconAmount Of(BigDecimal loop, int digit)
         {
-            return digit;
+            return new IconAmount(loop, digit);
         }
-    }
 
-    public static IconAmount Of(BigDecimal loop, int digit)
-    {
-        return new IconAmount(loop, digit);
-    }
+        public static IconAmount Of(BigDecimal loop, Unit unit)
+        {
+            return Of(loop, unit.getValue());
+        }
 
-    public static IconAmount Of(BigDecimal loop, Unit unit)
-    {
-        return Of(loop, unit.getValue());
-    }
+        public static IconAmount Of(String loop, int digit)
+        {
+            return Of(new BigDecimal(loop), digit);
+        }
 
-    public static IconAmount Of(String loop, int digit)
-    {
-        return Of(new BigDecimal(loop), digit);
-    }
+        public static IconAmount Of(String loop, Unit unit)
+        {
+            return Of(new BigDecimal(loop), unit.getValue());
+        }
 
-    public static IconAmount Of(String loop, Unit unit)
-    {
-        return Of(new BigDecimal(loop), unit.getValue());
-    }
+        public static IconAmount Of(BigInteger loop, int digit)
+        {
+            return Of(new BigDecimal(loop), digit);
+        }
 
-    public static IconAmount Of(BigInteger loop, int digit)
-    {
-        return Of(new BigDecimal(loop), digit);
-    }
-
-    public static IconAmount Of(BigInteger loop, Unit unit)
-    {
-        return Of(new BigDecimal(loop), unit.getValue());
+        public static IconAmount Of(BigInteger loop, Unit unit)
+        {
+            return Of(new BigDecimal(loop), unit.getValue());
+        }
     }
 }

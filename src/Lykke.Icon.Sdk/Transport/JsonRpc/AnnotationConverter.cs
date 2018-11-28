@@ -8,6 +8,6 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
     public interface AnnotationConverter
     {
-        bool Use() true;
+        bool Use();
     }
 }

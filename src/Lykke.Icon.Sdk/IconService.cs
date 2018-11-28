@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Lykke.Icon.Sdk.Crypto;
+using Lykke.Icon.Sdk.Data;
+using Lykke.Icon.Sdk.Transport.JsonRpc;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -13,7 +17,7 @@ namespace Lykke.Icon.Sdk
 public class IconService {
 
     private Provider provider;
-    private List<RpcConverter.RpcConverterFactory> converterFactories = new ArrayList<>();
+    private List<RpcConverter<>.RpcConverterFactory> converterFactories = new ArrayList<>();
     private Map<Class, RpcConverter<?>> converterMap = new HashMap<>();
 
     /**

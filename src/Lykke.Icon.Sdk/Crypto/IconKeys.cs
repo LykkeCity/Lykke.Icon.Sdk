@@ -1,8 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Lykke.Icon.Sdk.Data;
+using Org.BouncyCastle.Asn1.X9;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Math.EC;
+using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
+using System;
+using System.Text.RegularExpressions;
+using Org.BouncyCastle.Crypto.Digests;
 
 namespace Lykke.Icon.Sdk.Crypto
 {
@@ -11,9 +18,8 @@ namespace Lykke.Icon.Sdk.Crypto
      * https://github.com/web3j/web3j/blob/master/crypto/src/main/java/org/web3j/crypto/Keys.java
      * Crypto key utilities.
      */
-    public class IconKeys
+    public static class IconKeys
     {
-
         public static int PRIVATE_KEY_SIZE = 32;
         public static int PUBLIC_KEY_SIZE = 64;
 
@@ -25,68 +31,69 @@ namespace Lykke.Icon.Sdk.Crypto
 
         static IconKeys()
         {
-            Provider provider = Security.GetProvider(BouncyCastleProvider.PROVIDER_NAME);
-            Provider newProvider = new BouncyCastleProvider();
+            //Provider provider = Security.GetProvider(BouncyCastleProvider.PROVIDER_NAME);
+            //Provider newProvider = new BouncyCastleProvider();
 
-            if (newProvider.getVersion() < MIN_BOUNCY_CASTLE_VERSION)
-            {
-                String message = String.format(
-                    "The version of BouncyCastle should be %f or newer", MIN_BOUNCY_CASTLE_VERSION);
-                throw new RuntimeCryptoException(message);
-            }
+            //if (newProvider.getVersion() < MIN_BOUNCY_CASTLE_VERSION)
+            //{
+            //    String message = String.Format(
+            //        "The version of BouncyCastle should be %f or newer", MIN_BOUNCY_CASTLE_VERSION);
+            //    throw new Exception(message);
+            //}
 
-            if (provider != null)
-            {
-                Security.RemoveProvider(BouncyCastleProvider.PROVIDER_NAME);
-            }
+            //if (provider != null)
+            //{
+            //    Security.RemoveProvider(BouncyCastleProvider.PROVIDER_NAME);
+            //}
 
-            Security.AddProvider(newProvider);
+            //Security.AddProvider(newProvider);
 
             SECURE_RANDOM = new SecureRandom();
         }
 
-        private IconKeys()
-        {
-        }
-
         public static Bytes CreatePrivateKey()
         {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.GetInstance("EC", "BC");
-            ECGenParameterSpec ecGenParameterSpec = new ECGenParameterSpec("secp256k1");
-            keyPairGenerator.initialize(ecGenParameterSpec, SecureRandom());
-            KeyPair keyPair = keyPairGenerator.GenerateKeyPair();
-            return new Bytes(((BCECPrivateKey) keyPair.GetPrivate()).GetD());
+            IAsymmetricCipherKeyPairGenerator keyPairGenerator = Org.BouncyCastle.Security.GeneratorUtilities.GetKeyPairGenerator("EC");
+            var curveParams = Org.BouncyCastle.Crypto.EC.CustomNamedCurves.GetByName("secp256k1");
+            var curve = new ECDomainParameters(
+                curveParams.Curve, curveParams.G, curveParams.N, curveParams.H);
+            ECKeyGenerationParameters ecGenParameterSpec = new ECKeyGenerationParameters(curve, SECURE_RANDOM);
+            keyPairGenerator.Init(ecGenParameterSpec);
+            var keyPair = keyPairGenerator.GenerateKeyPair();
+            return new Bytes(((ECPrivateKeyParameters)keyPair.Private).D);
         }
 
         public static Bytes GetPublicKey(Bytes privateKey)
         {
-            ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("secp256k1");
-            ECPoint pointQ = spec.GetG().Multiply(new BigInteger(1, privateKey.ToByteArray()));
+            var spec = ECNamedCurveTable.GetByName("secp256k1");
+            ECPoint pointQ = spec.G.Multiply(new BigInteger(1, privateKey.ToByteArray()));
             byte[] publicKeyBytes = pointQ.GetEncoded(false);
             return new Bytes(Arrays.CopyOfRange(publicKeyBytes, 1, publicKeyBytes.Length));
         }
 
         public static Address GetAddress(Bytes publicKey)
         {
-            return new Address(Address.AddressPrefix.EOA, GetAddressHash(publicKey.ToByteArray(PUBLIC_KEY_SIZE)));
+            return new Address(new Address.AddressPrefix(Address.AddressPrefix.EOA), GetAddressHash(publicKey.ToByteArray(PUBLIC_KEY_SIZE)));
         }
 
         public static byte[] GetAddressHash(BigInteger publicKey)
         {
-            return getAddressHash(new Bytes(publicKey).toByteArray(PUBLIC_KEY_SIZE));
+            return GetAddressHash(new Bytes(publicKey).ToByteArray(PUBLIC_KEY_SIZE));
         }
 
         public static byte[] GetAddressHash(byte[] publicKey)
         {
-            byte[] hash = new SHA3.Digest256().digest(publicKey);
+            byte[] hash = new byte[publicKey.Length];
+            Array.Copy(publicKey, hash, publicKey.Length);
+            new Sha3Digest(256).DoFinal(hash, 0);
 
             int length = 20;
             byte[] result = new byte[20];
-            System.Arraycopy(hash, hash.Length - 20, result, 0, length);
+            Array.Copy(hash, hash.Length - 20, result, 0, length);
             return result;
         }
 
-        public static boolean IsValidAddress(Address input)
+        public static bool IsValidAddress(Address input)
         {
             return IsValidAddress(input.ToString());
         }
@@ -96,9 +103,9 @@ namespace Lykke.Icon.Sdk.Crypto
             String cleanInput = CleanHexPrefix(input);
             try
             {
-                return cleanInput.Matches("^[0-9a-f]{40}$") && cleanInput.Length == ADDRESS_LENGTH_IN_HEX;
+                return Regex.IsMatch(cleanInput, "^[0-9a-f]{40}$") && cleanInput.Length == ADDRESS_LENGTH_IN_HEX;
             }
-            catch (NumberFormatException e)
+            catch (Exception e)
             {
                 return false;
             }
@@ -112,7 +119,7 @@ namespace Lykke.Icon.Sdk.Crypto
 
         public static bool IsContractAddress(Address address)
         {
-            return address.GetPrefix() == Address.AddressPrefix.CONTRACT;
+            return address?.GetPrefix().GetValue() == Address.AddressPrefix.CONTRACT;
         }
 
         public static String CleanHexPrefix(String input)
@@ -134,10 +141,10 @@ namespace Lykke.Icon.Sdk.Crypto
 
         public static Address.AddressPrefix GetAddressHexPrefix(String input)
         {
-            return Address.AddressPrefix.FromString(input.substring(0, 2));
+            return Address.AddressPrefix.FromString(input.Substring(0, 2));
         }
 
-        public static SecureRandom secureRandom()
+        public static SecureRandom SecureRandom()
         {
             return SECURE_RANDOM;
         }

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using Lykke.Icon.Sdk.Crypto;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -81,7 +83,7 @@ namespace Lykke.Icon.Sdk.Data
             }
 
             int destOffset = length - bytesLength;
-            System.arraycopy(bytes, srcOffset, result, destOffset, bytesLength);
+            Array.Copy(bytes, srcOffset, result, destOffset, bytesLength);
             return result;
         }
 
@@ -103,14 +105,14 @@ namespace Lykke.Icon.Sdk.Data
          * @param withPrefix whether 0x prefix included
          * @return hex string
          */
-        public String ToHexString(boolean withPrefix)
+        public String ToHexString(bool withPrefix)
         {
-            return ToHexString(withPrefix, data.length);
+            return ToHexString(withPrefix, data.Length);
         }
 
         public static bool ContainsHexPrefix(String input)
         {
-            return input.length() > 1 && input.CharAt(0) == '0' && input.CharAt(1) == 'x';
+            return input.Length> 1 && input[0] == '0' && input[1] == 'x';
         }
 
         /**
@@ -124,12 +126,12 @@ namespace Lykke.Icon.Sdk.Data
             return ToBytesPadded(new BigInteger(data), size);
         }
 
-        public String ToString()
+        public override String ToString()
         {
             return ToHexString(true, data.Length);
         }
 
-        public bool Equals(Object obj)
+        public override bool Equals(Object obj)
         {
             if (obj == this) return true;
             if (obj is Bytes)
@@ -146,7 +148,7 @@ namespace Lykke.Icon.Sdk.Data
          * @param size size of byte array
          * @return hex string given size
          */
-        public String ToHexString(boolean withPrefix, int size)
+        public String ToHexString(bool withPrefix, int size)
         {
             String result = Hex.ToHexString(data);
             int length = result.Length;
@@ -155,7 +157,7 @@ namespace Lykke.Icon.Sdk.Data
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < size - length; i++)
                 {
-                    sb.append('0');
+                    sb.Append('0');
                 }
                 result = sb.Append(result).ToString();
             }
@@ -175,10 +177,10 @@ namespace Lykke.Icon.Sdk.Data
             return data == null ? 0 : data.Length;
         }
 
-        private boolean IsValidHex(String value)
+        private bool IsValidHex(String value)
         {
             String v = CleanHexPrefix(value);
-            return v.Matches("^[0-9a-fA-F]+$");
+            return Regex.IsMatch(v, "^[0-9a-fA-F]+$");
         }
     }
 }

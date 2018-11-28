@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2050
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Icon.Sdk.Ported", "src\Lykke.Icon.Sdk\Lykke.Icon.Sdk.Ported.csproj", "{439E4A22-5D0A-472F-B447-C7961605FB46}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Icon.Sdk", "src\Lykke.Icon.Sdk\Lykke.Icon.Sdk.csproj", "{439E4A22-5D0A-472F-B447-C7961605FB46}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02076F6D-26D3-4D77-A06E-A615FA693528}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lykke.Icon.Sdk.Tests", "tests\Lykke.Icon.Sdk.Tests\Lykke.Icon.Sdk.Tests.csproj", "{C4145691-B889-4D33-95F7-4BBA17A64826}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Icon.Sdk.Tests", "tests\Lykke.Icon.Sdk.Tests\Lykke.Icon.Sdk.Tests.csproj", "{C4145691-B889-4D33-95F7-4BBA17A64826}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -53,12 +53,12 @@ namespace Lykke.Icon.Sdk
          * @param file     the KeyStore file
          * @return KeyWallet
          */
-        public static KeyWallet Load(String password, File file)
-        {
-            Bytes privateKey = KeyStoreUtils.LoadPrivateKey(password, file);
-            Bytes pubicKey = IconKeys.GetPublicKey(privateKey);
-            return new KeyWallet(privateKey, pubicKey);
-        }
+        //public static KeyWallet Load(String password, File file)
+        //{
+        //    Bytes privateKey = KeyStoreUtils.LoadPrivateKey(password, file);
+        //    Bytes pubicKey = IconKeys.GetPublicKey(privateKey);
+        //    return new KeyWallet(privateKey, pubicKey);
+        //}
 
         /**
          * Stores the KeyWallet as a KeyStore
@@ -68,11 +68,11 @@ namespace Lykke.Icon.Sdk
          * @param destinationDirectory the KeyStore file is stored at.
          * @return name of the KeyStore file
          */
-        public static String Store(KeyWallet wallet, String password, File destinationDirectory)
-        {
-            KeystoreFile keystoreFile = Keystore.Create(password, wallet.getPrivateKey(), 1 << 14, 1);
-            return KeyStoreUtils.GenerateWalletFile(keystoreFile, destinationDirectory);
-        }
+        //public static String Store(KeyWallet wallet, String password, File destinationDirectory)
+        //{
+        //    KeystoreFile keystoreFile = Keystore.Create(password, wallet.getPrivateKey(), 1 << 14, 1);
+        //    return KeyStoreUtils.GenerateWalletFile(keystoreFile, destinationDirectory);
+        //}
 
         /**
          * @see Wallet#getAddress()

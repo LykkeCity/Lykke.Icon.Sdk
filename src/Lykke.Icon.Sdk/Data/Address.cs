@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
+using Lykke.Icon.Sdk.Crypto;
 
 namespace Lykke.Icon.Sdk.Data
 {
@@ -27,12 +28,12 @@ namespace Lykke.Icon.Sdk.Data
 
         public Address(String address)
         {
-            AddressPrefix addressPrefix = IconKeys.getAddressHexPrefix(address);
+            AddressPrefix addressPrefix = IconKeys.GetAddressHexPrefix(address);
             if (addressPrefix == null)
             {
                 throw new ArgumentException("Invalid address prefix");
             }
-            else if (!IconKeys.isValidAddress(address))
+            else if (!IconKeys.IsValidAddress(address))
             {
                 throw new ArgumentException("Invalid address");
             }
@@ -105,7 +106,7 @@ namespace Lykke.Icon.Sdk.Data
 
             private String prefix;
 
-            AddressPrefix(String prefix)
+            public AddressPrefix(String prefix)
             {
                 this.prefix = prefix;
             }

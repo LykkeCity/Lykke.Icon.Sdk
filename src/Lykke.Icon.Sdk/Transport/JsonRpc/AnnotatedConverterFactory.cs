@@ -6,56 +6,61 @@ using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
-
-public class AnnotatedConverterFactory : RpcConverter.RpcConverterFactory {
-
-    public RpcConverter<T> Create(Class<T> type) {
-        return new RpcConverter<T>() {
-            public T convertTo(RpcItem @object) {
-                try {
+    public class AnnotatedConverterFactory : RpcConverter.RpcConverterFactory
+    {
+        public sealed class GenericRpcConverter<T>
+        {
+            public T ConvertTo(RpcItem @object)
+            {
+                try
+                {
                     T result;
-                    try {
-                        result = getClassInstance(type);
-                    } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
-                        throw new IllegalArgumentException(e);
+                    var type = typeof(T);
+                    try
+                    {
+                        result = GetClassInstance(type);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new ArgumentException(e);
                     }
 
-                    RpcObject o = object.asObject();
-                    Field[] fields = type.getDeclaredFields();
-                    for (Field field : fields) {
+                    RpcObject o = @object.ToObject();
+                    FieldInfo[] fields = type.GetFields();
+                    foreach (Field field in fields)
+                    {
                         field.setAccessible(true);
-                        if (field.isAnnotationPresent(ConverterName.class)) {
-                            ConverterName n = field.getAnnotation(ConverterName.class);
-                            Object value = fromRpcItem(o.getItem(n.value()), field.getType());
+                        if (field.isAnnotationPresent(typeof(ConverterName))) {
+                            ConverterName n = field.getAnnotation(typeof(ConverterName));
+                            Object value = FromRpcItem(o.GetItem(n.value()), field.GetType());
                             if (value != null) field.set(result, value);
                         }
                     }
                     return result;
-                } catch (InstantiationException | IllegalAccessException e) {
-                    e.printStackTrace();
+                } catch (Exception e)
+                {
+                    throw e;
                 }
                 return null;
             }
 
-            @Override
-            public RpcItem convertFrom(T object) {
-                return RpcItemCreator.create(object);
+            public override RpcItem ConvertFrom(T @object)
+            {
+                return RpcItemCreator.Create(@object);
             }
-        };
-
-    }
-
-    private <T> T getClassInstance(Class<T> type) {
-        if (isInnerClass(type)) {
-            String className = type.getCanonicalName().subSequence(0, type.getCanonicalName().length() - type.getSimpleName().length() - 1).toString();
-            Class m = Class.forName(className);
-            return type.getConstructor(m).newInstance(m.newInstance());
         }
-        return type.newInstance();
-    }
 
-    private bool isInnerClass(Class<?> clazz) {
-        return clazz.isMemberClass() && !Modifier.isStatic(clazz.getModifiers());
+        public RpcConverter<T> Create(Class<T> type)
+        {
+            return new GenericRpcConverter<T>();
+        }
+
+        private T GetClassInstance<T>()
+        {
+            var type = typeof(T);
+            T instance = Activator.CreateInstance<T>();
+
+            return instance;
+        }
     }
-}
 }
