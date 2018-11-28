@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Lykke.Icon.Sdk.Data;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -11,7 +13,7 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
  */
     public class RpcValue : RpcItem
     {
-        private String _value;
+        private String value;
 
         public RpcValue(RpcValue value)
         {
@@ -20,7 +22,7 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 
         public RpcValue(Address value)
         {
-            if (value.IsMalformed()) throw new IllegalArgumentException("Invalid address");
+            if (value.IsMalformed()) throw new ArgumentException("Invalid address");
             this.value = value.ToString();
         }
 
@@ -31,33 +33,28 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 
         public RpcValue(byte[] value)
         {
-            this.value = new Bytes(value).toHexString(true);
+            this.value = new Bytes(value).ToHexString(true);
         }
 
         public RpcValue(BigInteger value)
         {
-            String sign = (value.signum() == -1) ? "-" : "";
-            this.value = sign + HEX_PREFIX + value.abs().toString(16);
+            String sign = (value.SignValue == -1) ? "-" : "";
+            this.value = sign + Bytes.HEX_PREFIX + value.Abs().ToString(16);
         }
 
-        public RpcValue(boolean value)
+        public RpcValue(bool value)
         {
             this.value = value ? "0x1" : "0x0";
         }
 
-        public RpcValue(Boolean value)
-        {
-            this(value.booleanValue());
-        }
-
         public RpcValue(Bytes value)
         {
-            this.value = value.toString();
+            this.value = value.ToString();
         }
 
-        public boolean IsEmpty()
+        public override bool IsEmpty()
         {
-            return value == null || value.IsEmpty();
+            return value == null || string.IsNullOrEmpty(value);
         }
 
         /**
@@ -77,19 +74,19 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
          */
         public byte[] ToByteArray()
         {
-            if (!value.startsWith(HEX_PREFIX))
+            if (!value.StartsWith(Bytes.HEX_PREFIX))
             {
                 throw new RpcValueException("The value is not hex string.");
             }
 
             // bytes should be even length of hex string
-            if (value.length() % 2 != 0)
+            if (value.Length % 2 != 0)
             {
                 throw new RpcValueException(
                     "The hex value is not bytes format.");
             }
 
-            return new Bytes(value).toByteArray();
+            return new Bytes(value).ToByteArray();
         }
 
         public Address ToAddress()
@@ -98,7 +95,7 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             {
                 return new Address(value);
             }
-            catch (IllegalArgumentException e)
+            catch (ArgumentException e)
             {
                 if (value == null)
                 {
@@ -106,7 +103,7 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
                 }
                 else
                 {
-                    return Address.createMalformedAddress(value);
+                    return Address.CreateMalformedAddress(value);
                 }
             }
         }
@@ -123,7 +120,7 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
          */
         public BigInteger ToInteger()
         {
-            if (!(value.startsWith(HEX_PREFIX) || value.startsWith('-' + HEX_PREFIX)))
+            if (!(value.StartsWith(Bytes.HEX_PREFIX) || value.StartsWith('-' + Bytes.HEX_PREFIX)))
             {
                 throw new RpcValueException("The value is not hex string.");
             }
@@ -131,16 +128,16 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             try
             {
                 String sign = "";
-                if (value.charAt(0) == '-')
+                if (value[0] == '-')
                 {
-                    sign = value.substring(0, 1);
-                    value = value.substring(1);
+                    sign = value.Substring(0, 1);
+                    value = value.Substring(1);
                 }
 
-                String result = sign + Bytes.cleanHexPrefix(value);
+                String result = sign + Bytes.CleanHexPrefix(value);
                 return new BigInteger(result, 16);
             }
-            catch (NumberFormatException e)
+            catch (Exception e)
             {
                 throw new RpcValueException("The value is not hex string.");
             }

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Lykke.Icon.Sdk.Crypto;
+using Lykke.Icon.Sdk.Transport.JsonRpc;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -17,12 +19,12 @@ namespace Lykke.Icon.Sdk.Data
 
         public sealed class RpcItemConverter : RpcConverter<RpcItem>
         {
-            public override RpcItem ConvertTo(RpcItem @object)
+            public RpcItem ConvertTo(RpcItem @object)
             {
                 return @object;
             }
 
-            public override RpcItem ConvertFrom(RpcItem @object)
+            public RpcItem ConvertFrom(RpcItem @object)
             {
                 return @object;
             }
@@ -30,12 +32,12 @@ namespace Lykke.Icon.Sdk.Data
 
         public sealed class BigIntegerConverter : RpcConverter<BigInteger>
         {
-            public override BigInteger ConvertTo(RpcItem @object)
+            public BigInteger ConvertTo(RpcItem @object)
             {
                 return @object.ToInteger();
             }
 
-            public override RpcItem ConvertFrom(BigInteger @object)
+            public RpcItem ConvertFrom(BigInteger @object)
             {
                 return RpcItemCreator.Create(@object);
             }
@@ -43,12 +45,12 @@ namespace Lykke.Icon.Sdk.Data
 
         public sealed class BoolConverter : RpcConverter<bool>
         {
-            public override bool ConvertTo(RpcItem @object)
+            public bool ConvertTo(RpcItem @object)
             {
-                return object.ToBoolean();
+                return @object.ToBoolean();
             }
 
-            public override RpcItem ConvertFrom(bool @object)
+            public RpcItem ConvertFrom(bool @object)
             {
                 return RpcItemCreator.Create(@object);
             }
@@ -56,12 +58,12 @@ namespace Lykke.Icon.Sdk.Data
 
         public sealed class StringConverter : RpcConverter<string>
         {
-            public override String ConvertTo(RpcItem @object)
+            public String ConvertTo(RpcItem @object)
             {
                 return @object.ToString();
             }
 
-            public override RpcItem ConvertFrom(String @object)
+            public RpcItem ConvertFrom(String @object)
             {
                 return RpcItemCreator.Create(@object);
             }
@@ -69,12 +71,12 @@ namespace Lykke.Icon.Sdk.Data
 
         public sealed class BytesConverter : RpcConverter<Bytes>
         {
-            public override Bytes ConvertTo(RpcItem @object)
+            public Bytes ConvertTo(RpcItem @object)
             {
-                return object.ToBytes();
+                return @object.ToBytes();
             }
 
-            public override RpcItem ConvertFrom(Bytes @object)
+            public RpcItem ConvertFrom(Bytes @object)
             {
                 return RpcItemCreator.Create(@object);
             }
@@ -82,12 +84,12 @@ namespace Lykke.Icon.Sdk.Data
 
         public sealed class ByteArrayConverter : RpcConverter<byte[]>
         {
-            public override byte[] ConvertTo(RpcItem @object)
+            public byte[] ConvertTo(RpcItem @object)
             {
-                return object.ToByteArray();
+                return @object.ToByteArray();
             }
 
-            public override RpcItem ConvertFrom(byte[] @object)
+            public RpcItem ConvertFrom(byte[] @object)
             {
                 return RpcItemCreator.Create(@object);
             }
@@ -95,12 +97,12 @@ namespace Lykke.Icon.Sdk.Data
 
         public sealed class BlockConverter : RpcConverter<Block>
         {
-            public override Block ConvertTo(RpcItem @object)
+            public Block ConvertTo(RpcItem @object)
             {
-                return new Block(object.ToObject());
+                return new Block(@object.ToObject());
             }
 
-            public override RpcItem ConvertFrom(Block @object)
+            public RpcItem ConvertFrom(Block @object)
             {
                 return RpcItemCreator.Create(@object);
             }
@@ -108,12 +110,12 @@ namespace Lykke.Icon.Sdk.Data
 
         public sealed class ConfirmedTransactionConverter : RpcConverter<ConfirmedTransaction>
         {
-            public override ConfirmedTransaction ConvertTo(RpcItem @object)
+            public ConfirmedTransaction ConvertTo(RpcItem @object)
             {
                 return new ConfirmedTransaction(@object.ToObject());
             }
 
-            public override RpcItem ConvertFrom(ConfirmedTransaction @object)
+            public RpcItem ConvertFrom(ConfirmedTransaction @object)
             {
                 return RpcItemCreator.Create(@object);
             }
@@ -121,12 +123,12 @@ namespace Lykke.Icon.Sdk.Data
 
         public sealed class TransactionResultConverter : RpcConverter<TransactionResult>
         {
-            public override TransactionResult ConvertTo(RpcItem @object)
+            public TransactionResult ConvertTo(RpcItem @object)
             {
                 return new TransactionResult(@object.ToObject());
             }
 
-            public override RpcItem ConvertFrom(TransactionResult @object)
+            public RpcItem ConvertFrom(TransactionResult @object)
             {
                 return RpcItemCreator.Create(@object);
             }
@@ -134,18 +136,18 @@ namespace Lykke.Icon.Sdk.Data
 
         public sealed class ListScoreApiConverter : RpcConverter<List<ScoreApi>>
         {
-            public override List<ScoreApi> ConvertTo(RpcItem rpcItem)
+            public List<ScoreApi> ConvertTo(RpcItem rpcItem)
             {
-                RpcArray array = rpcItem.asArray();
-                List<ScoreApi> scoreApis = new ArrayList<>(array.size());
-                for (int i = 0; i < array.size(); i++)
+                RpcArray array = rpcItem.ToArray();
+                List<ScoreApi> scoreApis = new List<ScoreApi>(array.Size());
+                for (int i = 0; i < array.Size(); i++)
                 {
-                    scoreApis.add(new ScoreApi(array.get(i).ToObject()));
+                    scoreApis.Add(new ScoreApi(array.Get(i).ToObject()));
                 }
                 return scoreApis;
             }
 
-            public override RpcItem ConvertFrom(List<ScoreApi> @object)
+            public RpcItem ConvertFrom(List<ScoreApi> @object)
             {
                 return RpcItemCreator.Create(@object);
             }
@@ -162,7 +164,7 @@ namespace Lykke.Icon.Sdk.Data
                 _converter = converter;
             }
 
-            public override RpcConverter<T> Create<T>()
+            public RpcConverter<T> Create<T>()
             {
                 var type = typeof(T);
                 return type.IsAssignableFrom(_typeFor) ? (RpcConverter<T>)_converter : null;
@@ -205,32 +207,32 @@ namespace Lykke.Icon.Sdk.Data
             return new CustomRpcConverterFactory<TT>(converter);
         }
 
-        public static Object FromRpcItem<T>(T item, Type type)
+        public static Object FromRpcItem<T>(T item)
         {
             if (item == null) return null;
 
             if (item.GetType().IsAssignableFrom(typeof(RpcArray)))
             {
-                return fromRpcArray((RpcArray)item, type);
+                return FromRpcArray<T>(item as RpcArray);
             }
 
             if (item.GetType().IsAssignableFrom(typeof(RpcObject)))
             {
-                return fromRpcObject((RpcObject)item, type);
+                return FromRpcObject<T>(item as RpcObject);
             }
 
-            return fromRpcValue((RpcValue)item, type);
+            return FromRpcValue<T>(item as RpcValue);
         }
 
         static Object FromRpcArray<T>(RpcArray array)
         {
             var type = typeof(T);
             if (type.IsAssignableFrom(typeof(RpcArray))) return array;
-            List result = new ArrayList<T>();
+            List<object> result = new List<object>();
             foreach (RpcItem item in array)
             {
-                Object v = FromRpcItem(item, type);
-                if (v != null) result.add(FromRpcItem(item, type));
+                Object v = FromRpcItem(item);
+                if (v != null) result.Add(FromRpcItem(item));
             }
             return result;
         }
@@ -239,12 +241,12 @@ namespace Lykke.Icon.Sdk.Data
         {
             var type = typeof(T);
             if (type.IsAssignableFrom(typeof(RpcObject))) return @object;
-            Map result = new HashMap();
-            Set<String> keys = @object.keySet();
+            Dictionary<string, object> result = new Dictionary<string, object>();
+            IEnumerable<String> keys = @object.GetKeys();
             foreach (String key in keys)
             {
-                Object v = FromRpcItem(@object.GetItem(key), type);
-                if (v != null) result.put(key, v);
+                Object v = FromRpcItem(@object.GetItem(key));
+                if (v != null) result[key] = v;
             }
             return result;
         }

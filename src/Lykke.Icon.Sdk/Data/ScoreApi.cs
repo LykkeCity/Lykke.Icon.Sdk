@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Lykke.Icon.Sdk.Crypto;
+using Lykke.Icon.Sdk.Transport.JsonRpc;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -11,7 +13,7 @@ namespace Lykke.Icon.Sdk.Data
     {
         private RpcObject properties;
 
-        ScoreApi(RpcObject properties)
+        public ScoreApi(RpcObject properties)
         {
             this.properties = properties;
         }
@@ -45,13 +47,13 @@ namespace Lykke.Icon.Sdk.Data
 
         List<Param> GetParams(RpcItem item)
         {
-            List<Param> @params = new ArrayList<>();
+            List<Param> @params = new List<Param>();
             if (item != null)
             {
                 foreach (RpcItem rpcItem in item.ToArray())
                 {
                     RpcObject @object = (RpcObject)rpcItem;
-                    @params.add(new Param(@object));
+                    @params.Add(new Param(@object));
                 }
             }
 
@@ -75,7 +77,7 @@ namespace Lykke.Icon.Sdk.Data
         {
             private RpcObject properties;
 
-            Param(RpcObject properties)
+            public Param(RpcObject properties)
             {
                 this.properties = properties;
             }
@@ -95,7 +97,7 @@ namespace Lykke.Icon.Sdk.Data
             public BigInteger GetIndexed()
             {
                 RpcItem item = properties.GetItem("indexed");
-                return item != null ? item.asInteger() : null;
+                return item != null ? item.ToInteger() : null;
             }
 
             public String ToString()

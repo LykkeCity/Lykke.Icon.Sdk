@@ -8,13 +8,13 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
     public interface RpcConverter<T>
     {
-        T convertTo(RpcItem @object);
-        RpcItem convertFrom(T @object);
+        T ConvertTo(RpcItem @object);
+        RpcItem ConvertFrom(T @object);
 
     }
 
     public interface RpcConverterFactory
     {
-        RpcConverter<T> Create(T type);
+        RpcConverter<T> Create<T>();
     }
 }

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Lykke.Icon.Sdk.Crypto;
+using Lykke.Icon.Sdk.Transport.JsonRpc;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -11,7 +13,7 @@ namespace Lykke.Icon.Sdk.Data
     {
         private RpcObject properties;
 
-        Block(RpcObject properties)
+        public Block(RpcObject properties)
         {
             this.properties = properties;
         }
@@ -43,11 +45,11 @@ namespace Lykke.Icon.Sdk.Data
         {
             RpcItem item = properties.GetItem("confirmed_transaction_list");
             List<ConfirmedTransaction> transactions = new List<ConfirmedTransaction>();
-            if (item != null && GetHeight().IntValue() > 0)
+            if (item != null && GetHeight().IntValue > 0)
             {
                 foreach (RpcItem tx in item.ToArray())
                 {
-                    transactions.add(CONFIRMED_TRANSACTION.convertTo(tx.ToObject()));
+                    transactions.Add(Converters.CONFIRMED_TRANSACTION.ConvertTo(tx.ToObject()));
                 }
             }
             return transactions;

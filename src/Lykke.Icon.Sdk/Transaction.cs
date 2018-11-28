@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Lykke.Icon.Sdk.Data;
+using Lykke.Icon.Sdk.Transport.JsonRpc;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 

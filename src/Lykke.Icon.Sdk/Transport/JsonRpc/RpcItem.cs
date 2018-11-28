@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Lykke.Icon.Sdk.Data;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -38,22 +40,22 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             return ToValue().ToInteger();
         }
 
-        byte[] ToByteArray()
+        public byte[] ToByteArray()
         {
             return ToValue().ToByteArray();
         }
 
-        Boolean ToBoolean()
+        public Boolean ToBoolean()
         {
             return ToValue().ToBoolean();
         }
 
-        Address ToAddress()
+        public Address ToAddress()
         {
             return ToValue().ToAddress();
         }
 
-        Bytes ToBytes()
+        public Bytes ToBytes()
         {
             return ToValue().ToBytes();
         }
@@ -61,7 +63,7 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 
     public class RpcValueException : ArgumentException
     {
-        RpcValueException(String message) : base(message)
+        public RpcValueException(String message) : base(message)
         {
         }
     }
