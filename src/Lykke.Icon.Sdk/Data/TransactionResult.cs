@@ -52,7 +52,7 @@ namespace Lykke.Icon.Sdk.Data
         /**
          * @return Recipient address of the transaction
          */
-        public String getTo()
+        public String GetTo()
         {
             RpcItem item = properties.GetItem("to");
             return item != null ? item.ToString() : null;
@@ -61,7 +61,7 @@ namespace Lykke.Icon.Sdk.Data
         /**
          * @return Transaction hash
          */
-        public Bytes getTxHash()
+        public Bytes GetTxHash()
         {
             RpcItem item = properties.GetItem("txHash");
             return item != null ? item.ToBytes() : null;
@@ -70,7 +70,7 @@ namespace Lykke.Icon.Sdk.Data
         /**
          * @return Transaction index in the block
          */
-        public BigInteger getTxIndex()
+        public BigInteger GetTxIndex()
         {
             RpcItem item = properties.GetItem("txIndex");
             return item != null ? item.ToInteger() : null;
@@ -133,7 +133,7 @@ namespace Lykke.Icon.Sdk.Data
         /**
          * @return Bloom filter to quickly retrieve related eventlogs.
          */
-        public String getLogsBloom()
+        public String GetLogsBloom()
         {
             RpcItem item = properties.GetItem("logsBloom");
             return item != null ? item.ToString() : null;
@@ -142,7 +142,7 @@ namespace Lykke.Icon.Sdk.Data
         /**
          * @return List of event logs, which this transaction generated.
          */
-        public List<EventLog> getEventLogs()
+        public List<EventLog> GetEventLogs()
         {
             RpcItem item = properties.GetItem("eventLogs");
             List<EventLog> eventLogs = new List<EventLog>();
@@ -175,14 +175,15 @@ namespace Lykke.Icon.Sdk.Data
                     if (code != null)
                     {
                         RpcObject.Builder builder = new RpcObject.Builder();
-                        builder.put("code", code);
+                        builder.Put("code", code);
 
                         RpcItem message = properties.GetItem("message");
                         if (message != null)
                         {
-                            builder.put("message", message);
+                            builder.Put("message", message);
                         }
-                        failure = builder.build();
+
+                        failure = builder.Build();
                     }
                 }
             }
@@ -211,13 +212,13 @@ namespace Lykke.Icon.Sdk.Data
                 return item != null ? item.ToString() : null;
             }
 
-            public List<RpcItem> getIndexed()
+            public List<RpcItem> GetIndexed()
             {
                 RpcItem item = properties.GetItem("indexed");
                 return item != null ? item.ToArray().ToList() : null;
             }
 
-            public List<RpcItem> getData()
+            public List<RpcItem> GetData()
             {
                 RpcItem field = properties.GetItem("data");
                 return field != null ? field.ToArray().ToList() : null;

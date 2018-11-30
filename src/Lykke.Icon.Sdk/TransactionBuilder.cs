@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Lykke.Icon.Sdk.Data;
+using Lykke.Icon.Sdk.Transport.JsonRpc;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -20,27 +23,27 @@ namespace Lykke.Icon.Sdk
         /**
          * Creates a builder for the given network ID
          *
-         * @param nid network ID
+         * @param Nid network ID
          * @return new builder
-         * @deprecated This method can be replaced by {@link #newBuilder()}
+         * @deprecated This method can be replaced by {@link #NewBuilderter()}
          */
-        public static Builder Of(NetworkId nid)
+        public static Builder Of(NetworkId Nid)
         {
-            Builder builder = newBuilder();
-            return builder.Nid(nid.GetValue());
+            Builder builder = NewBuilder();
+            return builder.Nid(Nid);
         }
 
         /**
          * Creates a builder for the given network ID
          *
-         * @param nid network ID in BigInteger
+         * @param Nid network ID in BigInteger
          * @return new builder
-         * @deprecated This method can be replaced by {@link #newBuilder()}
+         * @deprecated This method can be replaced by {@link #NewBuilderter()}
          */
-        public static Builder Of(BigInteger nid)
+        public static Builder Of(BigInteger Nid)
         {
-            Builder builder = newBuilder();
-            return builder.nid(nid);
+            Builder builder = NewBuilder();
+            return builder.Nid(Nid);
         }
 
         /**
@@ -48,7 +51,7 @@ namespace Lykke.Icon.Sdk
          *
          * @return new builder
          */
-        public static Builder newBuilder()
+        public static Builder NewBuilder()
         {
             return new Builder();
         }
@@ -56,11 +59,11 @@ namespace Lykke.Icon.Sdk
         /**
          * A Builder for the simple icx sending transaction.
          */
-        public static class Builder
+        public class Builder
         {
             private TransactionData transactionData;
 
-            private Builder()
+            public Builder()
             {
                 this.transactionData = new TransactionData();
             }
@@ -68,24 +71,24 @@ namespace Lykke.Icon.Sdk
             /**
              * Sets the Network ID
              *
-             * @param nid Network ID ("0x1" for Mainnet, etc)
+             * @param Nid Network ID ("0x1" for Mainnet, etc)
              * @return self
              */
-            public Builder nid(BigInteger nid)
+            public Builder Nid(BigInteger Nid)
             {
-                transactionData.nid = nid;
+                transactionData.Nid = Nid;
                 return this;
             }
 
             /**
              * Sets the Network ID
              *
-             * @param nid Network ID ("0x1" for Mainnet, etc)
+             * @param Nid Network ID ("0x1" for Mainnet, etc)
              * @return self
              */
-            public Builder nid(NetworkId nid)
+            public Builder Nid(NetworkId Nid)
             {
-                transactionData.nid = nid.getValue();
+                transactionData.Nid = BigInteger.ValueOf((long)Nid);
                 return this;
             }
 
@@ -95,7 +98,7 @@ namespace Lykke.Icon.Sdk
              * @param from EOA address that created the transaction
              * @return self
              */
-            public Builder from(Address from)
+            public Builder From(Address from)
             {
                 transactionData.from = from;
                 return this;
@@ -107,7 +110,7 @@ namespace Lykke.Icon.Sdk
              * @param to EOA address to receive coins, or SCORE address to execute the transaction.
              * @return self
              */
-            public Builder to(Address to)
+            public Builder To(Address to)
             {
                 transactionData.to = to;
                 return this;
@@ -119,7 +122,7 @@ namespace Lykke.Icon.Sdk
              * @param value Amount of ICX coins in loop to transfer. (1 icx = 1 ^ 18 loop)
              * @return self
              */
-            public Builder value(BigInteger value)
+            public Builder Value(BigInteger value)
             {
                 transactionData.value = value;
                 return this;
@@ -131,7 +134,7 @@ namespace Lykke.Icon.Sdk
              * @param stepLimit Maximum step allowance that can be used by the transaction.
              * @return self
              */
-            public Builder stepLimit(BigInteger stepLimit)
+            public Builder StepLimit(BigInteger stepLimit)
             {
                 transactionData.stepLimit = stepLimit;
                 return this;
@@ -143,7 +146,7 @@ namespace Lykke.Icon.Sdk
              * @param timestamp Transaction creation time, in microsecond.
              * @return self
              */
-            public Builder timestamp(BigInteger timestamp)
+            public Builder Timestamp(BigInteger timestamp)
             {
                 transactionData.timestamp = timestamp;
                 return this;
@@ -155,7 +158,7 @@ namespace Lykke.Icon.Sdk
              * @param nonce An arbitrary number used to prevent transaction hash collision.
              * @return self
              */
-            public Builder nonce(BigInteger nonce)
+            public Builder Nonce(BigInteger nonce)
             {
                 transactionData.nonce = nonce;
                 return this;
@@ -167,7 +170,7 @@ namespace Lykke.Icon.Sdk
              * @param method calling method name
              * @return {@link CallBuilder}
              */
-            public CallBuilder call(String method)
+            public CallBuilder Call(String method)
             {
                 return new CallBuilder(transactionData, method);
             }
@@ -179,7 +182,7 @@ namespace Lykke.Icon.Sdk
              * @param content     deploying content
              * @return {@link DeployBuilder}
              */
-            public DeployBuilder deploy(String contentType, byte[] content)
+            public DeployBuilder Deploy(String contentType, byte[] content)
             {
                 return new DeployBuilder(transactionData, contentType, content);
             }
@@ -190,7 +193,7 @@ namespace Lykke.Icon.Sdk
              * @param message message
              * @return {@link MessageBuilder}
              */
-            public MessageBuilder message(String message)
+            public MessageBuilder Message(String message)
             {
                 return new MessageBuilder(transactionData, message);
             }
@@ -200,9 +203,9 @@ namespace Lykke.Icon.Sdk
              *
              * @return a transaction to send
              */
-            public Transaction build()
+            public Transaction Build()
             {
-                return transactionData.build();
+                return transactionData.Build();
             }
 
         }
@@ -210,19 +213,19 @@ namespace Lykke.Icon.Sdk
         /**
          * A Builder for the calling SCORE transaction.
          */
-        public static class CallBuilder
+        public class CallBuilder
         {
 
             private TransactionData transactionData;
             private RpcObject.Builder dataBuilder;
 
-            private CallBuilder(TransactionData transactionData, String method)
+            public CallBuilder(TransactionData transactionData, String method)
             {
                 this.transactionData = transactionData;
                 this.transactionData.dataType = "call";
 
                 dataBuilder = new RpcObject.Builder()
-                        .put("method", new RpcValue(method));
+                        .Put("method", new RpcValue(method));
             }
 
             /**
@@ -233,7 +236,7 @@ namespace Lykke.Icon.Sdk
              */
             public CallBuilder Params(RpcObject @params)
             {
-                dataBuilder.put("params", @params);
+                dataBuilder.Put("params", @params);
                 return this;
             }
 
@@ -245,7 +248,7 @@ namespace Lykke.Icon.Sdk
              */
             public CallBuilder Params<T>(T @params)
             {
-                dataBuilder.put("params", RpcItemCreator.create(@params));
+                dataBuilder.Put("params", RpcItemCreator.Create(@params));
                 return this;
             }
 
@@ -254,27 +257,27 @@ namespace Lykke.Icon.Sdk
              *
              * @return a transaction to send
              */
-            public Transaction build()
+            public Transaction Build()
             {
-                transactionData.data = dataBuilder.build();
+                transactionData.data = dataBuilder.Build();
                 CheckArgument(((RpcObject)transactionData.data).GetItem("method"), "method not found");
 
-                return transactionData.build();
+                return transactionData.Build();
             }
         }
 
         /**
          * A Builder for the message transaction.
          */
-        public static class MessageBuilder
+        public class MessageBuilder
         {
             private TransactionData transactionData;
 
-            private MessageBuilder(TransactionData transactionData, String message)
+            public MessageBuilder(TransactionData transactionData, String message)
             {
                 this.transactionData = transactionData;
                 this.transactionData.dataType = "message";
-                this.transactionData.data = new RpcValue(message.getBytes(StandardCharsets.UTF_8));
+                this.transactionData.data = new RpcValue(Encoding.UTF8.GetBytes(message));
             }
 
             /**
@@ -282,9 +285,9 @@ namespace Lykke.Icon.Sdk
              *
              * @return a transaction to send
              */
-            public Transaction build()
+            public Transaction Build()
             {
-                return transactionData.build();
+                return transactionData.Build();
             }
 
         }
@@ -292,20 +295,19 @@ namespace Lykke.Icon.Sdk
         /**
          * A Builder for the deploy transaction.
          */
-        public static class DeployBuilder
+        public class DeployBuilder
         {
-
             private TransactionData transactionData;
             private RpcObject.Builder dataBuilder;
 
-            private DeployBuilder(TransactionData transactionData, String contentType, byte[] content)
+            public DeployBuilder(TransactionData transactionData, String contentType, byte[] content)
             {
                 this.transactionData = transactionData;
                 this.transactionData.dataType = "deploy";
 
                 dataBuilder = new RpcObject.Builder()
-                        .put("contentType", new RpcValue(contentType))
-                        .put("content", new RpcValue(content));
+                        .Put("contentType", new RpcValue(contentType))
+                        .Put("content", new RpcValue(content));
             }
 
             /**
@@ -316,7 +318,7 @@ namespace Lykke.Icon.Sdk
              */
             public DeployBuilder Params(RpcObject @params)
             {
-                dataBuilder.put("params", @params);
+                dataBuilder.Put("params", @params);
                 return this;
             }
 
@@ -325,49 +327,49 @@ namespace Lykke.Icon.Sdk
              *
              * @return a transaction to send
              */
-            public Transaction build()
+            public Transaction Build()
             {
-                transactionData.data = dataBuilder.build();
+                transactionData.data = dataBuilder.Build();
                 CheckArgument(((RpcObject)transactionData.data).GetItem("contentType"), "contentType not found");
                 CheckArgument(((RpcObject)transactionData.data).GetItem("content"), "content not found");
 
-                return transactionData.build();
+                return transactionData.Build();
             }
         }
 
-        private static class TransactionData
+        public class TransactionData
         {
-            private BigInteger version = new BigInteger("3");
-            private Address from;
-            private Address to;
-            private BigInteger value;
-            private BigInteger stepLimit;
-            private BigInteger timestamp;
-            private BigInteger nid = NetworkId.MAIN.getValue();
-            private BigInteger nonce;
-            private String dataType;
-            private RpcItem data;
+            public BigInteger version = new BigInteger("3");
+            public Address from;
+            public Address to;
+            public BigInteger value;
+            public BigInteger stepLimit;
+            public BigInteger timestamp;
+            public BigInteger Nid = BigInteger.ValueOf((long)NetworkId.MAIN);
+            public BigInteger nonce;
+            public String dataType;
+            public RpcItem data;
 
-            private Transaction build()
+            public Transaction Build()
             {
-                checkAddress(from, "from not found");
-                checkAddress(to, "to not found");
+                CheckAddress(from, "from not found");
+                CheckAddress(to, "to not found");
                 CheckArgument(version, "version not found");
                 CheckArgument(stepLimit, "stepLimit not found");
                 return new SendingTransaction(this);
             }
 
-            void checkAddress(Address address, String message)
+            void CheckAddress(Address address, String message)
             {
                 CheckArgument(address, message);
-                if (address.isMalformed())
+                if (address.IsMalformed())
                 {
-                    throw new IllegalArgumentException("Invalid address");
+                    throw new ArgumentException("Invalid address");
                 }
             }
         }
 
-        private static class SendingTransaction : Transaction
+        private class SendingTransaction : Transaction
         {
             private BigInteger version;
             private Address from;
@@ -375,12 +377,12 @@ namespace Lykke.Icon.Sdk
             private BigInteger value;
             private BigInteger stepLimit;
             private BigInteger timestamp;
-            private BigInteger nid;
+            private BigInteger Nid;
             private BigInteger nonce;
             private String dataType;
             private RpcItem data;
 
-            private SendingTransaction(TransactionData transactionData)
+            public SendingTransaction(TransactionData transactionData)
             {
                 version = transactionData.version;
                 from = transactionData.from;
@@ -388,64 +390,64 @@ namespace Lykke.Icon.Sdk
                 value = transactionData.value;
                 stepLimit = transactionData.stepLimit;
                 timestamp = transactionData.timestamp;
-                nid = transactionData.nid;
+                Nid = transactionData.Nid;
                 nonce = transactionData.nonce;
                 dataType = transactionData.dataType;
                 data = transactionData.data;
             }
 
-            public BigInteger getVersion()
+            public BigInteger GetVersion()
             {
                 return version;
             }
 
-            public Address getFrom()
+            public Address GetFrom()
             {
                 return from;
             }
 
-            public Address getTo()
+            public Address GetTo()
             {
                 return to;
             }
 
-            public BigInteger getValue()
+            public BigInteger GetValue()
             {
                 return value;
             }
 
-            public BigInteger getStepLimit()
+            public BigInteger GetStepLimit()
             {
                 return stepLimit;
             }
 
-            public BigInteger getTimestamp()
+            public BigInteger GetTimestamp()
             {
                 return timestamp;
             }
 
-            public BigInteger getNid()
+            public BigInteger GetNid()
             {
-                return nid;
+                return Nid;
             }
 
-            public BigInteger getNonce()
+            public BigInteger GetNonce()
             {
                 return nonce;
             }
 
-            public String getDataType()
+            public String GetDataType()
             {
                 return dataType;
             }
 
-            public RpcItem getData()
+            public RpcItem GetData()
             {
                 return data;
             }
         }
 
-        static void CheckArgument<T>(T @object, String message)
+        public static void CheckArgument<T>(T @object, String message)
         {
             if (@object == null)
             {

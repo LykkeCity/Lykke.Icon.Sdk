@@ -83,17 +83,17 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 
             public Builder Put(String key, RpcItem item)
             {
-                if (!items.ContainsKey(key) && !isNullOrEmpty(item))
+                if (!items.ContainsKey(key) && !IsNullOrEmpty(item))
                     items[key] = item;
                 return this;
             }
 
-            public RpcObject build()
+            public RpcObject Build()
             {
                 return new RpcObject(items);
             }
 
-            public bool isNullOrEmpty(RpcItem item)
+            public bool IsNullOrEmpty(RpcItem item)
             {
                 return item == null || item.IsEmpty();
             }

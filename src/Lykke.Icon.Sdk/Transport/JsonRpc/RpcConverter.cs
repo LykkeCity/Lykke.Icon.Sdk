@@ -10,7 +10,6 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
     {
         T ConvertTo(RpcItem @object);
         RpcItem ConvertFrom(T @object);
-
     }
 
     public interface RpcConverterFactory

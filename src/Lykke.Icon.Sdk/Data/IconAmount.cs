@@ -1,15 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Lykke.Icon.Sdk.Crypto;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using System.Numerics;
 
 namespace Lykke.Icon.Sdk.Data
 {
     public class IconAmount
     {
-
         private BigDecimal value;
         private int digit;
 
@@ -24,9 +19,9 @@ namespace Lykke.Icon.Sdk.Data
             return digit;
         }
 
-        public String ToString()
+        public override String ToString()
         {
-            return value.toString();
+            return value.ToString();
         }
 
         public BigInteger ToInteger()
@@ -41,24 +36,32 @@ namespace Lykke.Icon.Sdk.Data
 
         public BigInteger ToLoop()
         {
-            return value.multiply(GetTenDigit(digit)).ToBigInteger();
+            return (value * GetTenDigit(digit)).ToBigInteger();
         }
 
         public IconAmount ConvertUnit(Unit unit)
         {
             BigInteger loop = ToLoop();
-            return IconAmount.of(new BigDecimal(loop).divide(getTenDigit(unit.getValue())), unit);
+            return IconAmount.Of(new BigDecimal(loop) / GetTenDigit(unit.GetValue()), unit.GetValue());
         }
 
         public IconAmount ConvertUnit(int digit)
         {
-            BigInteger loop = toLoop();
-            return IconAmount.of(new BigDecimal(loop).divide(getTenDigit(digit)), digit);
+            BigInteger loop = ToLoop();
+            return IconAmount.Of(new BigDecimal(loop) / (GetTenDigit(digit)), digit);
         }
 
         private BigDecimal GetTenDigit(int digit)
         {
-            return BigDecimal.TEN.pow(digit);
+            var result = new BigDecimal(10);
+            var value = new BigDecimal(10);
+
+            for (int i = 0; i < digit; i++)
+            {
+                result = result * value;
+            }
+
+            return result;
         }
 
         public class Unit
@@ -84,29 +87,29 @@ namespace Lykke.Icon.Sdk.Data
             return new IconAmount(loop, digit);
         }
 
-        public static IconAmount Of(BigDecimal loop, Unit unit)
+        public static IconAmount Of(decimal loop, Unit unit)
         {
-            return Of(loop, unit.getValue());
+            return Of(loop, unit.GetValue());
         }
 
         public static IconAmount Of(String loop, int digit)
         {
-            return Of(new BigDecimal(loop), digit);
+            return Of(BigDecimal.Parse(loop), digit);
         }
 
         public static IconAmount Of(String loop, Unit unit)
         {
-            return Of(new BigDecimal(loop), unit.getValue());
+            return Of(BigDecimal.Parse(loop), unit.GetValue());
         }
 
         public static IconAmount Of(BigInteger loop, int digit)
         {
-            return Of(new BigDecimal(loop), digit);
+            return Of(new BigDecimal(loop, 0), digit);
         }
 
         public static IconAmount Of(BigInteger loop, Unit unit)
         {
-            return Of(new BigDecimal(loop), unit.getValue());
+            return Of(new BigDecimal(loop), unit.GetValue());
         }
     }
 }

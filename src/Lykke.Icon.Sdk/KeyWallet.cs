@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Lykke.Icon.Sdk.Crypto;
+using Lykke.Icon.Sdk.Data;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -87,10 +90,10 @@ namespace Lykke.Icon.Sdk
          */
         public byte[] Sign(byte[] data)
         {
-            checkArgument(data, "hash not found");
+            TransactionBuilder.CheckArgument(data, "hash not found");
             ECDSASignature signature = new ECDSASignature(privateKey);
-            BigInteger[] sig = signature.generateSignature(data);
-            return signature.recoverableSerialize(sig, data);
+            BigInteger[] sig = signature.GenerateSignature(data);
+            return signature.RecoverableSerialize(sig, data);
         }
 
         /**

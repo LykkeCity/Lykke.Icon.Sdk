@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Lykke.Icon.Sdk.Crypto;
+using Lykke.Icon.Sdk.Data;
+using Lykke.Icon.Sdk.Transport.JsonRpc;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -13,8 +16,8 @@ namespace Lykke.Icon.Sdk
      */
     public class Call<O>
     {
-        private RpcObject _properties;
-        private Type _responseType;
+        private RpcObject properties;
+        private Type responseType;
 
         private Call(RpcObject properties)
         {
@@ -23,12 +26,12 @@ namespace Lykke.Icon.Sdk
         }
 
 
-        RpcObject getProperties()
+        public RpcObject GetProperties()
         {
             return properties;
         }
 
-        Type responseType()
+        public Type ResponseType()
         {
             return responseType;
         }
@@ -41,7 +44,7 @@ namespace Lykke.Icon.Sdk
          * - {@link #method(String)}  the method name to call<br>
          * - {@link #params(Object)}  the parameter of call<br>
          */
-        public static class Builder
+        public class Builder
         {
             private Address from;
             private Address to;
@@ -52,21 +55,21 @@ namespace Lykke.Icon.Sdk
             {
             }
 
-            public Builder from(Address from)
+            public Builder From(Address from)
             {
                 this.from = from;
                 return this;
             }
 
-            public Builder to(Address to)
+            public Builder To(Address to)
             {
-                if (!IconKeys.isContractAddress(to))
-                    throw new IllegalArgumentException("Only the contract address can be called.");
+                if (!IconKeys.IsContractAddress(to))
+                    throw new ArgumentException("Only the contract address can be called.");
                 this.to = to;
                 return this;
             }
 
-            public Builder method(String method)
+            public Builder Method(String method)
             {
                 this.method = method;
                 return this;
@@ -89,11 +92,11 @@ namespace Lykke.Icon.Sdk
              *
              * @return Call
              */
-            public Call<RpcItem> build()
+            public Call<RpcItem> Build()
             {
-                checkArgument(to, "to not found");
-                checkArgument(method, "method not found");
-                return buildWith(typeof(RpcItem));
+                TransactionBuilder.CheckArgument(to, "to not found");
+                TransactionBuilder.CheckArgument(method, "method not found");
+                return BuildWith<RpcItem>();
             }
 
             /**
@@ -103,25 +106,25 @@ namespace Lykke.Icon.Sdk
              * @param <O> responseType
              * @return Call
              */
-            public Call<O> buildWith<O>()
+            public Call<O> BuildWith<O>()
             {
                 RpcObject data = new RpcObject.Builder()
-                        .put("method", new RpcValue(method))
-                        .put("params", @params)
-                        .build();
+                        .Put("method", new RpcValue(method))
+                        .Put("params", @params)
+                        .Build();
 
                 RpcObject.Builder propertiesBuilder = new RpcObject.Builder()
-                        .put("to", new RpcValue(to))
-                        .put("data", data)
-                        .put("dataType", new RpcValue("call"));
+                        .Put("to", new RpcValue(to))
+                        .Put("data", data)
+                        .Put("dataType", new RpcValue("call"));
 
                 // optional
                 if (from != null)
                 {
-                    propertiesBuilder.put("from", new RpcValue(from));
+                    propertiesBuilder.Put("from", new RpcValue(from));
                 }
 
-                return new Call<O>(propertiesBuilder.build());
+                return new Call<O>(propertiesBuilder.Build());
             }
         }
 

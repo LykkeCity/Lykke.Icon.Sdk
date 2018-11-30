@@ -1,7 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using Lykke.Icon.Sdk.Data;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 
@@ -14,7 +18,7 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             return ToRpcItem(item);
         }
 
-        static RpcItem ToRpcItem(T item)
+        static RpcItem ToRpcItem<T>(T item)
         {
             return item != null ? ToRpcItem(item.GetType(), item) : null;
         }
@@ -27,14 +31,14 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
                 return rpcValue;
             }
 
-            if (type.IsArray())
+            if (type.IsArray)
             {
-                return toRpcArray(item);
+                return ToRpcArray(item);
             }
 
-            if (!type.IsPrimitive())
+            if (!type.IsPrimitive)
             {
-                return toRpcObject(item);
+                return ToRpcObject(item);
             }
 
             return null;
@@ -43,40 +47,39 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
         static RpcObject ToRpcObject(Object @object)
         {
             RpcObject.Builder builder = new RpcObject.Builder();
-            AddObjectFields(builder, @object, object.getClass().getDeclaredFields());
-            AddObjectFields(builder, @object, object.getClass().getFields());
-            return builder.build();
+            AddObjectFields(builder, @object, @object.GetType().GetFields());
+            AddObjectFields(builder, @object, @object.GetType().GetFields());
+            return builder.Build();
         }
 
-        static String GetKeyFromObjectField(Field field)
+        static String GetKeyFromObjectField(FieldInfo field)
         {
-            return field.getName();
+            return field.Name;
         }
 
-        static void AddObjectFields(RpcObject.Builder builder, Object parent, Field[] fields)
+        static void AddObjectFields(RpcObject.Builder builder, Object parent, FieldInfo[] fields)
         {
-            foreach (Field field in fields)
+            foreach (FieldInfo field in fields)
             {
                 String key = GetKeyFromObjectField(field);
-                if (key.equals("this$0")) continue;
+                if (key.Equals("this$0")) continue;
 
                 Type type = field.GetType();
                 Object fieldObject = null;
                 try
                 {
-                    field.SetAccessible(true);
-                    fieldObject = field.Get(parent);
+                    fieldObject = field.GetValue(parent);
                 }
                 catch (Exception ignored)
                 {
                 }
 
-                if (fieldObject != null || !type.isInstance(fieldObject))
+                if (fieldObject != null || !type.IsAssignableFrom(fieldObject.GetType()))
                 {
-                    RpcItem rpcItem = toRpcItem(type, fieldObject);
-                    if (rpcItem != null && !rpcItem.isEmpty())
+                    RpcItem rpcItem = ToRpcItem(type, fieldObject);
+                    if (rpcItem != null && !rpcItem.IsEmpty())
                     {
-                        builder.put(key, rpcItem);
+                        builder.Put(key, rpcItem);
                     }
                 }
             }
@@ -88,13 +91,13 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             if (componentType == typeof(bool) || !componentType.IsPrimitive) {
                 RpcArray.Builder builder = new RpcArray.Builder();
 
-                int length = ((IEnumerable)obj).Count();
-                for (int i = 0; i < length; i++)
+                var castedArray = (IEnumerable) obj;
+                foreach (var item in castedArray)
                 {
-                    builder.add(ToRpcItem(Array.get(obj, i)));
+                    builder.Add(ToRpcItem(item));
                 }
 
-                return builder.build();
+                return builder.Build();
             }
             return null;
         }
