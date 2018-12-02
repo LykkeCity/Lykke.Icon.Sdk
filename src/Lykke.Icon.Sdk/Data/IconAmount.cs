@@ -36,7 +36,8 @@ namespace Lykke.Icon.Sdk.Data
 
         public BigInteger ToLoop()
         {
-            return (value * GetTenDigit(digit)).ToBigInteger();
+            var tenDigit = GetTenDigit(digit);
+            return (value * tenDigit).ToBigInteger();
         }
 
         public IconAmount ConvertUnit(Unit unit)
@@ -53,7 +54,7 @@ namespace Lykke.Icon.Sdk.Data
 
         private BigDecimal GetTenDigit(int digit)
         {
-            var result = new BigDecimal(10);
+            var result = new BigDecimal(1);
             var value = new BigDecimal(10);
 
             for (int i = 0; i < digit; i++)

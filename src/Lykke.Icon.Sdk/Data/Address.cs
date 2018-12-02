@@ -116,6 +116,38 @@ namespace Lykke.Icon.Sdk.Data
                 return prefix;
             }
 
+            public override string ToString()
+            {
+                return prefix;
+            }
+
+            public static bool operator ==(AddressPrefix a, AddressPrefix b)
+            {
+                if (ReferenceEquals(a , null))
+                    return ReferenceEquals(b, null);
+                return a.Equals(b);
+            }
+
+            public static bool operator !=(AddressPrefix a, AddressPrefix b)
+            {
+                if (ReferenceEquals(a, null))
+                    return !ReferenceEquals(b, null);
+
+                return !a.Equals(b);
+            }
+
+            public override bool Equals(Object obj)
+            {
+                if (obj == this) return true;
+                if (obj is AddressPrefix)
+                {
+                    AddressPrefix other = (AddressPrefix)obj;
+
+                    return other.prefix == this.prefix;
+                }
+                return false;
+            }
+
             private static IEnumerable<string> _possiblePrefixes = new[] { EOA, CONTRACT };
             public static AddressPrefix FromString(String prefix)
             {

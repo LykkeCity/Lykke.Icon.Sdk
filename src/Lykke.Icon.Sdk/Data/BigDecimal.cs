@@ -51,7 +51,9 @@ namespace System.Numerics
 
         public BigInteger ToBigInteger()
         {
-            return value;
+            var scaleDivisor = BigInteger.Pow(new BigInteger(10), this.scale);
+            var scaledValue = BigInteger.Divide(this.value, scaleDivisor);
+            return scaledValue;
         }
 
         public static BigDecimal Parse(string str)
@@ -282,6 +284,11 @@ namespace System.Numerics
             return outval;
         }
 
+        public static explicit operator BigInteger(BigDecimal value)
+        {
+            return value.ToBigInteger();
+        }
+
         public static implicit operator BigDecimal(sbyte value)
         {
             return new BigDecimal((long)value);
@@ -335,11 +342,84 @@ namespace System.Numerics
         public override string ToString()
         {
             if (this.scale == (ushort)0)
-                return this.value.ToString() + ".";
+                return this.value.ToString();
             string str = this.value.ToString();
             if (str.Length > (int)this.scale)
                 return str.Insert(str.Length - (int)this.scale, ".");
             return "0." + new string('0', (int)this.scale - str.Length) + str;
+        }
+
+        
+
+        //Imported from java
+        public enum RoundingMode
+        {
+            /**
+             * Rounding mode where positive values are rounded towards positive infinity
+             * and negative values towards negative infinity.
+             * <br>
+             * Rule: {@code x.round().abs() >= x.abs()}
+             * 
+             * @since Android 1.0
+             */
+            ROUND_UP = 0,
+            /**
+             * Rounding mode where the values are rounded towards zero.
+             * <br>
+             * Rule: {@code x.round().abs() <= x.abs()}
+             * 
+             * @since Android 1.0
+             */
+            ROUND_DOWN = 1,
+            /**
+             * Rounding mode to round towards positive infinity. For positive values
+             * this rounding mode behaves as {@link #UP}, for negative values as
+             * {@link #DOWN}.
+             * <br>
+             * Rule: {@code x.round() >= x}
+             * 
+             * @since Android 1.0
+             */
+            ROUND_CEILING = 2,
+            /**
+             * Rounding mode to round towards negative infinity. For positive values
+             * this rounding mode behaves as {@link #DOWN}, for negative values as
+             * {@link #UP}.
+             * <br>
+             * Rule: {@code x.round() <= x}
+             * 
+             * @since Android 1.0
+             */
+            ROUND_FLOOR = 3,
+            /**
+             * Rounding mode where values are rounded towards the nearest neighbor. Ties
+             * are broken by rounding up.
+             * 
+             * @since Android 1.0
+             */
+            ROUND_HALF_UP = 4,
+            /**
+             * Rounding mode where values are rounded towards the nearest neighbor. Ties
+             * are broken by rounding down.
+             * 
+             * @since Android 1.0
+             */
+            ROUND_HALF_DOWN = 5,
+            /**
+             * Rounding mode where values are rounded towards the nearest neighbor. Ties
+             * are broken by rounding to the even neighbor.
+             * 
+             * @since Android 1.0
+             */
+            ROUND_HALF_EVEN = 6,
+            /**
+             * Rounding mode where the rounding operations throws an ArithmeticException
+             * for the case that rounding is necessary, i.e. for the case that the value
+             * cannot be represented exactly.
+             * 
+             * @since Android 1.0
+             */
+            ROUND_UNNECESSARY = 7
         }
 
         private enum ParseState
