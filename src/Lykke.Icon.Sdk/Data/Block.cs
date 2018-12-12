@@ -1,11 +1,7 @@
+using Lykke.Icon.Sdk.Transport.JsonRpc;
+using System.Numerics;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Lykke.Icon.Sdk.Crypto;
-using Lykke.Icon.Sdk.Transport.JsonRpc;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Lykke.Icon.Sdk.Data
 {
@@ -38,14 +34,14 @@ namespace Lykke.Icon.Sdk.Data
         public BigInteger GetTimestamp()
         {
             RpcItem item = properties.GetItem("time_stamp");
-            return item != null ? item.ToInteger() : null;
+            return item != null ? item.ToInteger() : 0;
         }
 
         public List<ConfirmedTransaction> GetTransactions()
         {
             RpcItem item = properties.GetItem("confirmed_transaction_list");
             List<ConfirmedTransaction> transactions = new List<ConfirmedTransaction>();
-            if (item != null && GetHeight().IntValue > 0)
+            if (item != null && GetHeight() > 0)
             {
                 foreach (RpcItem tx in item.ToArray())
                 {
@@ -70,13 +66,13 @@ namespace Lykke.Icon.Sdk.Data
         public BigInteger GetVersion()
         {
             RpcItem item = properties.GetItem("version");
-            return item != null ? item.ToInteger() : null;
+            return item != null ? item.ToInteger() : 0;
         }
 
         public BigInteger GetHeight()
         {
             RpcItem item = properties.GetItem("height");
-            return item != null ? item.ToInteger() : null;
+            return item != null ? item.ToInteger() : 0;
         }
 
         public String GetSignature()

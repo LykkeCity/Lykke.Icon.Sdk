@@ -1,8 +1,7 @@
-using System;
-using Lykke.Icon.Sdk.Crypto;
 using Lykke.Icon.Sdk.Data;
 using Lykke.Icon.Sdk.Transport.JsonRpc;
-using Org.BouncyCastle.Math;
+using System.Numerics;
+using System;
 using Xunit;
 
 namespace Lykke.Icon.Sdk.Tests
@@ -17,7 +16,7 @@ namespace Lykke.Icon.Sdk.Tests
             String method = "myMethod";
             Person person = new Person();
             person.Name = "gold bug";
-            person.Age = new BigInteger("20");
+            person.Age = BigInteger.Parse("20");
 
             Call<PersonResponse> call = new Call<PersonResponse>.Builder()
                     .From(from)

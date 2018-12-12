@@ -1,46 +1,56 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using System.Runtime.Serialization;
 
 namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
-    /**
-     * RpcError defines the error that occurred during communicating through jsonrpc
-     */
-    public class RpcError : Exception
+    public class RpcErrorException : Exception
     {
-        private long code;
-        private String message;
-
-        public RpcError()
+        public RpcErrorException()
         {
             // jackson needs a default constructor
         }
 
-        public RpcError(long code, String message) : base(message)
+        public RpcErrorException(long code, String message) : base(message)
         {
-            this.code = code;
-            this.message = message;
+            this.Code = code;
         }
 
         /**
          * Returns the code of rpc error
          * @return error code
          */
-        public long GetCode()
+        public long Code { get; private set; }
+    }
+
+    /**
+     * RpcError defines the error that occurred during communicating through jsonrpc
+     */
+    [DataContract]
+    public class RpcError
+    {
+        public RpcError(long code, String message)
         {
-            return code;
+            this.Code = code;
+            this.Message = message;
         }
+
+        /**
+         * Returns the code of rpc error
+         * @return error code
+         */
+        [DataMember(Name = "code")]
+        public long Code { get; set; }
 
         /**
          * Returns the message of rpc error
          * @return error message
          */
-        public String GetMessage()
+        [DataMember(Name = "message")]
+        public String Message { get; set; }
+
+        public RpcErrorException ToException()
         {
-            return message;
+            return new RpcErrorException(Code, Message);
         }
     }
 }

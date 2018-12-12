@@ -1,18 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Lykke.Icon.Sdk.Crypto;
 using Lykke.Icon.Sdk.Transport.JsonRpc;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using System.Numerics;
+using System;
+using System.Globalization;
 
 namespace Lykke.Icon.Sdk.Data
 {
 
     public class ConfirmedTransaction : Transaction
     {
-
         private RpcObject properties;
 
         public ConfirmedTransaction(RpcObject properties)
@@ -28,7 +23,7 @@ namespace Lykke.Icon.Sdk.Data
         public BigInteger GetVersion()
         {
             RpcItem item = properties.GetItem("version");
-            return item != null ? item.ToInteger() : BigInteger.Two;
+            return item != null ? item.ToInteger() : BigInteger.Parse("2");
         }
 
         public Address GetFrom()
@@ -43,52 +38,52 @@ namespace Lykke.Icon.Sdk.Data
             return item != null ? item.ToAddress() : null;
         }
 
-        public BigInteger GetFee()
+        public BigInteger? GetFee()
         {
             RpcItem item = properties.GetItem("fee");
-            return item != null ? ConvertHex(item.ToValue()) : null;
+            return item != null ? (BigInteger?)ConvertHex(item.ToValue()) : 0;
         }
 
-        public BigInteger GetValue()
+        public BigInteger? GetValue()
         {
             RpcItem item = properties.GetItem("value");
+
             if (item == null)
-            {
                 return null;
-            }
-            return GetVersion().IntValue < 3 ? ConvertHex(item.ToValue()) : item.ToInteger();
+
+            return GetVersion() < 3 ? ConvertHex(item.ToValue()) : item.ToInteger();
         }
 
-        public BigInteger GetStepLimit()
+        public BigInteger? GetStepLimit()
         {
             RpcItem item = properties.GetItem("stepLimit");
-            return item != null ? item.ToInteger() : null;
+            return item != null ? (BigInteger?)item.ToInteger() : null;
         }
 
-        public BigInteger GetTimestamp()
+        public BigInteger? GetTimestamp()
         {
             RpcItem item = properties.GetItem("timestamp");
+
             if (item == null)
-            {
                 return null;
-            }
-            return GetVersion().IntValue < 3 ? ConvertDecimal(item.ToValue()) : item.ToInteger();
+
+            return GetVersion() < 3 ? ConvertDecimal(item.ToValue()) : item.ToInteger();
         }
 
-        public BigInteger GetNid()
+        public BigInteger? GetNid()
         {
             RpcItem item = properties.GetItem("nid");
-            return item != null ? item.ToInteger() : null;
+            return item != null ? item.ToInteger() : 0;
         }
 
-        public BigInteger GetNonce()
+        public BigInteger? GetNonce()
         {
             RpcItem item = properties.GetItem("nonce");
+
             if (item == null)
-            {
                 return null;
-            }
-            return GetVersion().IntValue < 3 ? ConvertDecimal(item.ToValue()) : item.ToInteger();
+
+            return GetVersion() < 3 ? ConvertDecimal(item.ToValue()) : item.ToInteger();
         }
 
         public String GetDataType()
@@ -104,21 +99,23 @@ namespace Lykke.Icon.Sdk.Data
 
         public Bytes GetTxHash()
         {
-            String key = GetVersion().IntValue < 3 ? "tx_hash" : "txHash";
+            String key = GetVersion() < 3 ? "tx_hash" : "txHash";
             RpcItem item = properties.GetItem(key);
             return item != null ? item.ToBytes() : null;
         }
 
-        public BigInteger GetTxIndex()
+        public BigInteger? GetTxIndex()
         {
             RpcItem item = properties.GetItem("txIndex");
-            return item != null ? item.ToInteger() : null;
+
+            return item != null ? (BigInteger?) item.ToInteger() : null;
         }
 
-        public BigInteger GetBlockHeight()
+        public BigInteger? GetBlockHeight()
         {
             RpcItem item = properties.GetItem("blockHeight");
-            return item != null ? item.ToInteger() : null;
+
+            return item != null ? (BigInteger?)item.ToInteger() : null;
         }
 
         public Bytes GetBlockHash()
@@ -160,7 +157,7 @@ namespace Lykke.Icon.Sdk.Data
             }
             else
             {
-                return new BigInteger(stringValue, 10);
+                return BigInteger.Parse(stringValue);
             }
         }
 
@@ -178,7 +175,7 @@ namespace Lykke.Icon.Sdk.Data
                 sign = stringValue.Substring(0, 1);
                 stringValue = stringValue.Substring(1);
             }
-            return new BigInteger(sign + Bytes.CleanHexPrefix(stringValue), 16);
+            return BigInteger.Parse(sign + Bytes.CleanHexPrefix(stringValue), NumberStyles.HexNumber);
         }
     }
 }

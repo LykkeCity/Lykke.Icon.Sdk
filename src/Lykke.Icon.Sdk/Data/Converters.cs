@@ -1,11 +1,7 @@
+using Lykke.Icon.Sdk.Transport.JsonRpc;
+using System.Numerics;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Lykke.Icon.Sdk.Crypto;
-using Lykke.Icon.Sdk.Transport.JsonRpc;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Lykke.Icon.Sdk.Data
 {

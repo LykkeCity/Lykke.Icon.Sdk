@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Lykke.Icon.Sdk.Data;
 using Lykke.Icon.Sdk.Transport.JsonRpc;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using System.Numerics;
+using System;
+using System.Text;
 
 namespace Lykke.Icon.Sdk
 {
@@ -88,7 +85,7 @@ namespace Lykke.Icon.Sdk
              */
             public Builder Nid(NetworkId Nid)
             {
-                transactionData.Nid = BigInteger.ValueOf((long)Nid);
+                transactionData.Nid = (BigInteger)(long)Nid;
                 return this;
             }
 
@@ -100,7 +97,7 @@ namespace Lykke.Icon.Sdk
              */
             public Builder From(Address from)
             {
-                transactionData.from = from;
+                transactionData.From = from;
                 return this;
             }
 
@@ -112,7 +109,7 @@ namespace Lykke.Icon.Sdk
              */
             public Builder To(Address to)
             {
-                transactionData.to = to;
+                transactionData.To = to;
                 return this;
             }
 
@@ -124,7 +121,7 @@ namespace Lykke.Icon.Sdk
              */
             public Builder Value(BigInteger value)
             {
-                transactionData.value = value;
+                transactionData.Value = value;
                 return this;
             }
 
@@ -136,7 +133,7 @@ namespace Lykke.Icon.Sdk
              */
             public Builder StepLimit(BigInteger stepLimit)
             {
-                transactionData.stepLimit = stepLimit;
+                transactionData.StepLimit = stepLimit;
                 return this;
             }
 
@@ -148,7 +145,7 @@ namespace Lykke.Icon.Sdk
              */
             public Builder Timestamp(BigInteger timestamp)
             {
-                transactionData.timestamp = timestamp;
+                transactionData.Timestamp = timestamp;
                 return this;
             }
 
@@ -160,7 +157,7 @@ namespace Lykke.Icon.Sdk
              */
             public Builder Nonce(BigInteger nonce)
             {
-                transactionData.nonce = nonce;
+                transactionData.Nonce = nonce;
                 return this;
             }
 
@@ -222,7 +219,7 @@ namespace Lykke.Icon.Sdk
             public CallBuilder(TransactionData transactionData, String method)
             {
                 this.transactionData = transactionData;
-                this.transactionData.dataType = "call";
+                this.transactionData.DataType = "call";
 
                 dataBuilder = new RpcObject.Builder()
                         .Put("method", new RpcValue(method));
@@ -259,8 +256,8 @@ namespace Lykke.Icon.Sdk
              */
             public Transaction Build()
             {
-                transactionData.data = dataBuilder.Build();
-                CheckArgument(((RpcObject)transactionData.data).GetItem("method"), "method not found");
+                transactionData.Data = dataBuilder.Build();
+                CheckArgument(((RpcObject)transactionData.Data).GetItem("method"), "method not found");
 
                 return transactionData.Build();
             }
@@ -276,8 +273,8 @@ namespace Lykke.Icon.Sdk
             public MessageBuilder(TransactionData transactionData, String message)
             {
                 this.transactionData = transactionData;
-                this.transactionData.dataType = "message";
-                this.transactionData.data = new RpcValue(Encoding.UTF8.GetBytes(message));
+                this.transactionData.DataType = "message";
+                this.transactionData.Data = new RpcValue(Encoding.UTF8.GetBytes(message));
             }
 
             /**
@@ -303,7 +300,7 @@ namespace Lykke.Icon.Sdk
             public DeployBuilder(TransactionData transactionData, String contentType, byte[] content)
             {
                 this.transactionData = transactionData;
-                this.transactionData.dataType = "deploy";
+                this.transactionData.DataType = "deploy";
 
                 dataBuilder = new RpcObject.Builder()
                         .Put("contentType", new RpcValue(contentType))
@@ -329,9 +326,9 @@ namespace Lykke.Icon.Sdk
              */
             public Transaction Build()
             {
-                transactionData.data = dataBuilder.Build();
-                CheckArgument(((RpcObject)transactionData.data).GetItem("contentType"), "contentType not found");
-                CheckArgument(((RpcObject)transactionData.data).GetItem("content"), "content not found");
+                transactionData.Data = dataBuilder.Build();
+                CheckArgument(((RpcObject)transactionData.Data).GetItem("contentType"), "contentType not found");
+                CheckArgument(((RpcObject)transactionData.Data).GetItem("content"), "content not found");
 
                 return transactionData.Build();
             }
@@ -339,23 +336,23 @@ namespace Lykke.Icon.Sdk
 
         public class TransactionData
         {
-            public BigInteger version = new BigInteger("3");
-            public Address from;
-            public Address to;
-            public BigInteger value;
-            public BigInteger stepLimit;
-            public BigInteger timestamp;
-            public BigInteger Nid = BigInteger.ValueOf((long)NetworkId.MAIN);
-            public BigInteger nonce;
-            public String dataType;
-            public RpcItem data;
+            public BigInteger Version = BigInteger.Parse("3");
+            public Address From;
+            public Address To;
+            public BigInteger? Value;
+            public BigInteger? StepLimit;
+            public BigInteger?Timestamp;
+            public BigInteger? Nid = (BigInteger)(long)NetworkId.MAIN;
+            public BigInteger? Nonce;
+            public String DataType;
+            public RpcItem Data;
 
             public Transaction Build()
             {
-                CheckAddress(from, "from not found");
-                CheckAddress(to, "to not found");
-                CheckArgument(version, "version not found");
-                CheckArgument(stepLimit, "stepLimit not found");
+                CheckAddress(From, "from not found");
+                CheckAddress(To, "to not found");
+                CheckArgument(Version, "version not found");
+                CheckArgument(StepLimit, "stepLimit not found");
                 return new SendingTransaction(this);
             }
 
@@ -371,79 +368,79 @@ namespace Lykke.Icon.Sdk
 
         private class SendingTransaction : Transaction
         {
-            private BigInteger version;
-            private Address from;
-            private Address to;
-            private BigInteger value;
-            private BigInteger stepLimit;
-            private BigInteger timestamp;
-            private BigInteger Nid;
-            private BigInteger nonce;
-            private String dataType;
-            private RpcItem data;
+            private BigInteger _version;
+            private Address _from;
+            private Address _to;
+            private BigInteger? _value;
+            private BigInteger? _stepLimit;
+            private BigInteger? _timestamp;
+            private BigInteger? _nid;
+            private BigInteger? _nonce;
+            private String _dataType;
+            private RpcItem _data;
 
             public SendingTransaction(TransactionData transactionData)
             {
-                version = transactionData.version;
-                from = transactionData.from;
-                to = transactionData.to;
-                value = transactionData.value;
-                stepLimit = transactionData.stepLimit;
-                timestamp = transactionData.timestamp;
-                Nid = transactionData.Nid;
-                nonce = transactionData.nonce;
-                dataType = transactionData.dataType;
-                data = transactionData.data;
+                _version = transactionData.Version;
+                _from = transactionData.From;
+                _to = transactionData.To;
+                _value = transactionData.Value;
+                _stepLimit = transactionData.StepLimit;
+                _timestamp = transactionData.Timestamp;
+                _nid = transactionData.Nid;
+                _nonce = transactionData.Nonce;
+                _dataType = transactionData.DataType;
+                _data = transactionData.Data;
             }
 
             public BigInteger GetVersion()
             {
-                return version;
+                return _version;
             }
 
             public Address GetFrom()
             {
-                return from;
+                return _from;
             }
 
             public Address GetTo()
             {
-                return to;
+                return _to;
             }
 
-            public BigInteger GetValue()
+            public BigInteger? GetValue()
             {
-                return value;
+                return _value;
             }
 
-            public BigInteger GetStepLimit()
+            public BigInteger? GetStepLimit()
             {
-                return stepLimit;
+                return _stepLimit;
             }
 
-            public BigInteger GetTimestamp()
+            public BigInteger? GetTimestamp()
             {
-                return timestamp;
+                return _timestamp;
             }
 
-            public BigInteger GetNid()
+            public BigInteger? GetNid()
             {
-                return Nid;
+                return _nid;
             }
 
-            public BigInteger GetNonce()
+            public BigInteger? GetNonce()
             {
-                return nonce;
+                return _nonce;
             }
 
             public String GetDataType()
             {
-                return dataType;
+                return _dataType;
             }
 
             public RpcItem GetData()
             {
-                return data;
+                return _data;
             }
         }
 

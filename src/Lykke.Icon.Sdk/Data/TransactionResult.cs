@@ -1,15 +1,10 @@
+using Lykke.Icon.Sdk.Transport.JsonRpc;
+using System.Numerics;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Lykke.Icon.Sdk.Crypto;
-using Lykke.Icon.Sdk.Transport.JsonRpc;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Lykke.Icon.Sdk.Data
 {
-
     /**
      * @see <a href="https://github.com/icon-project/icon-rpc-server/blob/develop/docs/icon-json-rpc-v3.md#icx_gettransactionresult" target="_blank">ICON JSON-RPC API</a>
      */
@@ -44,8 +39,8 @@ namespace Lykke.Icon.Sdk.Data
                 // V2 Block data doesn't have a status field but have a code field
                 // @see <a href="https://github.com/icon-project/icx_JSON_RPC#icx_gettransactionresult" target="_blank">ICON JSON-RPC V2 API</a>
                 RpcItem code = properties.GetItem("code");
-                if (code != null) return new BigInteger(code.ToInteger().IntValue == 0 ? "1" : "0");
-                else return null;
+                if (code != null) return BigInteger.Parse(code.ToInteger() == 0 ? "1" : "0");
+                else return 0;
             }
         }
 
@@ -73,7 +68,7 @@ namespace Lykke.Icon.Sdk.Data
         public BigInteger GetTxIndex()
         {
             RpcItem item = properties.GetItem("txIndex");
-            return item != null ? item.ToInteger() : null;
+            return item != null ? item.ToInteger() : 0;
         }
 
         /**
@@ -82,7 +77,7 @@ namespace Lykke.Icon.Sdk.Data
         public BigInteger GetBlockHeight()
         {
             RpcItem item = properties.GetItem("blockHeight");
-            return item != null ? item.ToInteger() : null;
+            return item != null ? item.ToInteger() : 0;
         }
 
         /**
@@ -100,7 +95,7 @@ namespace Lykke.Icon.Sdk.Data
         public BigInteger GetCumulativeStepUsed()
         {
             RpcItem item = properties.GetItem("cumulativeStepUsed");
-            return item != null ? item.ToInteger() : null;
+            return item != null ? item.ToInteger() : 0;
         }
 
         /**
@@ -109,7 +104,7 @@ namespace Lykke.Icon.Sdk.Data
         public BigInteger GetStepUsed()
         {
             RpcItem item = properties.GetItem("stepUsed");
-            return item != null ? item.ToInteger() : null;
+            return item != null ? item.ToInteger() : 0;
         }
 
         /**
@@ -118,7 +113,7 @@ namespace Lykke.Icon.Sdk.Data
         public BigInteger GetStepPrice()
         {
             RpcItem item = properties.GetItem("stepPrice");
-            return item != null ? item.ToInteger() : null;
+            return item != null ? item.ToInteger() : 0;
         }
 
         /**
@@ -166,7 +161,7 @@ namespace Lykke.Icon.Sdk.Data
             if (failure == null)
             {
                 BigInteger status = GetStatus();
-                if (status != null && status.IntValue == 0)
+                if (status != null && status == 0)
                 {
                     // Migrates V2 block data
                     // V2 Block data doesn't have a failure field but have a code field
@@ -244,7 +239,7 @@ namespace Lykke.Icon.Sdk.Data
             public BigInteger GetCode()
             {
                 RpcItem item = properties.GetItem("code");
-                return item != null ? item.ToInteger() : null;
+                return item != null ? item.ToInteger() : 0;
             }
 
             public String GetMessage()

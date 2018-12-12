@@ -1,32 +1,29 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 using Lykke.Icon.Sdk.Data;
 using Lykke.Icon.Sdk.Transport.JsonRpc;
 using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
+using System.Numerics;
 using Org.BouncyCastle.Utilities.Encoders;
+using System;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Lykke.Icon.Sdk
 {
-
     /**
      * SignedTransaction Serializes transaction messages and
      * makes parameters to send
      */
     public class SignedTransaction
     {
-
-        private Transaction transaction;
-        private Wallet wallet;
-        private RpcObject properties;
+        private Transaction _transaction;
+        private Wallet _wallet;
+        private RpcObject _properties;
 
         public SignedTransaction(Transaction transaction, Wallet wallet)
         {
-            this.transaction = transaction;
-            this.wallet = wallet;
+            this._transaction = transaction;
+            this._wallet = wallet;
             CreateProperties();
         }
 
@@ -38,14 +35,14 @@ namespace Lykke.Icon.Sdk
             RpcObject @object = GetTransactionProperties();
 
             RpcObject.Builder builder = new RpcObject.Builder();
-            foreach (String key in @object.GetKeys())
+            foreach (String key in @object.GetKeys().OrderBy(x => x))
             {
                 builder.Put(key, @object.GetItem(key));
             }
 
             String signature = Base64.ToBase64String(GetSignature(@object));
             builder.Put("signature", new RpcValue(signature));
-            this.properties = builder.Build();
+            this._properties = builder.Build();
         }
 
         /**
@@ -55,34 +52,34 @@ namespace Lykke.Icon.Sdk
          */
         public RpcObject GetProperties()
         {
-            return properties;
+            return _properties;
         }
 
-        RpcObject GetTransactionProperties()
+        public RpcObject GetTransactionProperties()
         {
-            BigInteger timestamp = transaction.GetTimestamp();
+            BigInteger? timestamp = _transaction.GetTimestamp();
             if (timestamp == null)
             {
-                timestamp = new BigInteger((DateTime.UtcNow.Millisecond * 1000L).ToString());
+                timestamp = BigInteger.Parse((DateTime.UtcNow.Millisecond * 1000L).ToString());
             }
 
             var builder = new RpcObject.Builder();
-            PutTransactionPropertyToBuilder(builder, "version", transaction.GetVersion());
-            PutTransactionPropertyToBuilder(builder, "from", transaction.GetFrom());
-            PutTransactionPropertyToBuilder(builder, "to", transaction.GetTo());
-            PutTransactionPropertyToBuilder(builder, "value", transaction.GetValue());
-            PutTransactionPropertyToBuilder(builder, "stepLimit", transaction.GetStepLimit());
+            PutTransactionPropertyToBuilder(builder, "version", _transaction.GetVersion());
+            PutTransactionPropertyToBuilder(builder, "from", _transaction.GetFrom());
+            PutTransactionPropertyToBuilder(builder, "to", _transaction.GetTo());
+            PutTransactionPropertyToBuilder(builder, "value", _transaction.GetValue());
+            PutTransactionPropertyToBuilder(builder, "stepLimit", _transaction.GetStepLimit());
             PutTransactionPropertyToBuilder(builder, "timestamp", timestamp);
-            PutTransactionPropertyToBuilder(builder, "nid", transaction.GetNid());
-            PutTransactionPropertyToBuilder(builder, "nonce", transaction.GetNonce());
-            PutTransactionPropertyToBuilder(builder, "dataType", transaction.GetDataType());
-            PutTransactionPropertyToBuilder(builder, "data", transaction.GetData());
+            PutTransactionPropertyToBuilder(builder, "nid", _transaction.GetNid());
+            PutTransactionPropertyToBuilder(builder, "nonce", _transaction.GetNonce());
+            PutTransactionPropertyToBuilder(builder, "dataType", _transaction.GetDataType());
+            PutTransactionPropertyToBuilder(builder, "data", _transaction.GetData());
             return builder.Build();
         }
 
-        private void PutTransactionPropertyToBuilder(RpcObject.Builder builder, String key, BigInteger value)
+        private void PutTransactionPropertyToBuilder(RpcObject.Builder builder, String key, BigInteger? value)
         {
-            if (value != null) builder.Put(key, new RpcValue(value));
+            if (value.HasValue) builder.Put(key, new RpcValue(value.Value));
         }
 
         private void PutTransactionPropertyToBuilder(RpcObject.Builder builder, String key, String value)
@@ -107,7 +104,7 @@ namespace Lykke.Icon.Sdk
          */
         byte[] GetSignature(RpcObject properties)
         {
-            return wallet.Sign(Sha256(Serialize(properties)));
+            return _wallet.Sign(Sha256(Serialize(properties)));
         }
 
         /**
@@ -118,8 +115,12 @@ namespace Lykke.Icon.Sdk
         byte[] Sha256(String data)
         {
             byte[] hash = Encoding.UTF8.GetBytes(data);
-            new Sha3Digest(256).DoFinal(hash, 0);
-            return hash;
+            var digest = new Sha3Digest(256);
+            var output = new byte[digest.GetDigestSize()];
+            digest.BlockUpdate(hash, 0, hash.Length);
+            digest.DoFinal(output, 0);
+
+            return output;
         }
 
         /**
@@ -127,7 +128,7 @@ namespace Lykke.Icon.Sdk
          *
          * @return Serialized property
          */
-        String Serialize(RpcObject properties)
+        public String Serialize(RpcObject properties)
         {
             return TransactionSerializer.Serialize(properties);
         }
@@ -137,7 +138,6 @@ namespace Lykke.Icon.Sdk
          */
         public static class TransactionSerializer
         {
-
             /**
              * Serializes properties as string
              *
@@ -183,7 +183,7 @@ namespace Lykke.Icon.Sdk
             {
                 bool firstItem = true;
                 // Sorts keys before serializing object
-                var keys = (@object.GetKeys());
+                var keys = @object.GetKeys().OrderBy(x => x);
                 foreach (String key in keys)
                 {
                     if (firstItem)
@@ -215,9 +215,12 @@ namespace Lykke.Icon.Sdk
                 }
             }
 
-            static String Escape(String @string)
+            public static String Escape(String @string)
             {
-                var result = Regex.Replace(@string, "([\\\\.{}\\[\\]])", "\\\\$1");
+                var regex = new Regex("([\\\\.{}\\[\\]])");
+                //var result =  regex.Replace(@string, "\\\\$1");
+                //var result = Regex.Replace(@string, "([\\\\.{}\\[\\]])", "\\\\$1");
+                var result = Regex.Escape(@string);
                 return result;
             }
         }

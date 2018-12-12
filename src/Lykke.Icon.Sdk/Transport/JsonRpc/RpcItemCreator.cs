@@ -1,13 +1,8 @@
+using Lykke.Icon.Sdk.Data;
+using System.Numerics;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using Lykke.Icon.Sdk.Data;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
@@ -49,9 +44,10 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             RpcObject.Builder builder = new RpcObject.Builder();
             //AddObjectFields(builder, @object, @object.GetType().GetFields(BindingFlags.Instance 
             //                                                              | BindingFlags.Public));
-            AddObjectFields(builder, @object, @object.GetType().GetProperties(BindingFlags.Instance 
-                                                                              | BindingFlags.Public 
-                                                                              | BindingFlags.NonPublic));
+            var props = @object.GetType().GetProperties(BindingFlags.Instance
+                                                        | BindingFlags.Public 
+                                                        | BindingFlags.NonPublic);
+            AddObjectFields(builder, @object, props);
             return builder.Build();
         }
 

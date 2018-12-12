@@ -1,16 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Lykke.Icon.Sdk.Data;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using System.Numerics;
+using System;
+using System.Globalization;
 
 namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
-/**
- * RpcValue contains a leaf value such as string, bytes, integer, boolean
- */
+    /**
+     * RpcValue contains a leaf value such as string, bytes, integer, boolean
+     */
     public class RpcValue : RpcItem
     {
         private String value;
@@ -38,8 +35,8 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 
         public RpcValue(BigInteger value)
         {
-            String sign = (value.SignValue == -1) ? "-" : "";
-            this.value = sign + Bytes.HEX_PREFIX + value.Abs().ToString(16);
+            String sign = (value.Sign == -1) ? "-" : "";
+            this.value = sign + Bytes.HEX_PREFIX + BigInteger.Abs(value).ToString("x").TrimStart('0');
         }
 
         public RpcValue(bool value)
@@ -127,15 +124,22 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 
             try
             {
-                String sign = "";
+                //The dark magic with 0 and f explained in the article below:
+                //https://stackoverflow.com/questions/30119174/converting-a-hex-string-to-its-biginteger-equivalent-negates-the-value
+                String sign = "0";
                 if (value[0] == '-')
                 {
-                    sign = value.Substring(0, 1);
+                    sign = "";// value.Substring(0, 1);
                     value = value.Substring(1);
                 }
 
-                String result = sign + Bytes.CleanHexPrefix(value);
-                return new BigInteger(result, 16);
+                String result = "0" + Bytes.CleanHexPrefix(value);
+                var parseResult = BigInteger.Parse(result, NumberStyles.AllowHexSpecifier);
+
+                if (string.IsNullOrEmpty(sign))
+                    parseResult *= -1;
+
+                return parseResult;
             }
             catch (Exception e)
             {

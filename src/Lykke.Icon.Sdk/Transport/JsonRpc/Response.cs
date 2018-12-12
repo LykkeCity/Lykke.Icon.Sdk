@@ -1,49 +1,29 @@
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using System.Runtime.Serialization;
 
 namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
     /**
      * A jsonrpc response of the request
      */
+    [DataContract]
     public class Response
     {
-        private String jsonrpc = "2.0";
+        [DataMember(Name = "jsonrpc")]
+        public String Jsonrpc { get; set; }
 
-        private String method;
+        [DataMember(Name = "method")]
+        public String Method { get; set; }
 
-        private long id;
+        [DataMember(Name = "id")]
+        public long Id { get; set; }
 
-        private RpcItem result;
+        [JsonConverter(typeof(RpcItemSerializer))]
+        [DataMember(Name = "result")]
+        public RpcItem Result { get; set; }
 
-        private RpcError error;
-
-        public String GetJsonrpc()
-        {
-            return jsonrpc;
-        }
-
-        public String GetMethod()
-        {
-            return method;
-        }
-
-        public long GetId()
-        {
-            return id;
-        }
-
-        public RpcItem GetResult()
-        {
-            return result;
-        }
-
-        public RpcError GetError()
-        {
-            return error;
-        }
+        [DataMember(Name = "error")]
+        public RpcError Error { get; set; }
     }
 }

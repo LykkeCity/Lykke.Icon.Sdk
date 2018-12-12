@@ -1,11 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
-using Lykke.Icon.Sdk.Crypto;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
+using System;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Lykke.Icon.Sdk.Data
 {
@@ -14,9 +13,9 @@ namespace Lykke.Icon.Sdk.Data
      */
     public class Bytes
     {
-        public static String HEX_PREFIX = "0x";
+        public const String HEX_PREFIX = "0x";
 
-        private byte[] data;
+        private byte[] _data;
 
         /**
          * Creates an instance using hex string
@@ -27,7 +26,7 @@ namespace Lykke.Icon.Sdk.Data
         {
             if (!IsValidHex(hexString))
                 throw new ArgumentException("The value is not hex string.");
-            this.data = Hex.Decode(CleanHexPrefix(hexString));
+            this._data = Hex.Decode(CleanHexPrefix(hexString));
         }
 
         /**
@@ -37,12 +36,12 @@ namespace Lykke.Icon.Sdk.Data
          */
         public Bytes(byte[] data)
         {
-            this.data = data;
+            this._data = data;
         }
 
         public Bytes(BigInteger value)
         {
-            this.data = value.ToByteArray();
+            this._data = value.ToByteArray();
         }
 
         /**
@@ -52,7 +51,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public byte[] ToByteArray()
         {
-            return data;
+            return _data;
         }
 
         /**
@@ -107,7 +106,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public String ToHexString(bool withPrefix)
         {
-            return ToHexString(withPrefix, data.Length);
+            return ToHexString(withPrefix, _data.Length);
         }
 
         public static bool ContainsHexPrefix(String input)
@@ -123,12 +122,12 @@ namespace Lykke.Icon.Sdk.Data
          */
         public byte[] ToByteArray(int size)
         {
-            return ToBytesPadded(new BigInteger(data), size);
+            return ToBytesPadded(new BigInteger(_data), size);
         }
 
         public override String ToString()
         {
-            return ToHexString(true, data.Length);
+            return ToHexString(true, _data.Length);
         }
 
         public override bool Equals(Object obj)
@@ -136,7 +135,7 @@ namespace Lykke.Icon.Sdk.Data
             if (obj == this) return true;
             if (obj is Bytes)
             {
-                return Arrays.Equals(((Bytes)obj).data, data);
+                return Enumerable.SequenceEqual(((Bytes)obj)._data, _data);
             }
             return false;
         }
@@ -150,7 +149,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public String ToHexString(bool withPrefix, int size)
         {
-            String result = Hex.ToHexString(data);
+            String result = Hex.ToHexString(_data);
             int length = result.Length;
             if (length < size)
             {
@@ -174,7 +173,7 @@ namespace Lykke.Icon.Sdk.Data
 
         public int Length()
         {
-            return data == null ? 0 : data.Length;
+            return _data == null ? 0 : _data.Length;
         }
 
         private bool IsValidHex(String value)

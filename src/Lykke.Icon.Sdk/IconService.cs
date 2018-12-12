@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Lykke.Icon.Sdk;
 using Lykke.Icon.Sdk.Crypto;
 using Lykke.Icon.Sdk.Data;
 using Lykke.Icon.Sdk.Transport.JsonRpc;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using System.Numerics;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Lykke.Icon.Sdk
 {
@@ -17,28 +14,28 @@ namespace Lykke.Icon.Sdk
      */
     public class IconService
     {
-        private Provider provider;
-        private List<RpcConverterFactory> converterFactories = new List<RpcConverterFactory>(10);
-        private Dictionary<Type, RpcConverter<object>> converterMap = new Dictionary<Type, RpcConverter<object>>();
+        private IProvider _provider;
+        private List<RpcConverterFactory> _converterFactories = new List<RpcConverterFactory>(10);
+        private Dictionary<Type, object> _converterMap = new Dictionary<Type, object>();
 
         /**
          * Creates IconService instance
          *
          * @param provider the worker that transporting requests
          */
-        public IconService(Provider provider)
+        public IconService(IProvider provider)
         {
-            this.provider = provider;
-            AddConverterFactory(Converters.NewFactory(Converters.BIG_INTEGER));
-            AddConverterFactory(Converters.NewFactory(Converters.BOOLEAN));
-            AddConverterFactory(Converters.NewFactory(Converters.STRING));
-            AddConverterFactory(Converters.NewFactory(Converters.BYTES));
-            AddConverterFactory(Converters.NewFactory(Converters.BYTE_ARRAY));
-            AddConverterFactory(Converters.NewFactory(Converters.BLOCK));
-            AddConverterFactory(Converters.NewFactory(Converters.CONFIRMED_TRANSACTION));
-            AddConverterFactory(Converters.NewFactory(Converters.TRANSACTION_RESULT));
-            AddConverterFactory(Converters.NewFactory(Converters.SCORE_API_LIST));
-            AddConverterFactory(Converters.NewFactory(Converters.RPC_ITEM));
+            this._provider = provider;
+            AddConverterFactory<BigInteger>(Converters.NewFactory(Converters.BIG_INTEGER));
+            AddConverterFactory<bool>(Converters.NewFactory(Converters.BOOLEAN));
+            AddConverterFactory<string>(Converters.NewFactory(Converters.STRING));
+            AddConverterFactory<Bytes>(Converters.NewFactory(Converters.BYTES));
+            AddConverterFactory<byte[]>(Converters.NewFactory(Converters.BYTE_ARRAY));
+            AddConverterFactory<Block>(Converters.NewFactory(Converters.BLOCK));
+            AddConverterFactory<ConfirmedTransaction>(Converters.NewFactory(Converters.CONFIRMED_TRANSACTION));
+            AddConverterFactory<TransactionResult>(Converters.NewFactory(Converters.TRANSACTION_RESULT));
+            AddConverterFactory<List<ScoreApi>>(Converters.NewFactory(Converters.SCORE_API_LIST));
+            AddConverterFactory<RpcItem>(Converters.NewFactory(Converters.RPC_ITEM));
         }
 
         /**
@@ -46,11 +43,11 @@ namespace Lykke.Icon.Sdk
          *
          * @return A BigNumber instance of the total number of coins.
          */
-        public Request<BigInteger> GetTotalSupply()
+        public async Task<BigInteger> GetTotalSupply()
         {
             var requestId = GetCurrentUnixTime();
             var request = new Request(requestId, "icx_getTotalSupply", null);
-            return provider.Request(request, FindConverter<BigInteger>());
+            return await _provider.Request(request, FindConverter<BigInteger>());
         }
 
         private static long GetCurrentUnixTime()
@@ -66,14 +63,14 @@ namespace Lykke.Icon.Sdk
          * @param address The address to get the balance of.
          * @return A BigNumber instance of the current balance for the given address in loop.
          */
-        public Request<BigInteger> GetBalance(Address address)
+        public async Task<BigInteger> GetBalance(Address address)
         {
             var requestId = GetCurrentUnixTime();
             RpcObject @params = new RpcObject.Builder()
                     .Put("address", new RpcValue(address))
                     .Build();
             var request = new Request(requestId, "icx_getBalance", @params);
-            return provider.Request(request, FindConverter<BigInteger>());
+            return await _provider.Request(request, FindConverter<BigInteger>());
         }
 
         /**
@@ -82,14 +79,14 @@ namespace Lykke.Icon.Sdk
          * @param height The block number
          * @return The Block object
          */
-        public Request<Block> GetBlock(BigInteger height)
+        public async Task<Block> GetBlock(BigInteger height)
         {
             var requestId = GetCurrentUnixTime();
             RpcObject @params = new RpcObject.Builder()
                     .Put("height", new RpcValue(height))
                     .Build();
             var request = new Request(requestId, "icx_getBlockByHeight", @params);
-            return provider.Request(request, FindConverter<Block>());
+            return await _provider.Request(request, FindConverter<Block>());
         }
 
         /**
@@ -98,14 +95,14 @@ namespace Lykke.Icon.Sdk
          * @param hash The block hash (without hex prefix) or the string 'latest'
          * @return The Block object
          */
-        public Request<Block> GetBlock(Bytes hash)
+        public async Task<Block> GetBlock(Bytes hash)
         {
             var requestId = GetCurrentUnixTime();
             RpcObject @params = new RpcObject.Builder()
                     .Put("hash", new RpcValue(hash))
                     .Build();
             var request = new Request(requestId, "icx_getBlockByHash", @params);
-            return provider.Request(request, FindConverter<Block>());
+            return await _provider.Request(request, FindConverter<Block>());
         }
 
 
@@ -114,11 +111,11 @@ namespace Lykke.Icon.Sdk
          *
          * @return The Block object
          */
-        public Request<Block> GetLastBlock()
+        public async Task<Block> GetLastBlock()
         {
             var requestId = GetCurrentUnixTime();
             var request = new Request(requestId, "icx_getLastBlock", null);
-            return provider.Request(request, FindConverter<Block>());
+            return await _provider.Request(request, FindConverter<Block>());
         }
 
         /**
@@ -127,7 +124,7 @@ namespace Lykke.Icon.Sdk
          * @param scoreAddress The address to get APIs
          * @return The ScoreApi object
          */
-        public Request<List<ScoreApi>> GetScoreApi(Address scoreAddress)
+        public async Task<List<ScoreApi>> GetScoreApi(Address scoreAddress)
         {
             if (!IconKeys.IsContractAddress(scoreAddress))
                 throw new ArgumentException("Only the contract address can be called.");
@@ -136,7 +133,7 @@ namespace Lykke.Icon.Sdk
                     .Put("address", new RpcValue(scoreAddress))
                     .Build();
             var request = new Request(requestId, "icx_getScoreApi", @params);
-            return provider.Request(request, FindConverter<List<ScoreApi>>());
+            return await _provider.Request(request, FindConverter<List<ScoreApi>>());
         }
 
 
@@ -146,14 +143,14 @@ namespace Lykke.Icon.Sdk
          * @param hash The transaction hash
          * @return The Transaction object
          */
-        public Request<ConfirmedTransaction> GetTransaction(Bytes hash)
+        public async Task<ConfirmedTransaction> GetTransaction(Bytes hash)
         {
             var requestId = GetCurrentUnixTime();
             RpcObject @params = new RpcObject.Builder()
                     .Put("txHash", new RpcValue(hash))
                     .Build();
             var request = new Request(requestId, "icx_getTransactionByHash", @params);
-            return provider.Request(request, FindConverter<ConfirmedTransaction>());
+            return await _provider.Request(request, FindConverter<ConfirmedTransaction>());
         }
 
         /**
@@ -162,14 +159,14 @@ namespace Lykke.Icon.Sdk
          * @param hash The transaction hash
          * @return The TransactionResult object
          */
-        public Request<TransactionResult> GetTransactionResult(Bytes hash)
+        public async Task<TransactionResult> GetTransactionResult(Bytes hash)
         {
             var requestId = GetCurrentUnixTime();
             RpcObject @params = new RpcObject.Builder()
                     .Put("txHash", new RpcValue(hash))
                     .Build();
             var request = new Request(requestId, "icx_getTransactionResult", @params);
-            return provider.Request(request, FindConverter<TransactionResult>());
+            return await _provider.Request(request, FindConverter<TransactionResult>());
         }
 
         /**
@@ -179,11 +176,11 @@ namespace Lykke.Icon.Sdk
          * @param <O> responseType
          * @return the Request object can execute a request
          */
-        public Request<O> Call<O>(Call<O> call)
+        public async Task<O> CallAsync<O>(Call<O> call)
         {
             var requestId = GetCurrentUnixTime();
             var request = new Request(requestId, "icx_call", call.GetProperties());
-            return provider.Request(request, FindConverter<O>());
+            return await _provider.Request(request, FindConverter<O>());
         }
 
         /**
@@ -192,26 +189,27 @@ namespace Lykke.Icon.Sdk
          * @param signedTransaction parameters including signatures
          * @return the Request object can execute a request (result type is txHash)
          */
-        public Request<Bytes> SendTransaction(SignedTransaction signedTransaction)
+        public async Task<Bytes> SendTransaction(SignedTransaction signedTransaction)
         {
             var requestId = GetCurrentUnixTime();
             var request = new Request(
                     requestId, "icx_sendTransaction", signedTransaction.GetProperties());
-            return provider.Request(request, FindConverter<Bytes>());
+            return await _provider.Request(request, FindConverter<Bytes>());
         }
 
         private RpcConverter<T> FindConverter<T>()
         {
             var type = typeof(T);
-            RpcConverter<object> converterObj = converterMap[type];
+            _converterMap.TryGetValue(type, out var converterObj);
+                //throw new ArgumentException($"There is no converter for type {type}");
             if (converterObj is RpcConverter<T> converter) return converter;
 
-            foreach (RpcConverterFactory factory in converterFactories)
+            foreach (RpcConverterFactory factory in _converterFactories)
             {
                 converter = factory.Create<T>();
                 if (converter != null)
                 {
-                    converterMap[type] = (RpcConverter<object>)converter;
+                    _converterMap[type] = converter;
                     return converter;
                 }
             }
@@ -231,9 +229,10 @@ namespace Lykke.Icon.Sdk
          *
          * @param factory a converter factory
          */
-        public void AddConverterFactory(RpcConverterFactory factory)
+        public void AddConverterFactory<T>(RpcConverterFactory factory)
         {
-            converterFactories.Add(factory);
+            _converterFactories.Add(factory);
+            //_converterMap.Add(typeof(T), (RpcConverter<object>)factory.Create<T>());
         }
     }
 }

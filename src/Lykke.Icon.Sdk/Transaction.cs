@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Lykke.Icon.Sdk.Data;
 using Lykke.Icon.Sdk.Transport.JsonRpc;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using System.Numerics;
+using System;
 
 namespace Lykke.Icon.Sdk
 {
@@ -17,15 +13,15 @@ namespace Lykke.Icon.Sdk
 
         Address GetTo();
 
-        BigInteger GetValue();
+        BigInteger? GetValue();
 
-        BigInteger GetStepLimit();
+        BigInteger? GetStepLimit();
 
-        BigInteger GetTimestamp();
+        BigInteger? GetTimestamp();
 
-        BigInteger GetNid();
+        BigInteger? GetNid();
 
-        BigInteger GetNonce();
+        BigInteger? GetNonce();
 
         String GetDataType();
 

@@ -27,7 +27,8 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 
         public RpcItem GetItem(String key)
         {
-            return items[key];
+            items.TryGetValue(key, out var result);
+            return result;
         }
 
         public override String ToString()

@@ -1,6 +1,7 @@
 using Lykke.Icon.Sdk.Data;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Math.EC;
@@ -9,7 +10,6 @@ using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 using System;
 using System.Text.RegularExpressions;
-using Org.BouncyCastle.Crypto.Digests;
 
 namespace Lykke.Icon.Sdk.Crypto
 {
@@ -31,23 +31,6 @@ namespace Lykke.Icon.Sdk.Crypto
 
         static IconKeys()
         {
-            //Provider provider = Security.GetProvider(BouncyCastleProvider.PROVIDER_NAME);
-            //Provider newProvider = new BouncyCastleProvider();
-
-            //if (newProvider.getVersion() < MIN_BOUNCY_CASTLE_VERSION)
-            //{
-            //    String message = String.Format(
-            //        "The version of BouncyCastle should be %f or newer", MIN_BOUNCY_CASTLE_VERSION);
-            //    throw new Exception(message);
-            //}
-
-            //if (provider != null)
-            //{
-            //    Security.RemoveProvider(BouncyCastleProvider.PROVIDER_NAME);
-            //}
-
-            //Security.AddProvider(newProvider);
-
             SECURE_RANDOM = new SecureRandom();
         }
 
@@ -65,15 +48,19 @@ namespace Lykke.Icon.Sdk.Crypto
 
         public static Bytes GetPublicKey(Bytes privateKey)
         {
+            var pkBytes = privateKey.ToByteArray();
             var spec = ECNamedCurveTable.GetByName("secp256k1");
-            ECPoint pointQ = spec.G.Multiply(new BigInteger(1, privateKey.ToByteArray()));
+            ECPoint pointQ = spec.G.Multiply(new BigInteger(1, pkBytes));
             byte[] publicKeyBytes = pointQ.GetEncoded(false);
             return new Bytes(Arrays.CopyOfRange(publicKeyBytes, 1, publicKeyBytes.Length));
         }
 
         public static Address GetAddress(Bytes publicKey)
         {
-            return new Address(new Address.AddressPrefix(Address.AddressPrefix.EOA), GetAddressHash(publicKey.ToByteArray(PUBLIC_KEY_SIZE)));
+            var prefix = new Address.AddressPrefix(Address.AddressPrefix.EOA);
+            var pkBytes = publicKey.ToByteArray(PUBLIC_KEY_SIZE);
+            var hash = GetAddressHash(pkBytes);
+            return new Address(prefix, hash);
         }
 
         public static byte[] GetAddressHash(BigInteger publicKey)
@@ -81,15 +68,17 @@ namespace Lykke.Icon.Sdk.Crypto
             return GetAddressHash(new Bytes(publicKey).ToByteArray(PUBLIC_KEY_SIZE));
         }
 
+        //TODO: Fight all those allocations
         public static byte[] GetAddressHash(byte[] publicKey)
         {
-            byte[] hash = new byte[publicKey.Length];
-            Array.Copy(publicKey, hash, publicKey.Length);
-            new Sha3Digest(256).DoFinal(hash, 0);
-
+            var digest = new Sha3Digest(256);
+            var output = new byte[digest.GetDigestSize()];
+            digest.BlockUpdate(publicKey, 0, publicKey.Length);
+            digest.DoFinal(output, 0);
             int length = 20;
             byte[] result = new byte[20];
-            Array.Copy(hash, hash.Length - 20, result, 0, length);
+            Array.Copy(output, output.Length - 20, result, 0, length);
+
             return result;
         }
 
