@@ -12,5 +12,12 @@ namespace Lykke.Icon.Sdk
             long unixTime = ((DateTimeOffset)foo).ToUnixTimeSeconds();
             return unixTime;
         }
+
+        public static long GetCurrentUnixTimeWithTimeSpan(TimeSpan timeSpan)
+        {
+            DateTime foo = DateTime.UtcNow + timeSpan;
+            long unixTime = ((DateTimeOffset)foo).ToUnixTimeSeconds();
+            return unixTime;
+        }
     }
 }

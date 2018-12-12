@@ -65,7 +65,7 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
         [DataMember(Name = "method")]
         public String Method { get; protected set; }
 
-        [DataMember(Name = "params")]
+        [DataMember(Name = "params", EmitDefaultValue = false)]
         [JsonConverter(typeof(RpcItemSerializer))]
         public RpcObject Params{ get; protected set; }
     }

@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Lykke.Icon.Sdk.Tests
 {
-    public class IconServiceVCRTest
+    public class IconServiceVCRTest : TestWithEnvVariables
     {
         public const String URL = "https://test-ctz.solidwallet.io/api/v3";
         public const String TEST_V2_URL = "https://test-ctz.solidwallet.io/api/v2";
@@ -26,6 +26,7 @@ namespace Lykke.Icon.Sdk.Tests
         private Address _scoreAddress;
         private IconService _iconService;
         private Wallet _wallet;
+        private readonly KeyWallet _secretWallet;
 
         public IconServiceVCRTest()
         {
@@ -35,6 +36,7 @@ namespace Lykke.Icon.Sdk.Tests
             var httpClient = new HttpClient();
             _iconService = new IconService(new HttpProvider(httpClient, URL));
             _wallet = KeyWallet.Load(new Bytes(PRIVATE_KEY_STRING));
+            _secretWallet = KeyWallet.Load(new Bytes(_pk1));
         }
 
         [Fact()]
@@ -45,35 +47,34 @@ namespace Lykke.Icon.Sdk.Tests
             Assert.True(balance >= 0);
         }
 
-        [Fact(Skip = "will be implemented soon")]
+        [Fact()]
         public async Task TestGetTotalSupply()
         {
             BigInteger totalSupply = await _iconService.GetTotalSupply();
-            Assert.Equal(BigInteger.Parse("801459900000000000000000000"), totalSupply);
+            Assert.Equal(BigInteger.Parse("800460000000000000000000000"), totalSupply);
         }
 
-        [Fact(Skip = "will be implemented soon")]
+        [Fact()]
         public async Task TestGetBlockByHeight()
         {
             Block block = await _iconService.GetBlock(BigInteger.One);
-            Assert.Equal("aa9b739597043e25e669dbc20eadbc17455b898540bf88018c7f065bdedb393a",
-                block.GetBlockHash().ToHexString(false));
+            var blockHash = block.GetBlockHash().ToHexString(false);
+            Assert.Equal("d5629fe006104df557570ce2613c8df1901d8f6f322b9f251645c201fa1d1e9e", blockHash);
         }
 
-        [Fact(Skip = "will be implemented soon")]
+        [Fact()]
         public async Task TestGetBlockByHash()
         {
-            Bytes hash = new Bytes("0x980d74c90094c78f1dfaa60c396f5b91e5021de2b6cd6a17caa9d941aa4b0c60");
+            Bytes hash = new Bytes("0xd5629fe006104df557570ce2613c8df1901d8f6f322b9f251645c201fa1d1e9e");
             Block block = await _iconService.GetBlock(hash);
             Assert.Equal(hash, block.GetBlockHash());
         }
 
-        [Fact(Skip = "will be implemented soon")]
+        [Fact()]
         public async Task TestGetLastBlock()
         {
-            Bytes hash = new Bytes("980d74c90094c78f1dfaa60c396f5b91e5021de2b6cd6a17caa9d941aa4b0c60");
             Block block = await _iconService.GetLastBlock();
-            Assert.Equal(hash, block.GetBlockHash());
+            Assert.True(block.GetHeight() > 100);
         }
 
         [Fact(Skip = "will be implemented soon")]
@@ -83,41 +84,42 @@ namespace Lykke.Icon.Sdk.Tests
             Assert.Equal("balanceOf", apis[0].GetName());
         }
 
-        [Fact(Skip = "will be implemented soon")]
+        [Fact()]
         public async Task TestGetTransaction()
         {
-            Bytes txHash = new Bytes("0xe8c167e2333eca73f10e1de03c9e616b655064aec2540913504cf0a4bab34db7");
+            Bytes txHash = new Bytes("0xe7ca6280d7de91f33ab3d4fe8359a15fa397c31f8c36a14d48bd995788000374");
             ConfirmedTransaction tx = await _iconService.GetTransaction(txHash);
             Assert.Equal(txHash, tx.GetTxHash());
         }
 
-        [Fact(Skip = "will be implemented soon")]
+        [Fact()]
         public async Task TestGetTransactionResult()
         {
-            Bytes txHash = new Bytes("0xe8c167e2333eca73f10e1de03c9e616b655064aec2540913504cf0a4bab34db7");
+            Bytes txHash = new Bytes("0xe7ca6280d7de91f33ab3d4fe8359a15fa397c31f8c36a14d48bd995788000374");
             TransactionResult tx = await _iconService.GetTransactionResult(txHash);
             Assert.Equal(txHash, tx.GetTxHash());
         }
 
-        [Fact(Skip = "will be implemented soon")]
+        [Fact()]
         public async Task TestSendIcxTransaction()
         {
-            long timestmap = DateTimeHelper.GetCurrentUnixTime() * 1000L;
-            Address toAddress = new Address("hx4873b94352c8c1f3b2f09aaeccea31ce9e90bd31");
+            //1544619275191000
+            long timestmap = DateTimeHelper.GetCurrentUnixTimeWithTimeSpan(TimeSpan.FromMinutes(5)) * 1_000_000L;
+            BigInteger balance = BigInteger.Parse("30000000000000000000");
+            IconAmount amount = IconAmount.Of(balance, IconAmount.Unit.ICX);
             Transaction transaction = TransactionBuilder.NewBuilder()
-                    .Nid(BigInteger.Parse("3"))
+                    .Nid(BigInteger.Parse("2"))
                     .From(_wallet.GetAddress())
-                    .To(toAddress)
-                    .Value(BigInteger.Parse("de0b6b3a7640000", NumberStyles.HexNumber))
-                    .StepLimit(BigInteger.Parse("12345", NumberStyles.HexNumber))
-                    .Timestamp(BigInteger.Parse("574b2996ad388", NumberStyles.HexNumber))
-                    //                .timestamp(BigInteger.Parse(Long.toString(timestmap)))
-                    .Nonce(BigInteger.Parse("1"))
+                    .To(_secretWallet.GetAddress())
+                    .Value(balance)
+                    .StepLimit(BigInteger.Parse("1000000"))
+                    .Timestamp(BigInteger.Parse(timestmap.ToString()))
+                    .Nonce(BigInteger.Parse("9"))
                     .Build();
 
             SignedTransaction signedTransaction = new SignedTransaction(transaction, _wallet);
             Bytes hash = await _iconService.SendTransaction(signedTransaction);
-            Assert.Equal("0xac705c771806cd0a04df9025993febdce1c1d8006d8043b01ed9adc86a395d08", hash.ToString());
+            //Assert.Equal("0xac705c771806cd0a04df9025993febdce1c1d8006d8043b01ed9adc86a395d08", hash.ToString());
         }
 
         [Fact(Skip = "will be implemented soon")]
