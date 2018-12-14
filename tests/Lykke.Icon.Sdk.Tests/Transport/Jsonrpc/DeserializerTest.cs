@@ -25,7 +25,7 @@ namespace Lykke.Icon.Sdk.Tests.Transport.Jsonrpc
             rpcValue = (RpcValue)obj.GetItem("intValue");
             Assert.Equal(BigInteger.Parse("4d2", NumberStyles.HexNumber), rpcValue.ToInteger());
             rpcValue = (RpcValue)obj.GetItem("booleanValue");
-            Assert.Equal(false, rpcValue.ToBoolean());
+            Assert.False(rpcValue.ToBoolean());
             rpcValue = (RpcValue)obj.GetItem("stringValue");
             Assert.Equal("string", rpcValue.ToString());
             rpcValue = (RpcValue)obj.GetItem("bytesValue");
@@ -36,7 +36,7 @@ namespace Lykke.Icon.Sdk.Tests.Transport.Jsonrpc
             rpcValue = (RpcValue)array.Get(1);
             Assert.Equal(BigInteger.Parse("4d2", NumberStyles.HexNumber), rpcValue.ToInteger());
             rpcValue = (RpcValue)array.Get(2);
-            Assert.Equal(false, rpcValue.ToBoolean());
+            Assert.False(rpcValue.ToBoolean());
             rpcValue = (RpcValue)array.Get(3);
             Assert.Equal("string", rpcValue.ToString());
             rpcValue = (RpcValue)array.Get(4);
@@ -45,7 +45,7 @@ namespace Lykke.Icon.Sdk.Tests.Transport.Jsonrpc
             rpcValue = (RpcValue)root.GetItem("intValue");
             Assert.Equal(BigInteger.Parse("4d2", NumberStyles.HexNumber), rpcValue.ToInteger());
             rpcValue = (RpcValue)root.GetItem("booleanValue");
-            Assert.Equal(false, rpcValue.ToBoolean());
+            Assert.False(rpcValue.ToBoolean());
             rpcValue = (RpcValue)root.GetItem("stringValue");
             Assert.Equal("string", rpcValue.ToString());
             rpcValue = (RpcValue)root.GetItem("bytesValue");

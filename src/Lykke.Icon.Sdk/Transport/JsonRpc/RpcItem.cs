@@ -1,6 +1,6 @@
 using Lykke.Icon.Sdk.Data;
-using System.Numerics;
 using System;
+using System.Numerics;
 
 namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {

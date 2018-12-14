@@ -69,7 +69,7 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
          *
          * @return the value as bytes
          */
-        public byte[] ToByteArray()
+        public new byte[] ToByteArray()
         {
             if (!value.StartsWith(Bytes.HEX_PREFIX))
             {

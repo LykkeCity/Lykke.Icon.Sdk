@@ -106,7 +106,7 @@ namespace Lykke.Icon.Sdk
              * @param <O> responseType
              * @return Call
              */
-            public Call<O> BuildWith<O>()
+            public Call<T> BuildWith<T>()
             {
                 RpcObject data = new RpcObject.Builder()
                         .Put("method", new RpcValue(method))
@@ -124,7 +124,7 @@ namespace Lykke.Icon.Sdk
                     propertiesBuilder.Put("from", new RpcValue(from));
                 }
 
-                return new Call<O>(propertiesBuilder.Build());
+                return new Call<T>(propertiesBuilder.Build());
             }
         }
 

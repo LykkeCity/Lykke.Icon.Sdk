@@ -14,7 +14,7 @@ namespace Lykke.Icon.Sdk.Tests
     public class IconServiceTest
     {
         [Fact]
-        public async Task TestIconServiceInit()
+        public void TestIconServiceInit()
         {
             Mock<IProvider> provider = GetMockProvider();
             IconService iconService = new IconService(provider.Object);
