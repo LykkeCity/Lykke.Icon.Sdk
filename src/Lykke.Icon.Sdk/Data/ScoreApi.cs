@@ -7,38 +7,38 @@ namespace Lykke.Icon.Sdk.Data
 {
     public class ScoreApi
     {
-        private RpcObject properties;
+        private RpcObject _properties;
 
         public ScoreApi(RpcObject properties)
         {
-            this.properties = properties;
+            this._properties = properties;
         }
 
-        public RpcObject getProperties()
+        public RpcObject GetProperties()
         {
-            return properties;
+            return _properties;
         }
 
         public String GetType()
         {
-            RpcItem item = properties.GetItem("type");
+            RpcItem item = _properties.GetItem("type");
             return item != null ? item.ToString() : null;
         }
 
         public String GetName()
         {
-            RpcItem item = properties.GetItem("name");
+            RpcItem item = _properties.GetItem("name");
             return item != null ? item.ToString() : null;
         }
 
         public List<Param> getInputs()
         {
-            return GetParams(properties.GetItem("inputs"));
+            return GetParams(_properties.GetItem("inputs"));
         }
 
         public List<Param> getOutputs()
         {
-            return GetParams(properties.GetItem("outputs"));
+            return GetParams(_properties.GetItem("outputs"));
         }
 
         List<Param> GetParams(RpcItem item)
@@ -58,48 +58,48 @@ namespace Lykke.Icon.Sdk.Data
 
         public String GetReadonly()
         {
-            RpcItem item = properties.GetItem("readonly");
+            RpcItem item = _properties.GetItem("readonly");
             return item != null ? item.ToString() : null;
         }
 
         public override String ToString()
         {
             return "ScoreApi{" +
-                   "properties=" + properties +
+                   "properties=" + _properties +
                    '}';
         }
 
         public class Param
         {
-            private RpcObject properties;
+            private RpcObject _properties;
 
             public Param(RpcObject properties)
             {
-                this.properties = properties;
+                this._properties = properties;
             }
 
             public String GetType()
             {
-                RpcItem item = properties.GetItem("type");
+                RpcItem item = _properties.GetItem("type");
                 return item != null ? item.ToString() : null;
             }
 
             public String GetName()
             {
-                RpcItem item = properties.GetItem("name");
+                RpcItem item = _properties.GetItem("name");
                 return item != null ? item.ToString() : null;
             }
 
             public BigInteger GetIndexed()
             {
-                RpcItem item = properties.GetItem("indexed");
+                RpcItem item = _properties.GetItem("indexed");
                 return item != null ? item.ToInteger() : 0;
             }
 
             public String ToString()
             {
                 return "Param{" +
-                       "properties=" + properties +
+                       "properties=" + _properties +
                        '}';
             }
         }

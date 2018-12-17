@@ -16,11 +16,11 @@ namespace Lykke.Icon.Sdk
      */
     public class SignedTransaction
     {
-        private Transaction _transaction;
-        private Wallet _wallet;
+        private ITransaction _transaction;
+        private IWallet _wallet;
         private RpcObject _properties;
 
-        public SignedTransaction(Transaction transaction, Wallet wallet)
+        public SignedTransaction(ITransaction transaction, IWallet wallet)
         {
             this._transaction = transaction;
             this._wallet = wallet;

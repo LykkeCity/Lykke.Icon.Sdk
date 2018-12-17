@@ -10,7 +10,7 @@ namespace Lykke.Icon.Sdk.Tests
 {
     public class SignedTransactionTest
     {
-        private Wallet wallet;
+        private IWallet wallet;
 
         public SignedTransactionTest()
         {
@@ -43,8 +43,8 @@ namespace Lykke.Icon.Sdk.Tests
             Address from = new Address("hxbe258ceb872e08851f1f59694dac2558708ece11");
             Address to = new Address("hx5bfdb090f43a808005ffc27c25b213145e80b7cd");
 
-            Transaction transaction = TransactionBuilder.NewBuilder()
-                    .Nid(NetworkId.MAIN)
+            ITransaction transaction = TransactionBuilder.NewBuilder()
+                    .Nid(NetworkId.Main)
                     .From(from)
                     .To(to)
                     .Value(BigInteger.Parse("0de0b6b3a7640000", NumberStyles.AllowHexSpecifier))
@@ -71,8 +71,8 @@ namespace Lykke.Icon.Sdk.Tests
             Address from = new Address("hxbe258ceb872e08851f1f59694dac2558708ece11");
             Address to = new Address("cx982aed605b065b50a2a639c1ea5710ef5a0501a9");
 
-            Transaction transaction = TransactionBuilder.NewBuilder()
-                    .Nid(NetworkId.MAIN)
+            ITransaction transaction = TransactionBuilder.NewBuilder()
+                    .Nid(NetworkId.Main)
                     .From(from)
                     .To(to)
                     .Value(BigInteger.One)
@@ -105,8 +105,8 @@ namespace Lykke.Icon.Sdk.Tests
             Address from = new Address("hxbe258ceb872e08851f1f59694dac2558708ece11");
             Address to = new Address("cx0000000000000000000000000000000000000000");
 
-            Transaction transaction = TransactionBuilder.NewBuilder()
-                    .Nid(NetworkId.MAIN)
+            ITransaction transaction = TransactionBuilder.NewBuilder()
+                    .Nid(NetworkId.Main)
                     .From(from)
                     .To(to)
                     .StepLimit(BigInteger.Parse("0e01348", NumberStyles.HexNumber))
@@ -129,8 +129,8 @@ namespace Lykke.Icon.Sdk.Tests
             Address from = new Address("hxbe258ceb872e08851f1f59694dac2558708ece11");
             Address to = new Address("hx5bfdb090f43a808005ffc27c25b213145e80b7cd");
 
-            Transaction transaction = TransactionBuilder.NewBuilder()
-                    .Nid(NetworkId.MAIN)
+            ITransaction transaction = TransactionBuilder.NewBuilder()
+                    .Nid(NetworkId.Main)
                     .From(from)
                     .To(to)
                     .StepLimit(BigInteger.Parse("0e01348", NumberStyles.HexNumber))

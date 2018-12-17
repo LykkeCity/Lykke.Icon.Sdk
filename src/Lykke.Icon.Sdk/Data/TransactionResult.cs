@@ -10,17 +10,16 @@ namespace Lykke.Icon.Sdk.Data
      */
     public class TransactionResult
     {
-
-        private RpcObject properties;
+        private RpcObject _properties;
 
         public TransactionResult(RpcObject properties)
         {
-            this.properties = properties;
+            this._properties = properties;
         }
 
         public RpcObject GetProperties()
         {
-            return properties;
+            return _properties;
         }
 
         /**
@@ -28,7 +27,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public BigInteger GetStatus()
         {
-            RpcItem status = properties.GetItem("status");
+            RpcItem status = _properties.GetItem("status");
             if (status != null)
             {
                 return status.ToInteger();
@@ -38,7 +37,7 @@ namespace Lykke.Icon.Sdk.Data
                 // Migrates V2 block data
                 // V2 Block data doesn't have a status field but have a code field
                 // @see <a href="https://github.com/icon-project/icx_JSON_RPC#icx_gettransactionresult" target="_blank">ICON JSON-RPC V2 API</a>
-                RpcItem code = properties.GetItem("code");
+                RpcItem code = _properties.GetItem("code");
                 if (code != null) return BigInteger.Parse(code.ToInteger() == 0 ? "1" : "0");
                 else return 0;
             }
@@ -49,7 +48,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public String GetTo()
         {
-            RpcItem item = properties.GetItem("to");
+            RpcItem item = _properties.GetItem("to");
             return item != null ? item.ToString() : null;
         }
 
@@ -58,7 +57,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public Bytes GetTxHash()
         {
-            RpcItem item = properties.GetItem("txHash");
+            RpcItem item = _properties.GetItem("txHash");
             return item != null ? item.ToBytes() : null;
         }
 
@@ -67,7 +66,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public BigInteger GetTxIndex()
         {
-            RpcItem item = properties.GetItem("txIndex");
+            RpcItem item = _properties.GetItem("txIndex");
             return item != null ? item.ToInteger() : 0;
         }
 
@@ -76,7 +75,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public BigInteger GetBlockHeight()
         {
-            RpcItem item = properties.GetItem("blockHeight");
+            RpcItem item = _properties.GetItem("blockHeight");
             return item != null ? item.ToInteger() : 0;
         }
 
@@ -85,7 +84,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public Bytes GetBlockHash()
         {
-            RpcItem item = properties.GetItem("blockHash");
+            RpcItem item = _properties.GetItem("blockHash");
             return item != null ? item.ToBytes() : null;
         }
 
@@ -94,7 +93,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public BigInteger GetCumulativeStepUsed()
         {
-            RpcItem item = properties.GetItem("cumulativeStepUsed");
+            RpcItem item = _properties.GetItem("cumulativeStepUsed");
             return item != null ? item.ToInteger() : 0;
         }
 
@@ -103,7 +102,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public BigInteger GetStepUsed()
         {
-            RpcItem item = properties.GetItem("stepUsed");
+            RpcItem item = _properties.GetItem("stepUsed");
             return item != null ? item.ToInteger() : 0;
         }
 
@@ -112,7 +111,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public BigInteger GetStepPrice()
         {
-            RpcItem item = properties.GetItem("stepPrice");
+            RpcItem item = _properties.GetItem("stepPrice");
             return item != null ? item.ToInteger() : 0;
         }
 
@@ -121,7 +120,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public String GetScoreAddress()
         {
-            RpcItem item = properties.GetItem("scoreAddress");
+            RpcItem item = _properties.GetItem("scoreAddress");
             return item != null ? item.ToString() : null;
         }
 
@@ -130,7 +129,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public String GetLogsBloom()
         {
-            RpcItem item = properties.GetItem("logsBloom");
+            RpcItem item = _properties.GetItem("logsBloom");
             return item != null ? item.ToString() : null;
         }
 
@@ -139,7 +138,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public List<EventLog> GetEventLogs()
         {
-            RpcItem item = properties.GetItem("eventLogs");
+            RpcItem item = _properties.GetItem("eventLogs");
             List<EventLog> eventLogs = new List<EventLog>();
             if (item != null)
             {
@@ -156,7 +155,7 @@ namespace Lykke.Icon.Sdk.Data
          */
         public Failure GetFailure()
         {
-            RpcItem failure = properties.GetItem("failure");
+            RpcItem failure = _properties.GetItem("failure");
 
             if (failure == null)
             {
@@ -166,13 +165,13 @@ namespace Lykke.Icon.Sdk.Data
                     // Migrates V2 block data
                     // V2 Block data doesn't have a failure field but have a code field
                     // @see <a href="https://github.com/icon-project/icx_JSON_RPC#icx_gettransactionresult" target="_blank">ICON JSON-RPC V2 API</a>
-                    RpcItem code = properties.GetItem("code");
+                    RpcItem code = _properties.GetItem("code");
                     if (code != null)
                     {
                         RpcObject.Builder builder = new RpcObject.Builder();
                         builder.Put("code", code);
 
-                        RpcItem message = properties.GetItem("message");
+                        RpcItem message = _properties.GetItem("message");
                         if (message != null)
                         {
                             builder.Put("message", message);
@@ -188,7 +187,7 @@ namespace Lykke.Icon.Sdk.Data
         public override String ToString()
         {
             return "TransactionResult{" +
-                    "properties=" + properties +
+                    "properties=" + _properties +
                     '}';
         }
 
@@ -229,29 +228,29 @@ namespace Lykke.Icon.Sdk.Data
 
         public class Failure
         {
-            private RpcObject properties;
+            private RpcObject _properties;
 
             public Failure(RpcObject properties)
             {
-                this.properties = properties;
+                this._properties = properties;
             }
 
             public BigInteger GetCode()
             {
-                RpcItem item = properties.GetItem("code");
+                RpcItem item = _properties.GetItem("code");
                 return item != null ? item.ToInteger() : 0;
             }
 
             public String GetMessage()
             {
-                RpcItem item = properties.GetItem("message");
+                RpcItem item = _properties.GetItem("message");
                 return item != null ? item.ToString() : null;
             }
 
             public override String ToString()
             {
                 return "Failure{" +
-                        "properties=" + properties +
+                        "properties=" + _properties +
                         '}';
             }
         }

@@ -14,9 +14,9 @@ namespace Lykke.Icon.Sdk
      */
     public class IconService
     {
-        private IProvider _provider;
-        private List<RpcConverterFactory> _converterFactories = new List<RpcConverterFactory>(10);
-        private Dictionary<Type, object> _converterMap = new Dictionary<Type, object>();
+        private readonly IProvider _provider;
+        private readonly List<RpcConverterFactory> _converterFactories = new List<RpcConverterFactory>(10);
+        private readonly Dictionary<Type, object> _converterMap = new Dictionary<Type, object>();
 
         /**
          * Creates IconService instance
@@ -232,7 +232,7 @@ namespace Lykke.Icon.Sdk
         public void AddConverterFactory<T>(RpcConverterFactory factory)
         {
             _converterFactories.Add(factory);
-            //_converterMap.Add(typeof(T), (RpcConverter<object>)factory.Create<T>());
+            _converterMap.Add(typeof(T), factory.Create<T>());
         }
     }
 }

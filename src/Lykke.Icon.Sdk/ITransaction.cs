@@ -5,7 +5,7 @@ using System;
 
 namespace Lykke.Icon.Sdk
 {
-    public interface Transaction
+    public interface ITransaction
     {
         BigInteger GetVersion();
 

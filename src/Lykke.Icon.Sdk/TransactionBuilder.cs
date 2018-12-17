@@ -200,7 +200,7 @@ namespace Lykke.Icon.Sdk
              *
              * @return a transaction to send
              */
-            public Transaction Build()
+            public ITransaction Build()
             {
                 return transactionData.Build();
             }
@@ -213,15 +213,15 @@ namespace Lykke.Icon.Sdk
         public class CallBuilder
         {
 
-            private TransactionData transactionData;
-            private RpcObject.Builder dataBuilder;
+            private TransactionData _transactionData;
+            private RpcObject.Builder _dataBuilder;
 
             public CallBuilder(TransactionData transactionData, String method)
             {
-                this.transactionData = transactionData;
-                this.transactionData.DataType = "call";
+                this._transactionData = transactionData;
+                this._transactionData.DataType = "call";
 
-                dataBuilder = new RpcObject.Builder()
+                _dataBuilder = new RpcObject.Builder()
                         .Put("method", new RpcValue(method));
             }
 
@@ -233,7 +233,7 @@ namespace Lykke.Icon.Sdk
              */
             public CallBuilder Params(RpcObject @params)
             {
-                dataBuilder.Put("params", @params);
+                _dataBuilder.Put("params", @params);
                 return this;
             }
 
@@ -245,7 +245,7 @@ namespace Lykke.Icon.Sdk
              */
             public CallBuilder Params<T>(T @params)
             {
-                dataBuilder.Put("params", RpcItemCreator.Create(@params));
+                _dataBuilder.Put("params", RpcItemCreator.Create(@params));
                 return this;
             }
 
@@ -254,12 +254,12 @@ namespace Lykke.Icon.Sdk
              *
              * @return a transaction to send
              */
-            public Transaction Build()
+            public ITransaction Build()
             {
-                transactionData.Data = dataBuilder.Build();
-                CheckArgument(((RpcObject)transactionData.Data).GetItem("method"), "method not found");
+                _transactionData.Data = _dataBuilder.Build();
+                CheckArgument(((RpcObject)_transactionData.Data).GetItem("method"), "method not found");
 
-                return transactionData.Build();
+                return _transactionData.Build();
             }
         }
 
@@ -282,7 +282,7 @@ namespace Lykke.Icon.Sdk
              *
              * @return a transaction to send
              */
-            public Transaction Build()
+            public ITransaction Build()
             {
                 return transactionData.Build();
             }
@@ -324,7 +324,7 @@ namespace Lykke.Icon.Sdk
              *
              * @return a transaction to send
              */
-            public Transaction Build()
+            public ITransaction Build()
             {
                 transactionData.Data = dataBuilder.Build();
                 CheckArgument(((RpcObject)transactionData.Data).GetItem("contentType"), "contentType not found");
@@ -342,12 +342,12 @@ namespace Lykke.Icon.Sdk
             public BigInteger? Value;
             public BigInteger? StepLimit;
             public BigInteger?Timestamp;
-            public BigInteger? Nid = (BigInteger)(long)NetworkId.MAIN;
+            public BigInteger? Nid = (BigInteger)(long)NetworkId.Main;
             public BigInteger? Nonce;
             public String DataType;
             public RpcItem Data;
 
-            public Transaction Build()
+            public ITransaction Build()
             {
                 CheckAddress(From, "from not found");
                 CheckAddress(To, "to not found");
@@ -366,7 +366,7 @@ namespace Lykke.Icon.Sdk
             }
         }
 
-        private class SendingTransaction : Transaction
+        private class SendingTransaction : ITransaction
         {
             private BigInteger _version;
             private Address _from;

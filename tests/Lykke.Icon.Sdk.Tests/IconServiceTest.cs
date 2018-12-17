@@ -254,8 +254,8 @@ namespace Lykke.Icon.Sdk.Tests
             Address fromAddress = new Address("hxbe258ceb872e08851f1f59694dac2558708ece11");
             Address toAddress = new Address("hx5bfdb090f43a808005ffc27c25b213145e80b7cd");
 
-            Transaction transaction = TransactionBuilder.NewBuilder()
-                    .Nid(NetworkId.MAIN)
+            ITransaction transaction = TransactionBuilder.NewBuilder()
+                    .Nid(NetworkId.Main)
                     .From(fromAddress)
                     .To(toAddress)
                     .Value(BigInteger.Parse("0de0b6b3a7640000", NumberStyles.AllowHexSpecifier))
@@ -263,7 +263,7 @@ namespace Lykke.Icon.Sdk.Tests
                     .Timestamp(BigInteger.Parse("0563a6cf330136", NumberStyles.AllowHexSpecifier))
                     .Nonce(BigInteger.Parse("1"))
                     .Build();
-            Wallet wallet = KeyWallet.Load(new Bytes(SampleKeys.PRIVATE_KEY_STRING));
+            IWallet wallet = KeyWallet.Load(new Bytes(SampleKeys.PRIVATE_KEY_STRING));
             SignedTransaction signedTransaction = new SignedTransaction(transaction, wallet);
 
             IconService iconService = new IconService(provider.Object);
@@ -297,8 +297,8 @@ namespace Lykke.Icon.Sdk.Tests
                             .Put("_value", new RpcValue(BigInteger.Parse("1")))
                             .Build();
 
-            Transaction transaction = TransactionBuilder.NewBuilder()
-                    .Nid(NetworkId.MAIN)
+            ITransaction transaction = TransactionBuilder.NewBuilder()
+                    .Nid(NetworkId.Main)
                     .From(fromAddress)
                     .To(scoreAddress)
                     .StepLimit(BigInteger.Parse("12345", NumberStyles.HexNumber))
@@ -308,7 +308,7 @@ namespace Lykke.Icon.Sdk.Tests
                     .Params(@params)
                     .Build();
 
-            Wallet wallet = KeyWallet.Load(new Bytes(SampleKeys.PRIVATE_KEY_STRING));
+            IWallet wallet = KeyWallet.Load(new Bytes(SampleKeys.PRIVATE_KEY_STRING));
             SignedTransaction signedTransaction = new SignedTransaction(transaction, wallet);
 
             IconService iconService = new IconService(provider.Object);

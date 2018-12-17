@@ -1,27 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Lykke.Icon.Sdk.Crypto;
 using Lykke.Icon.Sdk.Data;
 using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Lykke.Icon.Sdk
 {
     /**
      * An implementation of Wallet which uses of the key pair.
      */
-    public class KeyWallet : Wallet
+    public class KeyWallet : IWallet
     {
-
-        private Bytes privateKey;
-        private Bytes publicKey;
+        private Bytes _privateKey;
+        private Bytes _publicKey;
 
         private KeyWallet(Bytes privateKey, Bytes publicKey)
         {
-            this.privateKey = privateKey;
-            this.publicKey = publicKey;
+            this._privateKey = privateKey;
+            this._publicKey = publicKey;
         }
 
         /**
@@ -82,7 +76,7 @@ namespace Lykke.Icon.Sdk
          */
         public Address GetAddress()
         {
-            return IconKeys.GetAddress(publicKey);
+            return IconKeys.GetAddress(_publicKey);
         }
 
         /**
@@ -91,7 +85,7 @@ namespace Lykke.Icon.Sdk
         public byte[] Sign(byte[] data)
         {
             TransactionBuilder.CheckArgument(data, "hash not found");
-            ECDSASignature signature = new ECDSASignature(privateKey);
+            ECDSASignature signature = new ECDSASignature(_privateKey);
             BigInteger[] sig = signature.GenerateSignature(data);
             return signature.RecoverableSerialize(sig, data);
         }
@@ -103,12 +97,12 @@ namespace Lykke.Icon.Sdk
          */
         public Bytes GetPrivateKey()
         {
-            return privateKey;
+            return _privateKey;
         }
 
         public Bytes GetPublicKey()
         {
-            return publicKey;
+            return _publicKey;
         }
 
     }

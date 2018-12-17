@@ -5,39 +5,39 @@ namespace Lykke.Icon.Sdk.Data
 {
     public class IconAmount
     {
-        private BigDecimal value;
-        private int digit;
+        private BigDecimal _value;
+        private readonly int _digit;
 
         public IconAmount(BigDecimal value, int digit)
         {
-            this.value = value;
-            this.digit = digit;
+            this._value = value;
+            this._digit = digit;
         }
 
         public int GetDigit()
         {
-            return digit;
+            return _digit;
         }
 
         public override String ToString()
         {
-            return value.ToString();
+            return _value.ToString();
         }
 
         public BigInteger ToInteger()
         {
-            return value.ToBigInteger();
+            return _value.ToBigInteger();
         }
 
         public BigDecimal ToDecimal()
         {
-            return value;
+            return _value;
         }
 
         public BigInteger ToLoop()
         {
-            var tenDigit = GetTenDigit(digit);
-            return (value * tenDigit).ToBigInteger();
+            var tenDigit = GetTenDigit(_digit);
+            return (_value * tenDigit).ToBigInteger();
         }
 
         public IconAmount ConvertUnit(Unit unit)
@@ -70,16 +70,16 @@ namespace Lykke.Icon.Sdk.Data
             public const int LOOP = 0;
             public const int ICX = 18;
 
-            int digit;
+            int _digit;
 
             Unit(int digit)
             {
-                this.digit = digit;
+                this._digit = digit;
             }
 
             public int GetValue()
             {
-                return digit;
+                return _digit;
             }
         }
 

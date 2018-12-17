@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Lykke.Icon.Sdk.Crypto;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
-using Lykke.Icon.Sdk.Crypto;
+using System;
+using System.Collections.Generic;
 
 namespace Lykke.Icon.Sdk.Data
 {

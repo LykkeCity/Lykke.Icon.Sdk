@@ -1,7 +1,7 @@
-using Lykke.Icon.Sdk.Transport.JsonRpc;
 using System.Threading.Tasks;
+using Lykke.Icon.Sdk.Transport.JsonRpc;
 
-namespace Lykke.Icon.Sdk.Data
+namespace Lykke.Icon.Sdk
 {
     /**
      * Provider class transports the request and receives the response

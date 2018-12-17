@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Lykke.Icon.Sdk.Data;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Lykke.Icon.Sdk
 {
@@ -11,7 +6,7 @@ namespace Lykke.Icon.Sdk
      * Wallet class signs the message(a transaction message to send)
      * using own key-pair
      */
-    public interface Wallet
+    public interface IWallet
     {
         /**
          * Gets the address corresponding the key of the wallet

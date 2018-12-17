@@ -6,7 +6,7 @@ using System.Globalization;
 namespace Lykke.Icon.Sdk.Data
 {
 
-    public class ConfirmedTransaction : Transaction
+    public class ConfirmedTransaction : ITransaction
     {
         private RpcObject properties;
 

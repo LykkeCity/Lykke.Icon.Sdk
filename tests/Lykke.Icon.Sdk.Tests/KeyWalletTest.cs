@@ -21,7 +21,7 @@ namespace Lykke.Icon.Sdk.Tests
         {
             KeyWallet wallet = KeyWallet.Create();
             Assert.True(IconKeys.IsValidAddress(wallet.GetAddress().ToString()));
-            Wallet loadWallet = KeyWallet.Load(wallet.GetPrivateKey());
+            IWallet loadWallet = KeyWallet.Load(wallet.GetPrivateKey());
             Assert.Equal(wallet.GetAddress(), loadWallet.GetAddress());
         }
 
