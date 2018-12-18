@@ -4,7 +4,9 @@ using Org.BouncyCastle.Crypto.Digests;
 using System.Numerics;
 using Org.BouncyCastle.Utilities.Encoders;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -102,7 +104,7 @@ namespace Lykke.Icon.Sdk
          *
          * @return signature
          */
-        byte[] GetSignature(RpcObject properties)
+        private byte[] GetSignature(RpcObject properties)
         {
             return _wallet.Sign(Sha256(Serialize(properties)));
         }
@@ -112,7 +114,7 @@ namespace Lykke.Icon.Sdk
          *
          * @return hash
          */
-        byte[] Sha256(String data)
+        private byte[] Sha256(String data)
         {
             byte[] hash = Encoding.UTF8.GetBytes(data);
             var digest = new Sha3Digest(256);
@@ -222,6 +224,143 @@ namespace Lykke.Icon.Sdk
                 //var result = Regex.Replace(@string, "([\\\\.{}\\[\\]])", "\\\\$1");
                 var result = Regex.Escape(@string);
                 return result;
+            }
+        }
+
+        /// <summary>
+        /// Can't deserialize arrays params
+        /// </summary>
+        public static class TransactionDeserializer
+        {
+            public static RpcObject DeserializeToRpc(string serializedObject)
+            {
+                var rpcBuilder = new RpcObject.Builder();
+                var i = 0;
+                while (serializedObject.Length > i)
+                {
+                    var key = ReadKey(ref i, serializedObject);
+                    var value = ReadValue(ref i, serializedObject);
+                    if (value != null)
+                        rpcBuilder.Put(key, value);
+                }
+
+                return rpcBuilder.Build();
+            }
+
+            private static string ReadKey(ref int from, string serializedObject)
+            {
+                var sb = new StringBuilder(10);
+                while (from < serializedObject.Length && serializedObject[from] != '.')
+                {
+                    sb.Append(serializedObject[from]);
+                    from++;
+                }
+
+                from++;
+
+                if (sb.Length == 0 && from < serializedObject.Length)
+                    return ReadKey(ref from, serializedObject);
+
+                return sb.ToString();
+            }
+
+            private static RpcItem ReadValue(ref int from, string serializedObject)
+            {
+                bool keepReading = true;
+                var sb = new StringBuilder(10);
+                while (from < serializedObject.Length)
+                {
+                    var character = serializedObject[from];
+                    if (character == '{')
+                    {
+                        Stack<char> symbolStack = new Stack<char>();
+                        symbolStack.Push(character);
+
+                        while (symbolStack.Count != 0)
+                        {
+                            from++;
+                            character = serializedObject[from];
+
+                            if (character == '{')
+                            {
+                                symbolStack.Push(character);
+                            }
+                            else if (character == '}')
+                            {
+                                symbolStack.Pop();
+                            }
+
+                            sb.Append(character);
+                        }
+
+                        sb.Remove(sb.Length - 1, 1);
+                        string objectSerialized = sb.ToString();
+                        var @object = DeserializeToRpc(objectSerialized);
+                        from++;
+
+                        return @object;
+                    }
+                    //TODO: Process arrays if possible
+                    //else if (character == '[')
+                    //{
+
+                    //}
+                    while (from < serializedObject.Length && serializedObject[from] != '.')
+                    {
+                        sb.Append(serializedObject[from]);
+                        from++;
+                    }
+                    from++;
+
+                    return new RpcValue(sb.ToString());
+                }
+
+                return null;
+            }
+
+            public static ITransaction Deserialize(string serializedObject)
+            {
+                var keyDictionary = new Dictionary<string, object>();
+                var sb = new StringBuilder();
+                var transactionMarker = serializedObject.Substring(0, "icx_sendTransaction.".Length);
+                if (transactionMarker != "icx_sendTransaction.")
+                {
+                    throw new ArgumentException("Transaction should start with icx_sendTransaction marker.");
+                }
+
+                var withoutMarker =
+                    serializedObject.Substring("icx_sendTransaction.".Length);
+                var deserilaizedRpcObject = DeserializeToRpc(withoutMarker);
+                var transactionData = ConstructTransactionData(deserilaizedRpcObject);
+
+                return transactionData.Build();
+            }
+
+            private static TransactionBuilder.TransactionData ConstructTransactionData(RpcObject @object)
+            {
+                var transactionData = new TransactionBuilder.TransactionData();
+
+                transactionData.Data = @object.GetItem("data");
+
+                transactionData.DataType = @object.GetItem("dataType")?.ToString();
+
+                transactionData.From = new Address(@object.GetItem("from").ToString());
+
+                transactionData.To = new Address(@object.GetItem("to").ToString());
+
+                transactionData.Nid = @object.GetItem("nid")?.ToInteger();
+
+                transactionData.Nonce = @object.GetItem("nonce")?.ToInteger();
+
+                transactionData.StepLimit = @object.GetItem("stepLimit")?.ToInteger();
+
+                transactionData.Timestamp = @object.GetItem("timestamp")?.ToInteger();
+
+                transactionData.Value = @object.GetItem("value")?.ToInteger();
+
+                transactionData.Version = @object.GetItem("version").ToInteger();
+
+                return transactionData;
             }
         }
     }

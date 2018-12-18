@@ -22,7 +22,7 @@ namespace Lykke.Icon.Sdk
          *
          * @param Nid network ID
          * @return new builder
-         * @deprecated This method can be replaced by {@link #NewBuilderter()}
+         * @deprecated This method can be replaced by {@link #NewBuilder()}
          */
         public static Builder Of(NetworkId Nid)
         {
@@ -35,7 +35,7 @@ namespace Lykke.Icon.Sdk
          *
          * @param Nid network ID in BigInteger
          * @return new builder
-         * @deprecated This method can be replaced by {@link #NewBuilderter()}
+         * @deprecated This method can be replaced by {@link #NewBuilder()}
          */
         public static Builder Of(BigInteger Nid)
         {
@@ -337,15 +337,15 @@ namespace Lykke.Icon.Sdk
         public class TransactionData
         {
             public BigInteger Version = BigInteger.Parse("3");
-            public Address From;
-            public Address To;
-            public BigInteger? Value;
-            public BigInteger? StepLimit;
-            public BigInteger?Timestamp;
+            public Address From { get; set; }
+            public Address To { get; set; }
+            public BigInteger? Value { get; set; }
+            public BigInteger? StepLimit { get; set; }
+            public BigInteger?Timestamp { get; set; }
             public BigInteger? Nid = (BigInteger)(long)NetworkId.Main;
-            public BigInteger? Nonce;
-            public String DataType;
-            public RpcItem Data;
+            public BigInteger? Nonce { get; set; }
+            public String DataType { get; set; }
+            public RpcItem Data { get; set; }
 
             public ITransaction Build()
             {
