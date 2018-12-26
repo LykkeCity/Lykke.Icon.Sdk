@@ -1,217 +1,61 @@
-using Lykke.Icon.Sdk.Transport.JsonRpc;
-using System.Numerics;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
+using Lykke.Icon.Sdk.Transport.JsonRpc;
 
 namespace Lykke.Icon.Sdk.Data
 {
-    public sealed class Converters
+    public static class Converters
     {
-        private Converters()
-        {
-        }
-
-        #region NestedClasses
-
-        public sealed class RpcItemConverter : RpcConverter<RpcItem>
-        {
-            public RpcItem ConvertTo(RpcItem @object)
-            {
-                return @object;
-            }
-
-            public RpcItem ConvertFrom(RpcItem @object)
-            {
-                return @object;
-            }
-        }
-
-        public sealed class BigIntegerConverter : RpcConverter<BigInteger>
-        {
-            public BigInteger ConvertTo(RpcItem @object)
-            {
-                return @object.ToInteger();
-            }
-
-            public RpcItem ConvertFrom(BigInteger @object)
-            {
-                return RpcItemCreator.Create(@object);
-            }
-        }
-
-        public sealed class BoolConverter : RpcConverter<bool>
-        {
-            public bool ConvertTo(RpcItem @object)
-            {
-                return @object.ToBoolean();
-            }
-
-            public RpcItem ConvertFrom(bool @object)
-            {
-                return RpcItemCreator.Create(@object);
-            }
-        }
-
-        public sealed class StringConverter : RpcConverter<string>
-        {
-            public String ConvertTo(RpcItem @object)
-            {
-                return @object.ToString();
-            }
-
-            public RpcItem ConvertFrom(String @object)
-            {
-                return RpcItemCreator.Create(@object);
-            }
-        }
-
-        public sealed class BytesConverter : RpcConverter<Bytes>
-        {
-            public Bytes ConvertTo(RpcItem @object)
-            {
-                return @object.ToBytes();
-            }
-
-            public RpcItem ConvertFrom(Bytes @object)
-            {
-                return RpcItemCreator.Create(@object);
-            }
-        }
-
-        public sealed class ByteArrayConverter : RpcConverter<byte[]>
-        {
-            public byte[] ConvertTo(RpcItem @object)
-            {
-                return @object.ToByteArray();
-            }
-
-            public RpcItem ConvertFrom(byte[] @object)
-            {
-                return RpcItemCreator.Create(@object);
-            }
-        }
-
-        public sealed class BlockConverter : RpcConverter<Block>
-        {
-            public Block ConvertTo(RpcItem @object)
-            {
-                return new Block(@object.ToObject());
-            }
-
-            public RpcItem ConvertFrom(Block @object)
-            {
-                return RpcItemCreator.Create(@object);
-            }
-        }
-
-        public sealed class ConfirmedTransactionConverter : RpcConverter<ConfirmedTransaction>
-        {
-            public ConfirmedTransaction ConvertTo(RpcItem @object)
-            {
-                return new ConfirmedTransaction(@object.ToObject());
-            }
-
-            public RpcItem ConvertFrom(ConfirmedTransaction @object)
-            {
-                return RpcItemCreator.Create(@object);
-            }
-        }
-
-        public sealed class TransactionResultConverter : RpcConverter<TransactionResult>
-        {
-            public TransactionResult ConvertTo(RpcItem @object)
-            {
-                return new TransactionResult(@object.ToObject());
-            }
-
-            public RpcItem ConvertFrom(TransactionResult @object)
-            {
-                return RpcItemCreator.Create(@object);
-            }
-        }
-
-        public sealed class ListScoreApiConverter : RpcConverter<List<ScoreApi>>
-        {
-            public List<ScoreApi> ConvertTo(RpcItem rpcItem)
-            {
-                RpcArray array = rpcItem.ToArray();
-                List<ScoreApi> scoreApis = new List<ScoreApi>(array.Size());
-                for (int i = 0; i < array.Size(); i++)
-                {
-                    scoreApis.Add(new ScoreApi(array.Get(i).ToObject()));
-                }
-                return scoreApis;
-            }
-
-            public RpcItem ConvertFrom(List<ScoreApi> @object)
-            {
-                return RpcItemCreator.Create(@object);
-            }
-        }
-
-        public sealed class CustomRpcConverterFactory<TT> : RpcConverterFactory
-        {
-            private readonly RpcConverter<TT> _converter;
-            private readonly Type _typeFor;
-
-            public CustomRpcConverterFactory(RpcConverter<TT> converter)
-            {
-                _typeFor = typeof(TT);
-                _converter = converter;
-            }
-
-            public RpcConverter<T> Create<T>()
-            {
-                var type = typeof(T);
-                return type.IsAssignableFrom(_typeFor) ? (RpcConverter<T>)_converter : null;
-            }
-        }
-
-        #endregion
-
-        public static RpcConverter<RpcItem> RPC_ITEM
+        public static readonly IRpcConverter<RpcItem> RpcItem
             = new RpcItemConverter();
 
-        public static RpcConverter<BigInteger> BIG_INTEGER
+        public static readonly IRpcConverter<BigInteger> BigInteger
             = new BigIntegerConverter();
 
-        public static RpcConverter<bool> BOOLEAN
+        public static readonly IRpcConverter<bool> Boolean
             = new BoolConverter();
 
-        public static RpcConverter<String> STRING
+        public static readonly IRpcConverter<string> String
             = new StringConverter();
 
-        public static RpcConverter<Bytes> BYTES
+        public static readonly IRpcConverter<Bytes> Bytes
             = new BytesConverter();
 
-        public static RpcConverter<byte[]> BYTE_ARRAY
+        public static readonly IRpcConverter<byte[]> ByteArray
             = new ByteArrayConverter();
 
-        public static RpcConverter<Block> BLOCK = new BlockConverter();
+        public static readonly IRpcConverter<Block> Block 
+            = new BlockConverter();
 
-        public static RpcConverter<ConfirmedTransaction> CONFIRMED_TRANSACTION
+        public static readonly IRpcConverter<ConfirmedTransaction> ConfirmedTransaction
             = new ConfirmedTransactionConverter();
 
-        public static RpcConverter<TransactionResult> TRANSACTION_RESULT
+        public static readonly IRpcConverter<TransactionResult> TransactionResult
             = new TransactionResultConverter();
 
-        public static RpcConverter<List<ScoreApi>> SCORE_API_LIST
+        public static readonly IRpcConverter<List<ScoreApi>> ScoreApiList
             = new ListScoreApiConverter();
 
-        public static RpcConverterFactory NewFactory<TT>(RpcConverter<TT> converter)
+        
+        public static IRpcConverterFactory NewFactory<T>(IRpcConverter<T> converter)
         {
-            return new CustomRpcConverterFactory<TT>(converter);
+            return new CustomRpcConverterFactory<T>(converter);
         }
 
-        public static Object FromRpcItem<T>(T item)
+        private static object FromRpcItem<T>(T item)
         {
-            if (item == null) return null;
+            if (item == null)
+            {
+                return null;
+            }
 
             if (item.GetType().IsAssignableFrom(typeof(RpcArray)))
             {
                 return FromRpcArray<T>(item as RpcArray);
             }
 
+            // ReSharper disable once ConvertIfStatementToReturnStatement
             if (item.GetType().IsAssignableFrom(typeof(RpcObject)))
             {
                 return FromRpcObject<T>(item as RpcObject);
@@ -220,41 +64,60 @@ namespace Lykke.Icon.Sdk.Data
             return FromRpcValue<T>(item as RpcValue);
         }
 
-        static Object FromRpcArray<T>(RpcArray array)
+        private static object FromRpcArray<T>(RpcArray array)
         {
             var type = typeof(T);
-            if (type.IsAssignableFrom(typeof(RpcArray))) return array;
-            List<object> result = new List<object>();
-            foreach (RpcItem item in array)
+            
+            if (type.IsAssignableFrom(typeof(RpcArray)))
             {
-                Object v = FromRpcItem(item);
-                if (v != null) result.Add(FromRpcItem(item));
+                return array;
             }
+            
+            var result = new List<object>();
+            
+            foreach (var item in array)
+            {
+                var v = FromRpcItem(item);
+                
+                if (v != null)
+                {
+                    result.Add(FromRpcItem(item));
+                }
+            }
+            
             return result;
         }
 
-        static Object FromRpcObject<T>(RpcObject @object)
+        private static object FromRpcObject<T>(RpcObject @object)
         {
             var type = typeof(T);
-            if (type.IsAssignableFrom(typeof(RpcObject))) return @object;
-            Dictionary<string, object> result = new Dictionary<string, object>();
-            IEnumerable<String> keys = @object.GetKeys();
-            foreach (String key in keys)
+            
+            if (type.IsAssignableFrom(typeof(RpcObject)))
             {
-                Object v = FromRpcItem(@object.GetItem(key));
+                return @object;
+            }
+            
+            var result = new Dictionary<string, object>();
+            var keys = @object.GetKeys();
+            
+            foreach (var key in keys)
+            {
+                var v = FromRpcItem(@object.GetItem(key));
                 if (v != null) result[key] = v;
             }
+            
             return result;
         }
 
-        static Object FromRpcValue<T>(RpcValue value)
+        private static object FromRpcValue<T>(RpcValue value)
         {
             var type = typeof(T);
-            if (type.IsAssignableFrom(typeof(Boolean)))
+            
+            if (type.IsAssignableFrom(typeof(bool)))
             {
                 return value.ToBoolean();
             }
-            else if (type.IsAssignableFrom(typeof(String)))
+            else if (type.IsAssignableFrom(typeof(string)))
             {
                 return value.ToString();
             }
@@ -278,7 +141,166 @@ namespace Lykke.Icon.Sdk.Data
             {
                 return value;
             }
+            
             return null;
         }
+        
+        #region NestedClasses
+
+        private sealed class RpcItemConverter : IRpcConverter<RpcItem>
+        {
+            public RpcItem ConvertTo(RpcItem @object)
+            {
+                return @object;
+            }
+
+            public RpcItem ConvertFrom(RpcItem @object)
+            {
+                return @object;
+            }
+        }
+
+        private sealed class BigIntegerConverter : IRpcConverter<BigInteger>
+        {
+            public BigInteger ConvertTo(RpcItem @object)
+            {
+                return @object.ToInteger();
+            }
+
+            public RpcItem ConvertFrom(BigInteger @object)
+            {
+                return RpcItemCreator.Create(@object);
+            }
+        }
+
+        private sealed class BoolConverter : IRpcConverter<bool>
+        {
+            public bool ConvertTo(RpcItem @object)
+            {
+                return @object.ToBoolean();
+            }
+
+            public RpcItem ConvertFrom(bool @object)
+            {
+                return RpcItemCreator.Create(@object);
+            }
+        }
+
+        private sealed class StringConverter : IRpcConverter<string>
+        {
+            public string ConvertTo(RpcItem @object)
+            {
+                return @object.ToString();
+            }
+
+            public RpcItem ConvertFrom(string @object)
+            {
+                return RpcItemCreator.Create(@object);
+            }
+        }
+
+        private sealed class BytesConverter : IRpcConverter<Bytes>
+        {
+            public Bytes ConvertTo(RpcItem @object)
+            {
+                return @object.ToBytes();
+            }
+
+            public RpcItem ConvertFrom(Bytes @object)
+            {
+                return RpcItemCreator.Create(@object);
+            }
+        }
+
+        private sealed class ByteArrayConverter : IRpcConverter<byte[]>
+        {
+            public byte[] ConvertTo(RpcItem @object)
+            {
+                return @object.ToByteArray();
+            }
+
+            public RpcItem ConvertFrom(byte[] @object)
+            {
+                return RpcItemCreator.Create(@object);
+            }
+        }
+
+        private sealed class BlockConverter : IRpcConverter<Block>
+        {
+            public Block ConvertTo(RpcItem @object)
+            {
+                return new Block(@object.ToObject());
+            }
+
+            public RpcItem ConvertFrom(Block @object)
+            {
+                return RpcItemCreator.Create(@object);
+            }
+        }
+
+        private sealed class ConfirmedTransactionConverter : IRpcConverter<ConfirmedTransaction>
+        {
+            public ConfirmedTransaction ConvertTo(RpcItem @object)
+            {
+                return new ConfirmedTransaction(@object.ToObject());
+            }
+
+            public RpcItem ConvertFrom(ConfirmedTransaction @object)
+            {
+                return RpcItemCreator.Create(@object);
+            }
+        }
+
+        private sealed class TransactionResultConverter : IRpcConverter<TransactionResult>
+        {
+            public TransactionResult ConvertTo(RpcItem @object)
+            {
+                return new TransactionResult(@object.ToObject());
+            }
+
+            public RpcItem ConvertFrom(TransactionResult @object)
+            {
+                return RpcItemCreator.Create(@object);
+            }
+        }
+
+        private sealed class ListScoreApiConverter : IRpcConverter<List<ScoreApi>>
+        {
+            public List<ScoreApi> ConvertTo(RpcItem rpcItem)
+            {
+                var array = rpcItem.ToArray();
+                var scoreApis = new List<ScoreApi>(array.Size());
+                for (var i = 0; i < array.Size(); i++)
+                {
+                    scoreApis.Add(new ScoreApi(array.Get(i).ToObject()));
+                }
+                return scoreApis;
+            }
+
+            public RpcItem ConvertFrom(List<ScoreApi> @object)
+            {
+                return RpcItemCreator.Create(@object);
+            }
+        }
+
+        private sealed class CustomRpcConverterFactory<TT> : IRpcConverterFactory
+        {
+            private readonly IRpcConverter<TT> _converter;
+            private readonly Type _typeFor;
+
+            public CustomRpcConverterFactory(IRpcConverter<TT> converter)
+            {
+                _typeFor = typeof(TT);
+                _converter = converter;
+            }
+
+            public IRpcConverter<T> Create<T>()
+            {
+                var type = typeof(T);
+                return type.IsAssignableFrom(_typeFor) ? (IRpcConverter<T>)_converter : null;
+            }
+        }
+
+        #endregion
     }
 }

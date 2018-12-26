@@ -1,31 +1,31 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
+using JetBrains.Annotations;
 
+// ReSharper disable once CheckNamespace
 namespace System.Numerics
 {
+    [PublicAPI]
     public struct BigDecimal
     {
-        private BigInteger value;
-        private ushort scale;
-
-        static BigInteger maxPrecision = 20;
-        public static BigInteger MAXPRECISION
-        {
-            get { return maxPrecision; }
-        }
+        private static readonly BigInteger MaxPrecision = 20;
+        
+        private BigInteger _value;
+        private ushort _scale;
 
         public BigDecimal(float value)
         {
-            this = BigDecimal.Parse(value.ToString("R"));
+            this = Parse(value.ToString("R"));
         }
 
         public BigDecimal(double value)
         {
-            this = BigDecimal.Parse(value.ToString("R"));
+            this = Parse(value.ToString("R"));
         }
 
-        public BigDecimal(Decimal value)
+        public BigDecimal(decimal value)
         {
-            this = BigDecimal.Parse(value.ToString());
+            this = Parse(value.ToString(CultureInfo.InvariantCulture));
         }
 
         public BigDecimal(long value)
@@ -40,44 +40,75 @@ namespace System.Numerics
 
         public BigDecimal(BigInteger value)
         {
-            this = new BigDecimal(value, (ushort)0);
+            this = new BigDecimal(value, 0);
         }
 
         public BigDecimal(BigInteger value, ushort scale)
         {
-            this.value = value;
-            this.scale = scale;
+            _value = value;
+            _scale = scale;
         }
 
+        [Pure]
         public BigInteger ToBigInteger()
         {
-            var scaleDivisor = BigInteger.Pow(new BigInteger(10), this.scale);
-            var scaledValue = BigInteger.Divide(this.value, scaleDivisor);
+            var scaleDivisor = BigInteger.Pow(new BigInteger(10), _scale);
+            var scaledValue = BigInteger.Divide(_value, scaleDivisor);
+            
             return scaledValue;
+        }
+
+        public override string ToString()
+        {
+            if (_scale == 0)
+            {
+                return _value.ToString();
+            }
+            
+            var str = _value.ToString();
+            
+            if (str.Length > _scale)
+            {
+                return str.Insert(str.Length - _scale, ".");
+            }
+            
+            return "0." + new string('0', _scale - str.Length) + str;
+        }
+
+        private BigDecimal Upscale(ushort newScale)
+        {
+            if (newScale < _scale)
+            {
+                throw new InvalidOperationException("Cannot upscale a BigDecimal to a smaller scale!");
+            }
+            
+            return new BigDecimal(_value * BigInteger.Pow(10, newScale - _scale), newScale);
         }
 
         public static BigDecimal Parse(string str)
         {
             if (str == null)
-                throw new ArgumentNullException(nameof(str), "BigDecimal.Parse: Cannot parse null");
-            ushort scale = 0;
-            StringBuilder stringBuilder = new StringBuilder();
-            StringBuilder exponentBuilder = (StringBuilder)null;
-            BigDecimal.ParseState state = BigDecimal.ParseState.Start;
-            Action<char> action1 = (Action<char>)(c =>
             {
-                throw new FormatException("BigDecimal.Parse: invalid character '" + (object)c + "' in: " + str);
-            });
-            Action action2 = (Action)(() =>
+                throw new ArgumentNullException(nameof(str), "BigDecimal.Parse: Cannot parse null");
+            }
+            
+            ushort scale = 0;
+            var stringBuilder = new StringBuilder();
+            var exponentBuilder = (StringBuilder)null;
+            var state = ParseState.Start;
+            
+            var action1 = (Action<char>)(c => throw new FormatException("BigDecimal.Parse: invalid character '" + c + "' in: " + str));
+            var action2 = (Action)(() =>
             {
                 exponentBuilder = new StringBuilder();
-                state = BigDecimal.ParseState.E;
+                state = ParseState.E;
             });
-            foreach (char c in str)
+            
+            foreach (var c in str)
             {
                 switch (state)
                 {
-                    case BigDecimal.ParseState.Start:
+                    case ParseState.Start:
                         if (!char.IsDigit(c))
                         {
                             switch (c)
@@ -86,17 +117,17 @@ namespace System.Numerics
                                 case '-':
                                     break;
                                 case '.':
-                                    state = BigDecimal.ParseState.Decimal;
+                                    state = ParseState.Decimal;
                                     continue;
                                 default:
                                     action1(c);
                                     continue;
                             }
                         }
-                        state = BigDecimal.ParseState.Integer;
+                        state = ParseState.Integer;
                         stringBuilder.Append(c);
                         break;
-                    case BigDecimal.ParseState.Integer:
+                    case ParseState.Integer:
                         if (char.IsDigit(c))
                         {
                             stringBuilder.Append(c);
@@ -105,7 +136,7 @@ namespace System.Numerics
                         switch (c)
                         {
                             case '.':
-                                state = BigDecimal.ParseState.Decimal;
+                                state = ParseState.Decimal;
                                 continue;
                             case 'E':
                             case 'e':
@@ -115,7 +146,7 @@ namespace System.Numerics
                                 action1(c);
                                 continue;
                         }
-                    case BigDecimal.ParseState.Decimal:
+                    case ParseState.Decimal:
                         if (char.IsDigit(c))
                         {
                             checked { ++scale; }
@@ -129,16 +160,16 @@ namespace System.Numerics
                         }
                         action1(c);
                         break;
-                    case BigDecimal.ParseState.E:
+                    case ParseState.E:
                         if (char.IsDigit(c) || c == '-' || c == '+')
                         {
-                            state = BigDecimal.ParseState.Exponent;
+                            state = ParseState.Exponent;
                             exponentBuilder.Append(c);
                             break;
                         }
                         action1(c);
                         break;
-                    case BigDecimal.ParseState.Exponent:
+                    case ParseState.Exponent:
                         if (char.IsDigit(c))
                         {
                             exponentBuilder.Append(c);
@@ -148,140 +179,113 @@ namespace System.Numerics
                         break;
                 }
             }
+
             if (stringBuilder.Length == 0 || stringBuilder.Length == 1 && !char.IsDigit(stringBuilder[0]))
+            {
                 throw new FormatException("BigDecimal.Parse: string didn't contain a value: \"" + str + "\"");
+            }
+
             if (exponentBuilder != null && (exponentBuilder.Length == 0 || stringBuilder.Length == 1 && !char.IsDigit(stringBuilder[0])))
+            {
                 throw new FormatException("BigDecimal.Parse: string contained an 'E' but no exponent value: \"" + str + "\"");
-            BigInteger bigInteger = BigInteger.Parse(stringBuilder.ToString());
+            }
+            
+            var bigInteger = BigInteger.Parse(stringBuilder.ToString());
+            
             if (exponentBuilder != null)
             {
-                int num1 = int.Parse(exponentBuilder.ToString());
+                var num1 = int.Parse(exponentBuilder.ToString());
                 if (num1 > 0)
                 {
-                    if (num1 <= (int)scale)
+                    if (num1 <= scale)
                     {
                         scale -= (ushort)num1;
                     }
                     else
                     {
-                        int exponent = num1 - (int)scale;
-                        scale = (ushort)0;
-                        bigInteger *= BigInteger.Pow((BigInteger)10, exponent);
+                        var exponent = num1 - scale;
+                        scale = 0;
+                        bigInteger *= BigInteger.Pow(10, exponent);
                     }
                 }
                 else if (num1 < 0)
                 {
-                    int num2 = -num1 + (int)scale;
-                    if (num2 <= (int)ushort.MaxValue)
+                    var num2 = -num1 + scale;
+                    if (num2 <= ushort.MaxValue)
                     {
                         scale = (ushort)num2;
                     }
                     else
                     {
                         scale = ushort.MaxValue;
-                        bigInteger /= BigInteger.Pow((BigInteger)10, num2 - (int)ushort.MaxValue);
+                        bigInteger /= BigInteger.Pow(10, num2 - ushort.MaxValue);
                     }
                 }
             }
+            
             return new BigDecimal(bigInteger, scale);
         }
-
-        private BigDecimal Upscale(ushort newScale)
-        {
-            if ((int)newScale < (int)this.scale)
-                throw new InvalidOperationException("Cannot upscale a BigDecimal to a smaller scale!");
-            return new BigDecimal(this.value * BigInteger.Pow((BigInteger)10, (int)newScale - (int)this.scale), newScale);
-        }
-
-        private static ushort SameScale(ref BigDecimal left, ref BigDecimal right)
-        {
-            ushort newScale = Math.Max(left.scale, right.scale);
-            left = left.Upscale(newScale);
-            right = right.Upscale(newScale);
-            return newScale;
-        }
-
+        
         public static BigDecimal operator +(BigDecimal left, BigDecimal right)
         {
-            ushort scale = BigDecimal.SameScale(ref left, ref right);
-            return new BigDecimal(left.value + right.value, scale);
+            var scale = SameScale(ref left, ref right);
+            
+            return new BigDecimal(left._value + right._value, scale);
         }
 
         public static BigDecimal operator -(BigDecimal left, BigDecimal right)
         {
-            ushort scale = BigDecimal.SameScale(ref left, ref right);
-            return new BigDecimal(left.value - right.value, scale);
+            var scale = SameScale(ref left, ref right);
+            
+            return new BigDecimal(left._value - right._value, scale);
         }
 
         public static BigDecimal operator *(BigDecimal left, BigDecimal right)
         {
-            BigInteger bigInteger = left.value * right.value;
-            int num = (int)left.scale + (int)right.scale;
-            if (num > (int)ushort.MaxValue)
+            var bigInteger = left._value * right._value;
+            var num = left._scale + right._scale;
+            
+            if (num > ushort.MaxValue)
             {
-                bigInteger /= BigInteger.Pow((BigInteger)10, num - (int)ushort.MaxValue);
-                num = (int)ushort.MaxValue;
+                bigInteger /= BigInteger.Pow(10, num - ushort.MaxValue);
+                num = ushort.MaxValue;
             }
+            
             return new BigDecimal(bigInteger, (ushort)num);
         }
 
-        //Division operator
         public static BigDecimal operator /(BigDecimal a, BigDecimal b)
         {
             BigDecimal outVal = 0;
-            BigInteger dividend = a.value;
-            BigInteger divisor = b.value;
-            BigInteger maxPrecision = BigInteger.Max(a.scale, b.scale);
-            if (a.scale < maxPrecision)
+            
+            var maxPrecision = BigInteger.Max(a._scale, b._scale);
+            
+            if (a._scale < maxPrecision)
             {
-                a.scale = (ushort)maxPrecision;
-                a.value = a.value * BIPow(10, maxPrecision - a.scale);
+                a._scale = (ushort)maxPrecision;
+                a._value = a._value * BIPow(10, maxPrecision - a._scale);
             }
-            if (b.scale < maxPrecision)
+            
+            if (b._scale < maxPrecision)
             {
-                b.scale = (ushort)maxPrecision;
-                b.value = b.value * BIPow(10, maxPrecision - b.scale);
+                b._scale = (ushort)maxPrecision;
+                b._value = b._value * BIPow(10, maxPrecision - b._scale);
             }
-            BigInteger remainder = 0;
 
-            outVal.value = BigInteger.DivRem(a.value, b.value, out remainder);
-            while (remainder != 0 && outVal.scale < MAXPRECISION)
+            outVal._value = BigInteger.DivRem(a._value, b._value, out var remainder);
+            
+            while (remainder != 0 && outVal._scale < MaxPrecision)
             {
-                while (BigInteger.Abs(remainder) < BigInteger.Abs(b.value))
+                while (BigInteger.Abs(remainder) < BigInteger.Abs(b._value))
                 {
                     remainder *= 10;
-                    outVal.value *= 10;
-                    outVal.scale++;
+                    outVal._value *= 10;
+                    outVal._scale++;
                 }
-                outVal.value = outVal.value + BigInteger.DivRem(remainder, b.value, out remainder);
+                outVal._value = outVal._value + BigInteger.DivRem(remainder, b._value, out remainder);
             }
+            
             return outVal;
-        }
-
-        //A function to calculate a number raised to a power both numbers represented as BigIntegers
-        static BigInteger BIPow(BigInteger input, BigInteger exp)
-        {
-
-            if (exp == 0)
-            {
-                return 1;
-            }
-            if (exp == 1)
-            {
-                return input;
-            }
-            BigInteger outval = 1;
-            while (exp != 0)
-            {
-                if (exp % 2 == 1)
-                {
-                    outval *= input;
-                }
-                exp >>= 1;
-                input *= input;
-            }
-
-            return outval;
         }
 
         public static explicit operator BigInteger(BigDecimal value)
@@ -291,32 +295,32 @@ namespace System.Numerics
 
         public static implicit operator BigDecimal(sbyte value)
         {
-            return new BigDecimal((long)value);
+            return new BigDecimal(value);
         }
 
         public static implicit operator BigDecimal(byte value)
         {
-            return new BigDecimal((long)value);
+            return new BigDecimal(value);
         }
 
         public static implicit operator BigDecimal(short value)
         {
-            return new BigDecimal((long)value);
+            return new BigDecimal(value);
         }
 
         public static implicit operator BigDecimal(ushort value)
         {
-            return new BigDecimal((long)value);
+            return new BigDecimal(value);
         }
 
         public static implicit operator BigDecimal(int value)
         {
-            return new BigDecimal((long)value);
+            return new BigDecimal(value);
         }
 
         public static implicit operator BigDecimal(uint value)
         {
-            return new BigDecimal((long)value);
+            return new BigDecimal(value);
         }
 
         public static implicit operator BigDecimal(long value)
@@ -329,7 +333,7 @@ namespace System.Numerics
             return new BigDecimal(value);
         }
 
-        public static implicit operator BigDecimal(Decimal value)
+        public static implicit operator BigDecimal(decimal value)
         {
             return new BigDecimal(value);
         }
@@ -338,88 +342,105 @@ namespace System.Numerics
         {
             return new BigDecimal(value);
         }
-
-        public override string ToString()
+        
+        /// <summary>
+        ///    Calculates a number raised to a power both numbers represented as BigIntegers
+        /// </summary>
+        private static BigInteger BIPow(BigInteger input, BigInteger exp)
         {
-            if (this.scale == (ushort)0)
-                return this.value.ToString();
-            string str = this.value.ToString();
-            if (str.Length > (int)this.scale)
-                return str.Insert(str.Length - (int)this.scale, ".");
-            return "0." + new string('0', (int)this.scale - str.Length) + str;
+
+            if (exp == 0)
+            {
+                return 1;
+            }
+            if (exp == 1)
+            {
+                return input;
+            }
+            
+            BigInteger outVal = 1;
+            
+            while (exp != 0)
+            {
+                if (exp % 2 == 1)
+                {
+                    outVal *= input;
+                }
+                exp >>= 1;
+                input *= input;
+            }
+
+            return outVal;
+        }
+        
+        private static ushort SameScale(ref BigDecimal left, ref BigDecimal right)
+        {
+            var newScale = Math.Max(left._scale, right._scale);
+            
+            left = left.Upscale(newScale);
+            right = right.Upscale(newScale);
+            
+            return newScale;
         }
 
-        
-
-        //Imported from java
         public enum RoundingMode
         {
-            /**
-             * Rounding mode where positive values are rounded towards positive infinity
-             * and negative values towards negative infinity.
-             * <br>
-             * Rule: {@code x.round().abs() >= x.abs()}
-             * 
-             * @since Android 1.0
-             */
-            ROUND_UP = 0,
-            /**
-             * Rounding mode where the values are rounded towards zero.
-             * <br>
-             * Rule: {@code x.round().abs() <= x.abs()}
-             * 
-             * @since Android 1.0
-             */
-            ROUND_DOWN = 1,
-            /**
-             * Rounding mode to round towards positive infinity. For positive values
-             * this rounding mode behaves as {@link #UP}, for negative values as
-             * {@link #DOWN}.
-             * <br>
-             * Rule: {@code x.round() >= x}
-             * 
-             * @since Android 1.0
-             */
-            ROUND_CEILING = 2,
-            /**
-             * Rounding mode to round towards negative infinity. For positive values
-             * this rounding mode behaves as {@link #DOWN}, for negative values as
-             * {@link #UP}.
-             * <br>
-             * Rule: {@code x.round() <= x}
-             * 
-             * @since Android 1.0
-             */
-            ROUND_FLOOR = 3,
-            /**
-             * Rounding mode where values are rounded towards the nearest neighbor. Ties
-             * are broken by rounding up.
-             * 
-             * @since Android 1.0
-             */
-            ROUND_HALF_UP = 4,
-            /**
-             * Rounding mode where values are rounded towards the nearest neighbor. Ties
-             * are broken by rounding down.
-             * 
-             * @since Android 1.0
-             */
-            ROUND_HALF_DOWN = 5,
-            /**
-             * Rounding mode where values are rounded towards the nearest neighbor. Ties
-             * are broken by rounding to the even neighbor.
-             * 
-             * @since Android 1.0
-             */
-            ROUND_HALF_EVEN = 6,
-            /**
-             * Rounding mode where the rounding operations throws an ArithmeticException
-             * for the case that rounding is necessary, i.e. for the case that the value
-             * cannot be represented exactly.
-             * 
-             * @since Android 1.0
-             */
-            ROUND_UNNECESSARY = 7
+            /// <summary> 
+            ///    Rounding mode where positive values are rounded towards positive infinity
+            ///    and negative values towards negative infinity.
+            ///    <br />
+            ///    Rule: {@code x.round().abs() >= x.abs()}
+            /// </summary>
+            RoundUp = 0,
+            
+            /// <summary>
+            ///    Rounding mode where the values are rounded towards zero.
+            ///    <br />
+            ///    Rule: {@code x.round().abs() &lt;= x.abs()}
+            /// </summary>
+            RoundDown = 1,
+            
+            /// <summary>
+            ///    Rounding mode to round towards positive infinity. For positive values
+            ///    this rounding mode behaves as RoundUp, for negative values as RoundDown.
+            ///    <br />
+            ///    Rule: {@code x.round() >= x}
+            /// </summary>
+            RoundCeiling = 2,
+            
+            /// <summary>
+            ///   Rounding mode to round towards negative infinity. For positive values
+            ///   this rounding mode behaves as {@link #DOWN}, for negative values as
+            ///   {@link #UP}.
+            ///   <br />
+            ///   Rule: {@code x.round() &lt;= x}
+            /// </summary>
+            RoundFloor = 3,
+            
+            /// <summary>
+            ///    Rounding mode where values are rounded towards the nearest neighbor. Ties
+            ///    are broken by rounding up.
+            /// </summary>
+            RoundHalfUp = 4,
+            
+            /// <summary>
+            ///    Rounding mode where values are rounded towards the nearest neighbor. Ties
+            ///    are broken by rounding down.
+            /// </summary>
+            RoundHalfDown = 5,
+            
+            /// <summary>
+            ///    Rounding mode where values are rounded towards the nearest neighbor. Ties
+            ///    are broken by rounding to the even neighbor.
+            /// </summary>
+            RoundHalfEven = 6,
+            
+            /// <summary>
+            ///    Rounding mode where the rounding operations throws an ArithmeticException
+            ///    for the case that rounding is necessary, i.e. for the case that the value
+            ///    cannot be represented exactly.
+            /// </summary>
+            RoundUnnecessary = 7
         }
 
         private enum ParseState
@@ -428,7 +449,7 @@ namespace System.Numerics
             Integer,
             Decimal,
             E,
-            Exponent,
+            Exponent
         }
     }
 }

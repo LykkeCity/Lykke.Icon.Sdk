@@ -1,91 +1,100 @@
-using Lykke.Icon.Sdk.Transport.JsonRpc;
-using System.Numerics;
-using System;
 using System.Collections.Generic;
+using System.Numerics;
+using JetBrains.Annotations;
+using Lykke.Icon.Sdk.Transport.JsonRpc;
 
 namespace Lykke.Icon.Sdk.Data
 {
+    [PublicAPI]
     public class Block
     {
-        private RpcObject properties;
+        private readonly RpcObject _properties;
 
         public Block(RpcObject properties)
         {
-            this.properties = properties;
+            _properties = properties;
         }
 
         public RpcObject GetProperties()
         {
-            return properties;
+            return _properties;
         }
 
         public Bytes GetPrevBlockHash()
         {
-            RpcItem item = properties.GetItem("prev_block_hash");
-            return item != null ? item.ToBytes() : null;
+            var item = _properties.GetItem("prev_block_hash");
+            
+            return item?.ToBytes();
         }
 
         public Bytes GetMerkleTreeRootHash()
         {
-            RpcItem item = properties.GetItem("merkle_tree_root_hash");
-            return item != null ? item.ToBytes() : null;
+            var item = _properties.GetItem("merkle_tree_root_hash");
+            
+            return item?.ToBytes();
         }
 
         public BigInteger GetTimestamp()
         {
-            RpcItem item = properties.GetItem("time_stamp");
-            return item != null ? item.ToInteger() : 0;
+            var item = _properties.GetItem("time_stamp");
+            
+            return item?.ToInteger() ?? 0;
         }
 
         public List<ConfirmedTransaction> GetTransactions()
         {
-            RpcItem item = properties.GetItem("confirmed_transaction_list");
-            List<ConfirmedTransaction> transactions = new List<ConfirmedTransaction>();
+            var item = _properties.GetItem("confirmed_transaction_list");
+            var transactions = new List<ConfirmedTransaction>();
+            
             if (item != null && GetHeight() > 0)
             {
-                foreach (RpcItem tx in item.ToArray())
+                foreach (var tx in item.ToArray())
                 {
-                    transactions.Add(Converters.CONFIRMED_TRANSACTION.ConvertTo(tx.ToObject()));
+                    transactions.Add(Converters.ConfirmedTransaction.ConvertTo(tx.ToObject()));
                 }
             }
+            
             return transactions;
         }
 
         public Bytes GetBlockHash()
         {
-            RpcItem item = properties.GetItem("block_hash");
-            return item != null ? item.ToBytes() : null;
+            var item = _properties.GetItem("block_hash");
+            
+            return item?.ToBytes();
         }
 
-        public String GetPeerId()
+        public string GetPeerId()
         {
-            RpcItem item = properties.GetItem("peer_id");
-            return item != null ? item.ToString() : null;
+            var item = _properties.GetItem("peer_id");
+            
+            return item?.ToString();
         }
 
         public BigInteger GetVersion()
         {
-            RpcItem item = properties.GetItem("version");
-            return item != null ? item.ToInteger() : 0;
+            var item = _properties.GetItem("version");
+            
+            return item?.ToInteger() ?? 0;
         }
 
         public BigInteger GetHeight()
         {
-            RpcItem item = properties.GetItem("height");
-            return item != null ? item.ToInteger() : 0;
+            var item = _properties.GetItem("height");
+            
+            return item?.ToInteger() ?? 0;
         }
 
-        public String GetSignature()
+        public string GetSignature()
         {
-            RpcItem item = properties.GetItem("signature");
-            return item != null ? item.ToString() : null;
+            var item = _properties.GetItem("signature");
+            
+            return item?.ToString();
         }
 
-        public override String ToString()
+        public override string ToString()
         {
-            return "Block{" +
-                    "properties=" + properties +
-                    '}';
+            return "Block{properties=" + _properties + '}';
         }
     }
 }

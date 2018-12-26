@@ -1,56 +1,48 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using JetBrains.Annotations;
 
 namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
-
-    /*
-     * A read-only data class of RpcArray
-     */
+    [PublicAPI]
     public class RpcArray : RpcItem, IEnumerable<RpcItem>
     {
-        private List<RpcItem> items;
+        private readonly List<RpcItem> _items;
 
         private RpcArray(List<RpcItem> items)
         {
-            this.items = items;
+            _items = items;
         }
 
         public RpcItem Get(int index)
         {
-            return items[index];
+            return _items[index];
         }
 
         public int Size()
         {
-            return items.Count();
+            return _items.Count();
         }
 
         public List<RpcItem> ToList()
         {
-            return new List<RpcItem>(items);
+            return new List<RpcItem>(_items);
         }
 
         public override bool IsEmpty()
         {
-            return items == null || !items.Any();
+            return _items == null || !_items.Any();
         }
 
         public IEnumerator<RpcItem> GetEnumerator()
         {
-            return items.GetEnumerator();
+            return _items.GetEnumerator();
         }
 
-        public override String ToString()
+        public override string ToString()
         {
-            return "RpcArray(" +
-                    "items=" + items +
-                    ')';
+            return "RpcArray(items=" + _items + ')';
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -58,27 +50,25 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             return GetEnumerator();
         }
 
-        /**
-         * Builder for RpcArray
-         */
         public class Builder
         {
-            private List<RpcItem> items;
+            private readonly List<RpcItem> _items;
 
             public Builder()
             {
-                items = new List<RpcItem>();
+                _items = new List<RpcItem>();
             }
 
             public Builder Add(RpcItem item)
             {
-                items.Add(item);
+                _items.Add(item);
+                
                 return this;
             }
 
             public RpcArray Build()
             {
-                return new RpcArray(items);
+                return new RpcArray(_items);
             }
         }
     }

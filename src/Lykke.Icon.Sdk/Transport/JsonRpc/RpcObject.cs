@@ -1,69 +1,47 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using JetBrains.Annotations;
 
 namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
-
-/**
- * A read-only data class of RpcObject
- */
     public class RpcObject : RpcItem
     {
-        private Dictionary<String, RpcItem> items;
+        private readonly Dictionary<string, RpcItem> _items;
 
-        private RpcObject(Dictionary<String, RpcItem> items)
+        private RpcObject(Dictionary<string, RpcItem> items)
         {
-            this.items = items;
+            _items = items;
         }
 
-        public IEnumerable<String> GetKeys()
+        public IEnumerable<string> GetKeys()
         {
-            return items.Keys;
+            return _items.Keys;
         }
 
-        public RpcItem GetItem(String key)
+        public RpcItem GetItem(string key)
         {
-            items.TryGetValue(key, out var result);
+            _items.TryGetValue(key, out var result);
             return result;
         }
 
-        public override String ToString()
+        public override string ToString()
         {
-            return "RpcObject(" +
-                   "items=" + items +
-                   ')';
+            return "RpcObject(items=" + _items + ')';
         }
 
         public override bool IsEmpty()
         {
-            return items == null || !items.Any();
+            return _items == null || !_items.Any();
         }
 
-
-        /**
-         * Builder for RpcObject
-         */
+        [PublicAPI]
         public class Builder
         {
+            private Dictionary<string, RpcItem> _items;
 
-            /**
-             * Sort policy of the properties
-             */
-            public enum Sort
+            public Builder() : this(Sort.None)
             {
-                NONE,
-                KEY,
-                INSERT
-            }
-
-            private Dictionary<String, RpcItem> items;
-
-            public Builder() : this(Sort.NONE)
-            {
+                
             }
 
             public Builder(Sort sort)
@@ -77,26 +55,36 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
                     //    items = new LinkedHashMap<>();
                     //    break;
                     default:
-                        items = new Dictionary<String, RpcItem>();
+                        _items = new Dictionary<string, RpcItem>();
                         break;
                 }
             }
 
-            public Builder Put(String key, RpcItem item)
+            public Builder Put(string key, RpcItem item)
             {
-                if (!items.ContainsKey(key) && !IsNullOrEmpty(item))
-                    items[key] = item;
+                if (!_items.ContainsKey(key) && !IsNullOrEmpty(item))
+                {
+                    _items[key] = item;
+                }
+                
                 return this;
             }
 
             public RpcObject Build()
             {
-                return new RpcObject(items);
+                return new RpcObject(_items);
             }
 
-            public bool IsNullOrEmpty(RpcItem item)
+            private static bool IsNullOrEmpty(RpcItem item)
             {
                 return item == null || item.IsEmpty();
+            }
+            
+            public enum Sort
+            {
+                None,
+                Key,
+                Insert
             }
         }
     }

@@ -1,20 +1,16 @@
-using Newtonsoft.Json;
-using System;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
-    /**
-     * A jsonrpc response of the request
-     */
     [DataContract]
     public class Response
     {
         [DataMember(Name = "jsonrpc")]
-        public String Jsonrpc { get; set; }
+        public string Jsonrpc { get; set; }
 
         [DataMember(Name = "method")]
-        public String Method { get; set; }
+        public string Method { get; set; }
 
         [DataMember(Name = "id")]
         public long Id { get; set; }

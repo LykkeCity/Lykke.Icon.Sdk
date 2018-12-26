@@ -1,26 +1,27 @@
-using Lykke.Icon.Sdk.Data;
-using System.Numerics;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Numerics;
 using System.Reflection;
+using Lykke.Icon.Sdk.Data;
 
 namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
-    public class RpcItemCreator
+    public static class RpcItemCreator
     {
         public static RpcItem Create<T>(T item)
         {
             return ToRpcItem(item);
         }
 
-        static RpcItem ToRpcItem<T>(T item)
+        private static RpcItem ToRpcItem<T>(T item)
         {
             return item != null ? ToRpcItem(item.GetType(), item) : null;
         }
 
-        static RpcItem ToRpcItem<T>(Type type, T item)
+        private static RpcItem ToRpcItem<T>(Type type, T item)
         {
-            RpcValue rpcValue = ToRpcValue(item);
+            var rpcValue = ToRpcValue(item);
             if (rpcValue != null)
             {
                 return rpcValue;
@@ -39,43 +40,47 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             return null;
         }
 
-        static RpcObject ToRpcObject(Object @object)
+        private static RpcObject ToRpcObject(object @object)
         {
-            RpcObject.Builder builder = new RpcObject.Builder();
-            //AddObjectFields(builder, @object, @object.GetType().GetFields(BindingFlags.Instance 
-            //                                                              | BindingFlags.Public));
-            var props = @object.GetType().GetProperties(BindingFlags.Instance
-                                                        | BindingFlags.Public 
-                                                        | BindingFlags.NonPublic);
+            var builder = new RpcObject.Builder();
+            
+            var props = @object.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            
             AddObjectFields(builder, @object, props);
+            
             return builder.Build();
         }
 
-        static String GetKeyFromObjectField(MemberInfo field)
+        private static string GetKeyFromObjectField(MemberInfo field)
         {
             return field.Name;
         }
 
-        static void AddObjectFields(RpcObject.Builder builder, Object parent, PropertyInfo[] fields)
+        private static void AddObjectFields(RpcObject.Builder builder, object parent, IEnumerable<PropertyInfo> fields)
         {
             foreach (var field in fields)
             {
-                String key = GetKeyFromObjectField(field);
+                var key = GetKeyFromObjectField(field);
                 if (key.Equals("this$0")) continue;
 
-                Type type = field.PropertyType;
-                Object fieldObject = null;
+                var type = field.PropertyType;
+                
+                object fieldObject;
+                
                 try
                 {
                     fieldObject = field.GetValue(parent);
                 }
-                catch (Exception ignored)
+                catch (Exception)
                 {
+                    fieldObject = null;
                 }
 
-                if (fieldObject != null || !type.IsAssignableFrom(fieldObject.GetType()))
+                // ReSharper disable once ExpressionIsAlwaysNull
+                if (fieldObject != null || !type.IsInstanceOfType(fieldObject))
                 {
-                    RpcItem rpcItem = ToRpcItem(type, fieldObject);
+                    var rpcItem = ToRpcItem(type, fieldObject);
+                    
                     if (rpcItem != null && !rpcItem.IsEmpty())
                     {
                         builder.Put(key, rpcItem);
@@ -84,12 +89,12 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             }
         }
 
-        static RpcArray ToRpcArray(Object obj)
+        private static RpcArray ToRpcArray(object obj)
         {
-            Type componentType = obj.GetType();
+            var componentType = obj.GetType();
             if (componentType == typeof(bool) || !componentType.IsPrimitive)
             {
-                RpcArray.Builder builder = new RpcArray.Builder();
+                var builder = new RpcArray.Builder();
 
                 var castedArray = (IEnumerable)obj;
                 foreach (var item in castedArray)
@@ -102,16 +107,17 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             return null;
         }
 
-        static RpcValue ToRpcValue(Object @object)
+        private static RpcValue ToRpcValue(object @object)
         {
             var objectType = @object.GetType();
+            
             if (objectType.IsAssignableFrom(typeof(bool)))
             {
                 return new RpcValue((bool)@object);
             }
-            else if (objectType.IsAssignableFrom(typeof(String)))
+            else if (objectType.IsAssignableFrom(typeof(string)))
             {
-                return new RpcValue((String)@object);
+                return new RpcValue((string)@object);
             }
             else if (objectType.IsAssignableFrom(typeof(BigInteger)))
             {
@@ -129,6 +135,7 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             {
                 return new RpcValue((Address)@object);
             }
+            
             return null;
         }
     }

@@ -9,15 +9,13 @@ namespace Lykke.Icon.Sdk.Tests.Data
         [Fact]
         public void TestCreate()
         {
-            BigInteger loop = BigInteger.Parse("1000000000000000000");
-
-            IconAmount amount = IconAmount.Of("1", IconAmount.Unit.ICX);
+            var amount = IconAmount.Of("1", IconAmount.Unit.ICX);
             Assert.Equal(BigInteger.Parse("1"), amount.ToInteger());
             Assert.Equal(IconAmount.Unit.ICX, amount.GetDigit());
 
-            amount = IconAmount.Of("1000000000000000000", IconAmount.Unit.LOOP);
+            amount = IconAmount.Of("1000000000000000000", IconAmount.Unit.Loop);
             Assert.Equal("1000000000000000000", amount.ToString());
-            Assert.Equal(IconAmount.Unit.LOOP, amount.GetDigit());
+            Assert.Equal(IconAmount.Unit.Loop, amount.GetDigit());
 
             amount = IconAmount.Of(BigInteger.Parse("1000000000000000000"), 16);
             Assert.Equal(BigInteger.Parse("1000000000000000000"), amount.ToInteger());
@@ -35,12 +33,12 @@ namespace Lykke.Icon.Sdk.Tests.Data
         [Fact]
         public void TestToLoop()
         {
-            BigInteger loop = BigInteger.Parse("1000000000000000000");
+            var loop = BigInteger.Parse("1000000000000000000");
 
-            IconAmount amount = IconAmount.Of("1", IconAmount.Unit.ICX);
+            var amount = IconAmount.Of("1", IconAmount.Unit.ICX);
             Assert.Equal(loop, amount.ToLoop());
 
-            amount = IconAmount.Of("1000000000000000000", IconAmount.Unit.LOOP);
+            amount = IconAmount.Of("1000000000000000000", IconAmount.Unit.Loop);
             Assert.Equal(loop, amount.ToLoop());
 
             amount = IconAmount.Of(BigInteger.Parse("1"), IconAmount.Unit.ICX);
@@ -60,10 +58,7 @@ namespace Lykke.Icon.Sdk.Tests.Data
         [Fact]
         public void TestConvertUnit()
         {
-
-            BigDecimal loop = BigDecimal.Parse("1000000000000000000");
-
-            IconAmount amount = IconAmount.Of("1", IconAmount.Unit.ICX);
+            var amount = IconAmount.Of("1", IconAmount.Unit.ICX);
             Assert.Equal(BigInteger.Parse("10"), amount.ConvertUnit(17).ToInteger());
 
             amount = IconAmount.Of("1", IconAmount.Unit.ICX);
@@ -73,7 +68,7 @@ namespace Lykke.Icon.Sdk.Tests.Data
             Assert.Equal(BigDecimal.Parse("0.1"), amount.ConvertUnit(19).ToDecimal());
 
             amount = IconAmount.Of(BigDecimal.Parse("1"), IconAmount.Unit.ICX);
-            Assert.Equal(BigInteger.Parse("1000000000000000000"), amount.ConvertUnit(IconAmount.Unit.LOOP).ToInteger());
+            Assert.Equal(BigInteger.Parse("1000000000000000000"), amount.ConvertUnit(IconAmount.Unit.Loop).ToInteger());
         }
     }
 }

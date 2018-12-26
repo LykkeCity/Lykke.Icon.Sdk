@@ -2,25 +2,19 @@ using Lykke.Icon.Sdk.Data;
 
 namespace Lykke.Icon.Sdk
 {
-    /**
-     * Wallet class signs the message(a transaction message to send)
-     * using own key-pair
-     */
+    /// <summary>
+    ///    Wallet class signs the message(a transaction message to send) using own key-pair 
+    /// </summary>
     public interface IWallet
     {
-        /**
-         * Gets the address corresponding the key of the wallet
-         *
-         * @return address
-         */
+        /// <summary>
+        ///    Gets the address corresponding the key of the wallet 
+        /// </summary>
         Address GetAddress();
 
-        /**
-         * Signs the data to generate a signature
-         *
-         * @param data to sign
-         * @return signature
-         */
+        /// <summary>
+        ///    Signs the data to generate a signature 
+        /// </summary>
         byte[] Sign(byte[] data);
     }
 }

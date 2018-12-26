@@ -1,54 +1,71 @@
-using Lykke.Icon.Sdk.Transport.JsonRpc;
-using System.Numerics;
-using System;
 using System.Collections.Generic;
+using System.Numerics;
+using JetBrains.Annotations;
+using Lykke.Icon.Sdk.Transport.JsonRpc;
 
 namespace Lykke.Icon.Sdk.Data
 {
+    [PublicAPI]
     public class ScoreApi
     {
-        private RpcObject _properties;
+        private readonly RpcObject _properties;
 
         public ScoreApi(RpcObject properties)
         {
-            this._properties = properties;
+            _properties = properties;
         }
 
-        public RpcObject GetProperties()
-        {
-            return _properties;
-        }
-
-        public String GetType()
-        {
-            RpcItem item = _properties.GetItem("type");
-            return item != null ? item.ToString() : null;
-        }
-
-        public String GetName()
-        {
-            RpcItem item = _properties.GetItem("name");
-            return item != null ? item.ToString() : null;
-        }
-
-        public List<Param> getInputs()
+        public List<Param> GetScoreInputs()
         {
             return GetParams(_properties.GetItem("inputs"));
         }
 
-        public List<Param> getOutputs()
+        public string GetScoreName()
+        {
+            var item = _properties.GetItem("name");
+            
+            return item?.ToString();
+        }
+
+        public List<Param> GetScoreOutputs()
         {
             return GetParams(_properties.GetItem("outputs"));
         }
 
-        List<Param> GetParams(RpcItem item)
+        public RpcObject GetScoreProperties()
         {
-            List<Param> @params = new List<Param>();
+            return _properties;
+        }
+
+        public string GetScoreReadonly()
+        {
+            var item = _properties.GetItem("readonly");
+            
+            return item?.ToString();
+        }
+
+        public string GetScoreType()
+        {
+            var item = _properties.GetItem("type");
+            
+            return item?.ToString();
+        }
+
+        public override string ToString()
+        {
+            return "ScoreApi{properties=" + _properties + '}';
+        }
+
+        private static List<Param> GetParams(RpcItem item)
+        {
+            var @params = new List<Param>();
+            
             if (item != null)
             {
-                foreach (RpcItem rpcItem in item.ToArray())
+                foreach (var rpcItem in item.ToArray())
                 {
-                    RpcObject @object = (RpcObject)rpcItem;
+                    var @object = (RpcObject)rpcItem;
+                    
                     @params.Add(new Param(@object));
                 }
             }
@@ -56,51 +73,39 @@ namespace Lykke.Icon.Sdk.Data
             return @params;
         }
 
-        public String GetReadonly()
-        {
-            RpcItem item = _properties.GetItem("readonly");
-            return item != null ? item.ToString() : null;
-        }
-
-        public override String ToString()
-        {
-            return "ScoreApi{" +
-                   "properties=" + _properties +
-                   '}';
-        }
-
         public class Param
         {
-            private RpcObject _properties;
+            private readonly RpcObject _properties;
 
             public Param(RpcObject properties)
             {
-                this._properties = properties;
+                _properties = properties;
             }
 
-            public String GetType()
+            public BigInteger GetParamIndexed()
             {
-                RpcItem item = _properties.GetItem("type");
-                return item != null ? item.ToString() : null;
+                var item = _properties.GetItem("indexed");
+                
+                return item?.ToInteger() ?? 0;
             }
 
-            public String GetName()
+            public string GetParamName()
             {
-                RpcItem item = _properties.GetItem("name");
-                return item != null ? item.ToString() : null;
+                var item = _properties.GetItem("name");
+                
+                return item?.ToString();
             }
 
-            public BigInteger GetIndexed()
+            public string GetParamType()
             {
-                RpcItem item = _properties.GetItem("indexed");
-                return item != null ? item.ToInteger() : 0;
+                var item = _properties.GetItem("type");
+                
+                return item?.ToString();
             }
 
-            public String ToString()
+            public override string ToString()
             {
-                return "Param{" +
-                       "properties=" + _properties +
-                       '}';
+                return "Param{properties=" + _properties + '}';
             }
         }
     }

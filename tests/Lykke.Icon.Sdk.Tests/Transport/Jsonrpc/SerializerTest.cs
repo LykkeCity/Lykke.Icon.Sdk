@@ -1,8 +1,7 @@
+using System.Numerics;
 using Lykke.Icon.Sdk.Data;
 using Lykke.Icon.Sdk.Transport.JsonRpc;
 using Newtonsoft.Json;
-using System.Numerics;
-using System;
 using Xunit;
 
 namespace Lykke.Icon.Sdk.Tests.Transport.Jsonrpc
@@ -43,21 +42,22 @@ namespace Lykke.Icon.Sdk.Tests.Transport.Jsonrpc
                     .Put("bytesValue", bytesValue)
                     .Build();
 
-            String json = JsonConvert.SerializeObject(root, Formatting.Indented, new RpcItemSerializer());
+            var json = JsonConvert.SerializeObject(root, Formatting.Indented, new RpcItemSerializer());
             Assert.True(json.Length > 2);
         }
 
         [Fact]
         public void TestRequestSerialization()
         {
-            var wallet = KeyWallet.Load(new Bytes(SampleKeys.PRIVATE_KEY_STRING));
-            var requestId = 123;
-            RpcObject @params = new RpcObject.Builder()
+            var wallet = KeyWallet.Load(new Bytes(SampleKeys.PrivateKeyString));
+            
+            var @params = new RpcObject.Builder()
                 .Put("address", new RpcValue(wallet.GetAddress()))
                 .Build();
-            var request = new Request(requestId, "icx_getBalance", @params);
+            
+            //var request = new Request(requestId, "icx_getBalance", @params);
 
-            String json = JsonConvert.SerializeObject(@params, Formatting.Indented, new RpcItemSerializer());
+            var json = JsonConvert.SerializeObject(@params, Formatting.Indented, new RpcItemSerializer());
             Assert.True(json.Length > 2);
         }
     }

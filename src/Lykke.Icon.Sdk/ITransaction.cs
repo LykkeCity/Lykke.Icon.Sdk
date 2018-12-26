@@ -1,30 +1,29 @@
+using System.Numerics;
 using Lykke.Icon.Sdk.Data;
 using Lykke.Icon.Sdk.Transport.JsonRpc;
-using System.Numerics;
-using System;
 
 namespace Lykke.Icon.Sdk
 {
     public interface ITransaction
     {
-        BigInteger GetVersion();
+        RpcItem GetData();
+
+        string GetDataType();
 
         Address GetFrom();
-
-        Address GetTo();
-
-        BigInteger? GetValue();
-
-        BigInteger? GetStepLimit();
-
-        BigInteger? GetTimestamp();
 
         BigInteger? GetNid();
 
         BigInteger? GetNonce();
 
-        String GetDataType();
+        BigInteger? GetStepLimit();
 
-        RpcItem GetData();
+        BigInteger? GetTimestamp();
+
+        Address GetTo();
+
+        BigInteger GetVersion();
+
+        BigInteger? GetValue();
     }
 }

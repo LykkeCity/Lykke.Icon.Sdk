@@ -1,140 +1,155 @@
-using Lykke.Icon.Sdk.Transport.JsonRpc;
-using System.Numerics;
-using System;
 using System.Globalization;
+using System.Numerics;
+using JetBrains.Annotations;
+using Lykke.Icon.Sdk.Transport.JsonRpc;
 
 namespace Lykke.Icon.Sdk.Data
 {
 
+    [PublicAPI]
     public class ConfirmedTransaction : ITransaction
     {
-        private RpcObject properties;
+        private readonly RpcObject _properties;
 
         public ConfirmedTransaction(RpcObject properties)
         {
-            this.properties = properties;
+            _properties = properties;
         }
 
         public RpcObject GetProperties()
         {
-            return properties;
+            return _properties;
         }
 
         public BigInteger GetVersion()
         {
-            RpcItem item = properties.GetItem("version");
-            return item != null ? item.ToInteger() : BigInteger.Parse("2");
+            var item = _properties.GetItem("version");
+            
+            return item?.ToInteger() ?? BigInteger.Parse("2");
         }
 
         public Address GetFrom()
         {
-            RpcItem item = properties.GetItem("from");
-            return item != null ? item.ToAddress() : null;
+            var item = _properties.GetItem("from");
+            
+            return item?.ToAddress();
         }
 
         public Address GetTo()
         {
-            RpcItem item = properties.GetItem("to");
-            return item != null ? item.ToAddress() : null;
+            var item = _properties.GetItem("to");
+            
+            return item?.ToAddress();
         }
 
         public BigInteger? GetFee()
         {
-            RpcItem item = properties.GetItem("fee");
+            var item = _properties.GetItem("fee");
+            
             return item != null ? (BigInteger?)ConvertHex(item.ToValue()) : 0;
         }
 
         public BigInteger? GetValue()
         {
-            RpcItem item = properties.GetItem("value");
+            var item = _properties.GetItem("value");
 
             if (item == null)
+            {
                 return null;
+            }
 
             return GetVersion() < 3 ? ConvertHex(item.ToValue()) : item.ToInteger();
         }
 
         public BigInteger? GetStepLimit()
         {
-            RpcItem item = properties.GetItem("stepLimit");
-            return item != null ? (BigInteger?)item.ToInteger() : null;
+            var item = _properties.GetItem("stepLimit");
+            
+            return item?.ToInteger();
         }
 
         public BigInteger? GetTimestamp()
         {
-            RpcItem item = properties.GetItem("timestamp");
+            var item = _properties.GetItem("timestamp");
 
             if (item == null)
+            {
                 return null;
+            }
 
             return GetVersion() < 3 ? ConvertDecimal(item.ToValue()) : item.ToInteger();
         }
 
         public BigInteger? GetNid()
         {
-            RpcItem item = properties.GetItem("nid");
-            return item != null ? item.ToInteger() : 0;
+            var item = _properties.GetItem("nid");
+            
+            return item?.ToInteger() ?? 0;
         }
 
         public BigInteger? GetNonce()
         {
-            RpcItem item = properties.GetItem("nonce");
+            var item = _properties.GetItem("nonce");
 
             if (item == null)
+            {
                 return null;
+            }
 
             return GetVersion() < 3 ? ConvertDecimal(item.ToValue()) : item.ToInteger();
         }
 
-        public String GetDataType()
+        public string GetDataType()
         {
-            RpcItem item = properties.GetItem("dataType");
-            return item != null ? item.ToString() : null;
+            var item = _properties.GetItem("dataType");
+            
+            return item?.ToString();
         }
 
         public RpcItem GetData()
         {
-            return properties.GetItem("data");
+            return _properties.GetItem("data");
         }
 
         public Bytes GetTxHash()
         {
-            String key = GetVersion() < 3 ? "tx_hash" : "txHash";
-            RpcItem item = properties.GetItem(key);
-            return item != null ? item.ToBytes() : null;
+            var key = GetVersion() < 3 ? "tx_hash" : "txHash";
+            var item = _properties.GetItem(key);
+            
+            return item?.ToBytes();
         }
 
         public BigInteger? GetTxIndex()
         {
-            RpcItem item = properties.GetItem("txIndex");
+            var item = _properties.GetItem("txIndex");
 
-            return item != null ? (BigInteger?) item.ToInteger() : null;
+            return item?.ToInteger();
         }
 
         public BigInteger? GetBlockHeight()
         {
-            RpcItem item = properties.GetItem("blockHeight");
+            var item = _properties.GetItem("blockHeight");
 
-            return item != null ? (BigInteger?)item.ToInteger() : null;
+            return item?.ToInteger();
         }
 
         public Bytes GetBlockHash()
         {
-            RpcItem item = properties.GetItem("blockHash");
-            return item != null ? item.ToBytes() : null;
+            var item = _properties.GetItem("blockHash");
+            
+            return item?.ToBytes();
         }
 
-        public String GetSignature()
+        public string GetSignature()
         {
-            RpcItem item = properties.GetItem("signature");
-            return item != null ? item.ToString() : null;
+            var item = _properties.GetItem("signature");
+            
+            return item?.ToString();
         }
 
-        public override String ToString()
+        public override string ToString()
         {
-            return "ConfirmedTransaction{" +
-                    "properties=" + properties +
-                    '}';
+            return "ConfirmedTransaction{properties=" + _properties + '}';
         }
 
         private BigInteger ConvertDecimal(RpcValue value)
@@ -149,9 +164,9 @@ namespace Lykke.Icon.Sdk.Data
             // So, stringValue is a decimal string or a 0x included hex string.("12345", "0x12345")
             // if it has 0x, the method converts it as hex otherwise decimal
 
-            String stringValue = value.ToString();
-            if (stringValue.StartsWith(Bytes.HEX_PREFIX) ||
-                    stringValue.StartsWith("-" + Bytes.HEX_PREFIX))
+            var stringValue = value.ToString();
+            
+            if (stringValue.StartsWith(Bytes.HexPrefix) || stringValue.StartsWith("-" + Bytes.HexPrefix))
             {
                 return ConvertHex(value);
             }
@@ -168,13 +183,15 @@ namespace Lykke.Icon.Sdk.Data
             //
             // This method converts the value as hex no matter it has  0x prefix or not.
 
-            String stringValue = value.ToString();
-            String sign = "";
+            var stringValue = value.ToString();
+            var sign = "";
+            
             if (stringValue[0] == '-')
             {
                 sign = stringValue.Substring(0, 1);
                 stringValue = stringValue.Substring(1);
             }
+            
             return BigInteger.Parse(sign + Bytes.CleanHexPrefix(stringValue), NumberStyles.HexNumber);
         }
     }

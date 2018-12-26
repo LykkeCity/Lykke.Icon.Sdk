@@ -1,8 +1,8 @@
+using JetBrains.Annotations;
+
 namespace Lykke.Icon.Sdk.Data
 {
-    /**
-     * Defines network ids
-     */
+    [PublicAPI]
     public enum NetworkId
     {
         Main = 1,

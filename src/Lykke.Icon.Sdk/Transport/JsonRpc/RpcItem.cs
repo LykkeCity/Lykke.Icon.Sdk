@@ -1,6 +1,6 @@
-using Lykke.Icon.Sdk.Data;
 using System;
 using System.Numerics;
+using Lykke.Icon.Sdk.Data;
 
 namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
@@ -10,25 +10,32 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 
         public virtual RpcObject ToObject()
         {
-            if (this is RpcObject) return (RpcObject)this;
+            if (this is RpcObject)
+            {
+                return (RpcObject)this;
+            }
+            
             throw new RpcValueException("This item can not be converted to RpcObject");
         }
 
         public virtual RpcArray ToArray()
         {
-            if (this is RpcArray) return (RpcArray)this;
+            if (this is RpcArray)
+            {
+                return (RpcArray)this;
+            }
+            
             throw new RpcValueException("This item can not be converted to RpcValue");
         }
 
         public virtual RpcValue ToValue()
         {
-            if (this is RpcValue) return (RpcValue)this;
+            if (this is RpcValue)
+            {
+                return (RpcValue)this;
+            }
+            
             throw new RpcValueException("This item can not be converted to RpcValue");
-        }
-
-        public virtual String ToString()
-        {
-            return ToValue().ToString();
         }
 
         public virtual BigInteger ToInteger()
@@ -36,31 +43,37 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             return ToValue().ToInteger();
         }
 
-        public byte[] ToByteArray()
+        public virtual byte[] ToByteArray()
         {
             return ToValue().ToByteArray();
         }
 
-        public Boolean ToBoolean()
+        public virtual bool ToBoolean()
         {
             return ToValue().ToBoolean();
         }
 
-        public Address ToAddress()
+        public virtual Address ToAddress()
         {
             return ToValue().ToAddress();
         }
 
-        public Bytes ToBytes()
+        public virtual Bytes ToBytes()
         {
             return ToValue().ToBytes();
+        }
+        
+        public override string ToString()
+        {
+            return ToValue().ToString();
         }
     }
 
     public class RpcValueException : ArgumentException
     {
-        public RpcValueException(String message) : base(message)
+        public RpcValueException(string message) : base(message)
         {
+            
         }
     }
 }

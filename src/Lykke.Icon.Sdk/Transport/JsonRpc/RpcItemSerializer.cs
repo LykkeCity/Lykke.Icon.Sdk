@@ -1,12 +1,9 @@
-using Newtonsoft.Json;
-using System.Numerics;
 using System;
+using System.Numerics;
+using Newtonsoft.Json;
 
 namespace Lykke.Icon.Sdk.Transport.JsonRpc
 {
-    /**
-     * Serializers for jsonrpc value
-     */
     public class RpcItemSerializer : JsonConverter
     {
         public override bool CanConvert(Type objectType)
@@ -17,12 +14,14 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            // ReSharper disable once ConvertIfStatementToSwitchStatement
             if (reader.TokenType == JsonToken.StartObject)
             {
-                RpcObject.Builder builder = new RpcObject.Builder();
-                String fieldName = null;
+                var builder = new RpcObject.Builder();
+                string fieldName = null;
                 while (reader.Read())
                 {
+                    // ReSharper disable once SwitchStatementMissingSomeCases
                     switch (reader.TokenType)
                     {
                         case JsonToken.PropertyName:
@@ -31,7 +30,7 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
                         case JsonToken.EndObject:
                             return builder.Build();
                         default:
-                            builder.Put(fieldName, (RpcItem)this.ReadJson(reader, objectType, existingValue, serializer));
+                            builder.Put(fieldName, (RpcItem)ReadJson(reader, objectType, existingValue, serializer));
                             break;
                     }
                 }
@@ -39,30 +38,27 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             }
             else if (reader.TokenType == JsonToken.StartArray)
             {
-                RpcArray.Builder builder = new RpcArray.Builder();
+                var builder = new RpcArray.Builder();
                 while (reader.Read())
                 {
                     if (reader.TokenType == JsonToken.EndArray)
                         return builder.Build();
 
-                    var item = (RpcItem)this.ReadJson(reader, objectType, existingValue, serializer);
+                    var item = (RpcItem)ReadJson(reader, objectType, existingValue, serializer);
                     builder.Add(item);
                 }
                 return builder.Build();
             }
             else
             {
+                // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (reader.TokenType)
                 {
                     case JsonToken.Boolean:
-                        {
-                            return new RpcValue((bool)reader.Value);
-                        }
+                        return new RpcValue((bool)reader.Value);
 
                     case JsonToken.Integer:
-                        {
-                            return new RpcValue(BigInteger.Parse(reader.Value.ToString()));
-                        }
+                        return new RpcValue(BigInteger.Parse(reader.Value.ToString()));
 
                     default:
                         return new RpcValue(reader.Value.ToString());
@@ -75,17 +71,21 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             if (value == null)
             {
                 serializer.Serialize(writer, null);
+                
                 return;
             }
 
             var rpcItem = value as RpcItem;
+            
             if (rpcItem is RpcObject)
             {
-                RpcObject @object = rpcItem.ToObject();
+                var @object = rpcItem.ToObject();
+                
                 writer.WriteStartObject();
-                foreach (String key in @object.GetKeys())
+                
+                foreach (var key in @object.GetKeys())
                 {
-                    RpcItem item = @object.GetItem(key);
+                    var item = @object.GetItem(key);
                     if (item != null)
                     {
                         writer.WritePropertyName(key);
@@ -96,12 +96,15 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
             }
             else if (rpcItem is RpcArray)
             {
-                RpcArray array = rpcItem.ToArray();
+                var array = rpcItem.ToArray();
+                
                 writer.WriteStartArray();
-                foreach (RpcItem childItem in array)
+                
+                foreach (var childItem in array)
                 {
                     serializer.Serialize(writer, childItem);
                 }
+                
                 writer.WriteEndArray();
             }
             else

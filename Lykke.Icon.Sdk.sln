@@ -5,9 +5,11 @@ VisualStudioVersion = 15.0.28010.2050
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Icon.Sdk", "src\Lykke.Icon.Sdk\Lykke.Icon.Sdk.csproj", "{439E4A22-5D0A-472F-B447-C7961605FB46}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02076F6D-26D3-4D77-A06E-A615FA693528}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Icon.Sdk.Tests", "tests\Lykke.Icon.Sdk.Tests\Lykke.Icon.Sdk.Tests.csproj", "{C4145691-B889-4D33-95F7-4BBA17A64826}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DB74F3A6-EA1C-4DE0-8A38-02212441C95D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D56E39E0-2DCF-4648-84FC-9D975908A37E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,7 +30,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{C4145691-B889-4D33-95F7-4BBA17A64826} = {02076F6D-26D3-4D77-A06E-A615FA693528}
+		{C4145691-B889-4D33-95F7-4BBA17A64826} = {D56E39E0-2DCF-4648-84FC-9D975908A37E}
+		{439E4A22-5D0A-472F-B447-C7961605FB46} = {DB74F3A6-EA1C-4DE0-8A38-02212441C95D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DBB4C62C-D839-479A-A295-4E3EC10A9717}

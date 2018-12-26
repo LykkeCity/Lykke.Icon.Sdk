@@ -1,33 +1,27 @@
-﻿using Lykke.Icon.Sdk.Crypto;
+﻿using System;
+using Lykke.Icon.Sdk.Crypto;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
-using System;
-using System.Collections.Generic;
 
 namespace Lykke.Icon.Sdk.Data
 {
     public class Address
     {
-        private AddressPrefix prefix;
-        private byte[] body;
-        private bool isMalformed = false;
-        private String malformedAddress;
-
-        public static Address CreateMalformedAddress(String malformedAddress)
-        {
-            Address address = new Address();
-            address.isMalformed = true;
-            address.malformedAddress = malformedAddress;
-            return address;
-        }
+        private readonly AddressPrefix _prefix;
+        private readonly byte[] _body;
+        
+        private bool _isMalformed;
+        private string _malformedAddress;
 
         private Address()
         {
+            
         }
 
-        public Address(String address)
+        public Address(string address)
         {
-            AddressPrefix addressPrefix = IconKeys.GetAddressHexPrefix(address);
+            var addressPrefix = IconKeys.GetAddressHexPrefix(address);
+            
             if (addressPrefix == null)
             {
                 throw new ArgumentException("Invalid address prefix");
@@ -37,8 +31,8 @@ namespace Lykke.Icon.Sdk.Data
                 throw new ArgumentException("Invalid address");
             }
 
-            this.prefix = addressPrefix;
-            this.body = GetAddressBody(address);
+            _prefix = addressPrefix;
+            _body = GetAddressBody(address);
         }
 
         public Address(AddressPrefix prefix, byte[] body)
@@ -48,120 +42,77 @@ namespace Lykke.Icon.Sdk.Data
                 throw new ArgumentException("Invalid address");
             }
 
-            this.prefix = prefix;
-            this.body = body;
+            _prefix = prefix;
+            _body = body;
         }
 
-        private byte[] GetAddressBody(String address)
+        public static Address CreateMalformedAddress(string malformedAddress)
         {
-            String cleanInput = IconKeys.CleanHexPrefix(address);
-            return Hex.Decode(cleanInput);
+            var address = new Address
+            {
+                _isMalformed = true,
+                _malformedAddress = malformedAddress
+            };
+            
+            return address;
         }
 
         public AddressPrefix GetPrefix()
         {
-            return prefix;
+            return _prefix;
         }
 
         public bool IsMalformed()
         {
-            return isMalformed;
+            return _isMalformed;
         }
 
-        public override String ToString()
+        public override string ToString()
         {
-            if (isMalformed)
+            if (_isMalformed)
             {
-                return malformedAddress;
+                return _malformedAddress;
             }
             else
             {
-                return GetPrefix().GetValue() + Hex.ToHexString(body);
+                return GetPrefix().GetValue() + Hex.ToHexString(_body);
             }
         }
 
-        public override bool Equals(Object obj)
+        public override bool Equals(object obj)
         {
-            if (obj == this) return true;
-            if (obj is Address)
+            if (obj == this)
             {
-                Address other = (Address)obj;
-                if (isMalformed)
+                return true;
+            }
+            
+            if (obj is Address other)
+            {
+                if (_isMalformed)
                 {
-                    return malformedAddress.Equals(other.malformedAddress);
+                    return _malformedAddress.Equals(other._malformedAddress);
                 }
                 else
                 {
-                    return !other.isMalformed && other.prefix == prefix && Arrays.AreEqual(other.body, body);
+                    return !other._isMalformed 
+                        && other._prefix == _prefix
+                        && Arrays.AreEqual(other._body, _body);
                 }
             }
+            
             return false;
         }
 
-        public class AddressPrefix
+        public override int GetHashCode()
         {
-            public const string EOA = "hx";
-            public const string CONTRACT = "cx";
+            throw new NotImplementedException();
+        }
 
-            private String prefix;
-
-            public AddressPrefix(String prefix)
-            {
-                this.prefix = prefix;
-            }
-
-            public String GetValue()
-            {
-                return prefix;
-            }
-
-            public override string ToString()
-            {
-                return prefix;
-            }
-
-            public static bool operator ==(AddressPrefix a, AddressPrefix b)
-            {
-                if (ReferenceEquals(a , null))
-                    return ReferenceEquals(b, null);
-                return a.Equals(b);
-            }
-
-            public static bool operator !=(AddressPrefix a, AddressPrefix b)
-            {
-                if (ReferenceEquals(a, null))
-                    return !ReferenceEquals(b, null);
-
-                return !a.Equals(b);
-            }
-
-            public override bool Equals(Object obj)
-            {
-                if (obj == this) return true;
-                if (obj is AddressPrefix)
-                {
-                    AddressPrefix other = (AddressPrefix)obj;
-
-                    return other.prefix == this.prefix;
-                }
-                return false;
-            }
-
-            private static IEnumerable<string> _possiblePrefixes = new[] { EOA, CONTRACT };
-            public static AddressPrefix FromString(String prefix)
-            {
-                if (prefix != null)
-                {
-                    foreach (var p in _possiblePrefixes)
-                    {
-                        if (prefix.Equals(p, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            return new AddressPrefix(p);
-                        }
-                    }
-                }
-                return null;
-            }
+        private static byte[] GetAddressBody(string address)
+        {
+            var cleanInput = IconKeys.CleanHexPrefix(address);
+            
+            return Hex.Decode(cleanInput);
         }
     }
 }

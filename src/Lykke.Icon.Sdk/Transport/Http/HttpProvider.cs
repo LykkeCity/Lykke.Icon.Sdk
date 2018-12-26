@@ -1,41 +1,36 @@
-using Lykke.Icon.Sdk.Data;
-using Lykke.Icon.Sdk.Transport.JsonRpc;
-using System;
-using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Lykke.Icon.Sdk.Transport.JsonRpc;
 using Newtonsoft.Json;
 
 namespace Lykke.Icon.Sdk.Transport.Http
 {
-    /**
-     * HttpProvider class transports as http jsonrpc
-     */
     public class HttpProvider : IProvider
     {
         private readonly HttpClient _httpClient;
-        private readonly String _url;
-        private readonly RpcItemSerializer _rpcItemSerializator;
+        private readonly string _url;
+        private readonly RpcItemSerializer _rpcItemSerializer;
 
-        public HttpProvider(HttpClient httpClient, String url)
+        public HttpProvider(HttpClient httpClient, string url)
         {
-            _rpcItemSerializator = new RpcItemSerializer();
-            this._httpClient = httpClient;
-            this._url = url;
+            _rpcItemSerializer = new RpcItemSerializer();
+            _httpClient = httpClient;
+            _url = url;
         }
 
-        public async Task<T> Request<T>(Request request, RpcConverter<T> converter)
+        public async Task<T> SendRequestAsync<T>(Request request, IRpcConverter<T> converter)
         {
-            var serializedRequest = JsonConvert.SerializeObject(request, _rpcItemSerializator);
-            StringContent content = new StringContent(serializedRequest, Encoding.UTF8, "application/json");
+            var serializedRequest = JsonConvert.SerializeObject(request, _rpcItemSerializer);
+            var content = new StringContent(serializedRequest, Encoding.UTF8, "application/json");
             var httpResponse = await _httpClient.PostAsync(_url, content);
             var responseSerialized = await httpResponse.Content.ReadAsStringAsync();
-            var response = (Response) JsonConvert.DeserializeObject(responseSerialized, typeof(Response), _rpcItemSerializator);
+            var response = (Response) JsonConvert.DeserializeObject(responseSerialized, typeof(Response), _rpcItemSerializer);
 
             if (response.Error != null)
             {
                 var exception = response.Error.ToException();
+                
                 throw exception;
             }
 
