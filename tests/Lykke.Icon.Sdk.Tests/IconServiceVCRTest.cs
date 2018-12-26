@@ -105,7 +105,7 @@ namespace Lykke.Icon.Sdk.Tests
             Assert.Equal(txHash, tx.GetTxHash());
         }
 
-        [Fact(Skip = "Will be refactored in the future")]
+        [Fact(Skip = "Remove skip parameter to check actual transfer")]
         public async Task TestSendIcxTransaction()
         {
             //1544619275191000
@@ -117,8 +117,8 @@ namespace Lykke.Icon.Sdk.Tests
             var amount = IconAmount.Of(balance, IconAmount.Unit.ICX);
             var transaction = TransactionBuilder.CreateBuilder()
                     .Nid(BigInteger.Parse("2"))
-                    .From(_wallet.GetAddress())
-                    .To(_secretWallet.GetAddress())
+                    .From(_secretWallet.GetAddress())
+                    .To(_wallet.GetAddress())
                     .Value(balance)
                     .StepLimit(BigInteger.Parse("1000000"))
                     .Timestamp(BigInteger.Parse(timestmap.ToString()))
