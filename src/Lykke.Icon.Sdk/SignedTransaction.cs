@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using JetBrains.Annotations;
+using Lykke.Icon.Sdk.Crypto;
 using Lykke.Icon.Sdk.Data;
 using Lykke.Icon.Sdk.Transport.JsonRpc;
 using Org.BouncyCastle.Crypto.Digests;
@@ -16,6 +17,12 @@ namespace Lykke.Icon.Sdk
     {
         private readonly RpcObject _properties;
         private readonly ITransaction _transaction;
+
+        protected SignedTransaction(ITransaction transaction, RpcObject properties)
+        {
+            _transaction = transaction;
+            _properties = properties;
+        }
 
         public SignedTransaction(ITransaction transaction, IWallet wallet)
         {
@@ -107,6 +114,25 @@ namespace Lykke.Icon.Sdk
             return TransactionSerializer.Serialize(properties);
         }
 
+        public static SignedTransaction Deserialize(string transactionSerialized)
+        {
+            var (transaction, rpcObject) = TransactionDeserializer.DeserializeToTransactionAndRpc(transactionSerialized);
+            var signature = rpcObject.GetItem("signature");
+            if (signature == null)
+                throw new InvalidOperationException("Signature is not provided");
+
+            var sign = Base64.Decode(signature.ToString());
+            var sender = transaction.GetFrom();
+            var props = GetTransactionProperties(transaction);
+            var transactionHash = GetTransactionHash(props);
+            if (!EcdsaSignature.VerifySignature(sender, sign, transactionHash))
+                throw new ArgumentException("Signature does not match", nameof(transactionSerialized));
+
+            var signedTransaction = new SignedTransaction(transaction, rpcObject);
+
+            return signedTransaction;
+        }
+
         private static RpcObject CreateProperties(ITransaction transaction, IWallet wallet)
         {
             var builder = new RpcObject.Builder();
@@ -123,13 +149,22 @@ namespace Lykke.Icon.Sdk
             return builder.Build();
         }
         
-        private static string GetSignature(IWallet wallet, RpcObject properties)
+        public static string GetSignature(IWallet wallet, RpcObject properties)
         {
-            var signature =  wallet.Sign(Sha256(Serialize(properties)));
+            var transactionHash = GetTransactionHash(properties);
+            var signature =  wallet.Sign(transactionHash);
 
             return Base64.ToBase64String(signature);
         }
-        
+
+        public static byte[] GetTransactionHash(RpcObject properties)
+        {
+            var serialized = Serialize(properties);
+            var hash = Sha256(serialized);
+
+            return hash;
+        }
+
         private static RpcObject GetTransactionProperties(ITransaction transaction)
         {
             var timestamp = transaction.GetTimestamp() ?? BigInteger.Parse((DateTime.UtcNow.Millisecond * 1000L).ToString());

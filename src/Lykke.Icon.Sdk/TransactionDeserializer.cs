@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Lykke.Icon.Sdk.Data;
 using Lykke.Icon.Sdk.Transport.JsonRpc;
@@ -13,23 +14,41 @@ namespace Lykke.Icon.Sdk
     [PublicAPI]
     public static class TransactionDeserializer
     {
+        private const string IcxSendtransactionMarker = "icx_sendTransaction.";
+
         public static ITransaction Deserialize(string serializedObject)
         {
-            var transactionMarker = serializedObject.Substring(0, "icx_sendTransaction.".Length);
-            
-            if (transactionMarker != "icx_sendTransaction.")
-            {
-                throw new ArgumentException("Transaction should start with icx_sendTransaction marker.");
-            }
-
-            var withoutMarker = serializedObject.Substring("icx_sendTransaction.".Length);
-            var rpcObject = DeserializeToRpc(withoutMarker);
+            var rpcObject = DeserializeToRpc(serializedObject);
             var transactionData = ConstructTransactionData(rpcObject);
 
             return transactionData.Build();
         }
-        
-        private static RpcObject DeserializeToRpc(string serializedObject)
+
+        public static (ITransaction, RpcObject) DeserializeToTransactionAndRpc(string serializedObject)
+        {
+            var rpcObject = DeserializeToRpc(serializedObject);
+            var transactionData = ConstructTransactionData(rpcObject);
+
+            return (transactionData.Build(), rpcObject);
+        }
+
+        public static RpcObject DeserializeToRpc(string serializedObject)
+        {
+            var transactionMarker = serializedObject.Substring(0, IcxSendtransactionMarker.Length);
+
+            if (transactionMarker != IcxSendtransactionMarker)
+            {
+                throw new ArgumentException("Transaction should start with icx_sendTransaction marker.");
+            }
+
+            var withoutMarker = serializedObject.Substring(IcxSendtransactionMarker.Length);
+            var rpcObject = DeserializeToRpcWithoutMarker(withoutMarker);
+
+            return rpcObject;
+        }
+
+
+        private static RpcObject DeserializeToRpcWithoutMarker(string serializedObject)
         {
             var rpcBuilder = new RpcObject.Builder();
             var i = 0;
@@ -102,7 +121,7 @@ namespace Lykke.Icon.Sdk
 
                     sb.Remove(sb.Length - 1, 1);
                     var objectSerialized = sb.ToString();
-                    var @object = DeserializeToRpc(objectSerialized);
+                    var @object = DeserializeToRpcWithoutMarker(objectSerialized);
                     from++;
 
                     return @object;
@@ -118,7 +137,7 @@ namespace Lykke.Icon.Sdk
 
                 from++;
 
-                return new RpcValue(sb.ToString());
+                return new RpcValue(Regex.Unescape(sb.ToString()));
             }
 
             return null;

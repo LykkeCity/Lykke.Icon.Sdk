@@ -20,16 +20,18 @@ namespace Lykke.Icon.Sdk.Crypto
         private static readonly BigInteger SecP256K1CurveQ 
             = new BigInteger(1, Hex.Decode("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F"));
 
-        
-        private readonly X9ECParameters _curveParams;
-        private readonly ECDomainParameters _curve;
+        private readonly static X9ECParameters _curveParams;
+        private readonly static ECDomainParameters _curve;
         private readonly Bytes _privateKey;
 
-        
-        public EcdsaSignature(Bytes privateKey)
+        static EcdsaSignature()
         {
             _curveParams = CustomNamedCurves.GetByName("secp256k1");
             _curve = new ECDomainParameters(_curveParams.Curve, _curveParams.G, _curveParams.N, _curveParams.H);
+        }
+
+        public EcdsaSignature(Bytes privateKey)
+        {
             _privateKey = privateKey;
         }
 
@@ -98,6 +100,29 @@ namespace Lykke.Icon.Sdk.Crypto
             return (byte)recId;
         }
 
+        public static bool VerifySignature(Address signerAddress, byte[] signature, byte[] data)
+        {
+            CheckArgument(signerAddress != null, "signerAddress should not be null");
+            CheckArgument(signature != null && signature.Length == 65, "signature should be 65 bytes length");
+
+            var r = new byte[32];
+            var s = new byte[32];
+            var v = signature[64];
+            Array.Copy(signature, 0, r, 0, 32);
+            Array.Copy(signature, 32, s, 0, 32);
+            var sig = new BigInteger[] { new BigInteger(1, r), new BigInteger(1, s) };
+
+            var signerResult = EcdsaSignature.RecoverFromSignature(v, sig, data);
+
+            if (signerResult == null)
+                return false;
+
+            var signedBytes = new Bytes(signerResult);
+            var address = IconKeys.GetAddress(signedBytes);
+
+            return address?.Equals(signerAddress) ?? false;
+        }
+
         /// <summary>
         ///    <p>Given the components of a signature and a selector value, recover and return the public
         ///    key that generated the signature according to the algorithm in SEC1v2 section 4.1.6.</p>
@@ -115,7 +140,7 @@ namespace Lykke.Icon.Sdk.Crypto
         ///    0 to 3, and if the outPut is null OR a key that is not the one you expect, you try again
         ///    with the next recId.</p> 
         /// </summary>
-        private BigInteger RecoverFromSignature(int recId, IReadOnlyList<BigInteger> sig, byte[] message)
+        public static BigInteger RecoverFromSignature(int recId, IReadOnlyList<BigInteger> sig, byte[] message)
         {
             var r = sig[0];
             var s = sig[1];
@@ -194,7 +219,7 @@ namespace Lykke.Icon.Sdk.Crypto
             return new BigInteger(1, Arrays.CopyOfRange(qBytes, 1, qBytes.Length));
         }
 
-        private ECPoint DecompressKey(BigInteger xBn, bool yBit)
+        private static ECPoint DecompressKey(BigInteger xBn, bool yBit)
         {
             var byteLength = 1 + X9IntegerConverter.GetByteLength(_curve.Curve);
             var compEnc = X9IntegerConverter.IntegerToBytes(xBn, byteLength);

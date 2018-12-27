@@ -105,10 +105,10 @@ namespace Lykke.Icon.Sdk.Data
 
         public override int GetHashCode()
         {
-            throw new NotImplementedException();
+            return this.ToString().GetHashCode();
         }
 
-        private static byte[] GetAddressBody(string address)
+        public static byte[] GetAddressBody(string address)
         {
             var cleanInput = IconKeys.CleanHexPrefix(address);
             

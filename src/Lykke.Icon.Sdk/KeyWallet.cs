@@ -1,6 +1,8 @@
+using System;
 using JetBrains.Annotations;
 using Lykke.Icon.Sdk.Crypto;
 using Lykke.Icon.Sdk.Data;
+using Org.BouncyCastle.Math;
 
 namespace Lykke.Icon.Sdk
 {
@@ -23,7 +25,7 @@ namespace Lykke.Icon.Sdk
         public static KeyWallet Load(Bytes privateKey)
         {
             var publicKey = IconKeys.GetPublicKey(privateKey);
-            
+
             return new KeyWallet(privateKey, publicKey);
         }
 
@@ -37,13 +39,13 @@ namespace Lykke.Icon.Sdk
 
             return new KeyWallet(privateKey, publicKey);
         }
-        
+
         /// <inheritdoc />
         public Address GetAddress()
         {
             return IconKeys.GetAddress(_publicKey);
         }
-        
+
         /// <summary>
         ///    Gets the private key 
         /// </summary>
@@ -64,10 +66,10 @@ namespace Lykke.Icon.Sdk
         public byte[] Sign(byte[] data)
         {
             TransactionBuilder.CheckArgument(data, "hash not found");
-            
+
             var signature = new EcdsaSignature(_privateKey);
             var sig = signature.GenerateSignature(data);
-            
+
             return signature.RecoverableSerialize(sig, data);
         }
     }

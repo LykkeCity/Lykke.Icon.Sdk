@@ -1,6 +1,9 @@
+using System;
 using System.Globalization;
+using System.Linq;
 using System.Numerics;
 using Lykke.Icon.Sdk.Data;
+using Lykke.Icon.Sdk.Tests.Utils;
 using Lykke.Icon.Sdk.Transport.JsonRpc;
 using Org.BouncyCastle.Utilities.Encoders;
 using Xunit;
@@ -14,6 +17,30 @@ namespace Lykke.Icon.Sdk.Tests
         public SignedTransactionTest()
         {
             wallet = KeyWallet.Load(new Bytes(SampleKeys.PrivateKeyString));
+        }
+
+        [Fact]
+        public void TestIcxDeserialize()
+        {
+            var from = wallet.GetAddress();
+            var to = new Address("hx5bfdb090f43a808005ffc27c25b213145e80b7cd");
+
+            var transaction = TransactionBuilder.CreateBuilder()
+                    .Nid(NetworkId.Main)
+                    .From(from)
+                    .To(to)
+                    .Value(BigInteger.Parse("0de0b6b3a7640000", NumberStyles.AllowHexSpecifier))
+                    .StepLimit(BigInteger.Parse("12345", NumberStyles.AllowHexSpecifier))
+                    .Timestamp(BigInteger.Parse("563a6cf330136", NumberStyles.AllowHexSpecifier))
+                    .Nonce(BigInteger.Parse("1"))
+                    .Build();
+
+            var signedTransaction = new SignedTransaction(transaction, wallet);
+            var properties = signedTransaction.GetProperties();
+            var serialize = SignedTransaction.Serialize(properties);
+            var deserializedTransaction = SignedTransaction.Deserialize(serialize);
+
+            TransactionAssertion.CompareTransactions(transaction, deserializedTransaction);
         }
 
         [Fact]
@@ -144,16 +171,5 @@ namespace Lykke.Icon.Sdk.Tests
             Assert.Equal("icx_sendTransaction.data.0x48656c6c6f20576f726c64.dataType.message.from.hxbe258ceb872e08851f1f59694dac2558708ece11.nid.0x1.nonce.0x1.stepLimit.0xe01348.timestamp.0x5727e42882650.to.hx5bfdb090f43a808005ffc27c25b213145e80b7cd.version.0x3",
                     serialize);
         }
-
-        //[Fact]
-        //public void TestEscapeString()
-        //{
-        //    String text = "\\.{}[]\"\b한글";
-
-        //    String escapedText = SignedTransaction.TransactionSerializer.Escape(text);
-
-        //    Assert.Equal("\\\\\\.\\{\\}\\[\\]\"\b한글", escapedText);
-        //}
-
     }
 }

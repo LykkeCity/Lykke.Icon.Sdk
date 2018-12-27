@@ -60,7 +60,7 @@ namespace Lykke.Icon.Sdk.Data
 
         public override int GetHashCode()
         {
-            throw new NotImplementedException();
+            return _prefix.GetHashCode();
         }
 
         public static AddressPrefix FromString(string prefix)

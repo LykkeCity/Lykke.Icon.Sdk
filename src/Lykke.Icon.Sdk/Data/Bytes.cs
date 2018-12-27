@@ -109,7 +109,7 @@ namespace Lykke.Icon.Sdk.Data
 
         public override int GetHashCode()
         {
-            throw new NotImplementedException();
+            return this.ToHexString(true).GetHashCode();
         }
 
         public override string ToString()
