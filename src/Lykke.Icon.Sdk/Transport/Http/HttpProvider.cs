@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,16 +31,18 @@ namespace Lykke.Icon.Sdk.Transport.Http
 
             if (!httpResponse.IsSuccessStatusCode)
             {
-                throw new HttpRequestException($"Response status code == {(int)httpResponse.StatusCode}, " +
-                                               $"Response body {responseSerialized}");
+                var errorCode = (int)httpResponse.StatusCode;
+                if (errorCode >= (int)HttpStatusCode.InternalServerError)
+                    throw new HttpRequestException($"Response status code == {errorCode}, " +
+                                                   $"Response body {responseSerialized}");
             }
 
-            var response = (Response) JsonConvert.DeserializeObject(responseSerialized, typeof(Response), _rpcItemSerializer);
+            var response = (Response)JsonConvert.DeserializeObject(responseSerialized, typeof(Response), _rpcItemSerializer);
 
             if (response.Error != null)
             {
                 var exception = response.Error.ToException();
-                
+
                 throw exception;
             }
 
