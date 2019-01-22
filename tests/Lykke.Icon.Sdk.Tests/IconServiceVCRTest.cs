@@ -68,6 +68,23 @@ namespace Lykke.Icon.Sdk.Tests
             Assert.Equal("d5629fe006104df557570ce2613c8df1901d8f6f322b9f251645c201fa1d1e9e", blockHash);
         }
 
+        [Fact(Skip = "Check 503 response from icon node")]
+        public async Task TestGetBlockByHeight__Wrong_Serialization()
+        {
+            var block = await _iconService.GetBlock(49_755);
+            var result = Parallel.For(0, 1000, (i) =>
+            {
+                var block1 = _iconService.GetBlock(49_755).Result;
+            });
+
+            while (!result.IsCompleted)
+            {
+                await Task.Delay(1000);
+            }
+            var blockHash = block.GetBlockHash().ToHexString(false);
+            Assert.Equal("d5629fe006104df557570ce2613c8df1901d8f6f322b9f251645c201fa1d1e9e", blockHash);
+        }
+
         [Fact]
         public async Task TestGetBlockByHash()
         {
