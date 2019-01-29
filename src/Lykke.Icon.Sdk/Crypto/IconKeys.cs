@@ -109,6 +109,10 @@ namespace Lykke.Icon.Sdk.Crypto
 
         public static bool IsValidAddress(string input)
         {
+            if (string.IsNullOrEmpty(input) ||
+                input.Length == 1)
+                return false;
+
             var cleanInput = CleanHexPrefix(input);
             
             try
