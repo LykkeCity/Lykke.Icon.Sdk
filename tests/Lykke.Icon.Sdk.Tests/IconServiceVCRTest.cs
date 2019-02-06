@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Numerics;
 using System.Threading;
@@ -67,6 +68,23 @@ namespace Lykke.Icon.Sdk.Tests
             Assert.Equal("d5629fe006104df557570ce2613c8df1901d8f6f322b9f251645c201fa1d1e9e", blockHash);
         }
 
+        [Fact(Skip = "Check 503 response from icon node")]
+        public async Task TestGetBlockByHeight__Wrong_Serialization()
+        {
+            var block = await _iconService.GetBlock(49_755);
+            var result = Parallel.For(0, 1000, (i) =>
+            {
+                var block1 = _iconService.GetBlock(49_755).Result;
+            });
+
+            while (!result.IsCompleted)
+            {
+                await Task.Delay(1000);
+            }
+            var blockHash = block.GetBlockHash().ToHexString(false);
+            Assert.Equal("d5629fe006104df557570ce2613c8df1901d8f6f322b9f251645c201fa1d1e9e", blockHash);
+        }
+
         [Fact]
         public async Task TestGetBlockByHash()
         {
@@ -102,6 +120,35 @@ namespace Lykke.Icon.Sdk.Tests
         {
             var txHash = new Bytes("0xe7ca6280d7de91f33ab3d4fe8359a15fa397c31f8c36a14d48bd995788000374");
             var tx = await _iconService.GetTransactionResult(txHash);
+            Assert.Equal(txHash, tx.GetTxHash());
+        }
+
+        [Fact]
+        public async Task TestGetTransactionEventLog()
+        {
+            string bigIntVal = "500000000000000000";
+            var expectedInternalTransaction = BigInteger.Parse(bigIntVal, NumberStyles.Integer);
+            var txHash = new Bytes("0x88409e57c731b7a69f9b82b9818f26aeda0b1180dadbb8c742297c5989e73e02");
+            var tx = await _iconService.GetTransactionResult(txHash);
+            var events = tx.GetEventLogs();
+            Assert.True(events?.Any(@event =>
+            {
+                var eventItems = @event.GetIndexed();
+                var eventName = eventItems.FirstOrDefault();
+
+                if (eventName.ToString() != "ICXTransfer(Address,Address,int)")
+                    return false;
+
+                var from = eventItems[1].ToAddress();
+                var to = eventItems[2].ToAddress();
+                var value = eventItems[3].ToInteger();
+
+                Assert.True(from == new Address("cx8ce9a5cbbe3d54f49f32ff58b6018a6153a584ae"));
+                Assert.True(to == new Address("hx30c3b03b67f95762ae13cab73cd6f26f8860667e"));
+                Assert.True(value == expectedInternalTransaction);
+
+                return true;
+            }));
             Assert.Equal(txHash, tx.GetTxHash());
         }
 

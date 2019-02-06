@@ -165,7 +165,7 @@ namespace Lykke.Icon.Sdk
             return hash;
         }
 
-        private static RpcObject GetTransactionProperties(ITransaction transaction)
+        public static RpcObject GetTransactionProperties(ITransaction transaction)
         {
             var timestamp = transaction.GetTimestamp() ?? BigInteger.Parse((DateTime.UtcNow.Millisecond * 1000L).ToString());
 

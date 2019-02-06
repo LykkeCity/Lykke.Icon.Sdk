@@ -103,6 +103,21 @@ namespace Lykke.Icon.Sdk.Data
             return false;
         }
 
+        public static bool operator ==(Address a, Address b)
+        {
+            return a?.Equals(b) ?? ReferenceEquals(b, null);
+        }
+
+        public static bool operator !=(Address a, Address b)
+        {
+            if (ReferenceEquals(a, null))
+            {
+                return !ReferenceEquals(b, null);
+            }
+
+            return !a.Equals(b);
+        }
+
         public override int GetHashCode()
         {
             return this.ToString().GetHashCode();

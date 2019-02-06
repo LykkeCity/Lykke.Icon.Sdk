@@ -1,26 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>Lykke.Icon.Sdk</AssemblyName>
-    <Version>1.0.1</Version>
-    <Authors>Lykke</Authors>
-    <Product>Lykke.Icon.Sdk</Product>
-    <Description>SDK for Icon blockchain</Description>
-    <PackageIconUrl>https://avatars3.githubusercontent.com/u/14153330?v=3&amp;s=200</PackageIconUrl>
-    <RepositoryUrl>https://github.com/LykkeCity/Lykke.Icon.Sdk.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Lykke Icon</PackageTags>
-    <Copyright>https://github.com/LykkeCity/Lykke.Service.BlockchainApi.Client/blob/master/LICENSE</Copyright>
-    <PackageProjectUrl>https://github.com/LykkeCity/Lykke.Icon.Sdk</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/LykkeCity/Lykke.Icon.Sdk/blob/master/LICENSE</PackageLicenseUrl>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <AssemblyName>Lykke.Icon.Sdk</AssemblyName>
+        <Version>1.0.1</Version>
+        <Authors>Lykke</Authors>
+        <Product>Lykke.Icon.Sdk</Product>
+        <Description>SDK for Icon blockchain</Description>
+        <PackageIconUrl>https://avatars3.githubusercontent.com/u/14153330?v=3&amp;s=200</PackageIconUrl>
+        <RepositoryUrl>https://github.com/LykkeCity/Lykke.Icon.Sdk.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>Lykke Icon</PackageTags>
+        <Copyright>https://github.com/LykkeCity/Lykke.Icon.Sdk/blob/master/LICENSE</Copyright>
+        <PackageProjectUrl>https://github.com/LykkeCity/Lykke.Icon.Sdk</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/LykkeCity/Lykke.Icon.Sdk/blob/master/LICENSE</PackageLicenseUrl>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.4" />
-      <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
+        <PackageReference Include="Portable.BouncyCastle" Version="1.8.4" />
+        <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    </ItemGroup>
 
 </Project>
