@@ -60,6 +60,8 @@ namespace Lykke.Icon.Sdk.Transport.JsonRpc
                     case JsonToken.Integer:
                         return new RpcValue(BigInteger.Parse(reader.Value.ToString()));
 
+                    case JsonToken.Null:
+                        return new RpcValue((string)null);
                     default:
                         return new RpcValue(reader.Value.ToString());
                 }
